@@ -1,1 +1,35 @@
 autarky.co.in
+```
+
+## Step 3: Configure DNS on Dynadot for autarky.co.in
+
+Log into Dynadot and set up these DNS records:
+
+### For Apex Domain (autarky.co.in):
+
+**Add 4 A Records:**
+```
+Type: A
+Host: @ 
+Value: 185.199.108.153
+
+Type: A
+Host: @ 
+Value: 185.199.109.153
+
+Type: A
+Host: @ 
+Value: 185.199.110.153
+
+Type: A
+Host: @ 
+Value: 185.199.111.153
+```
+
+### For WWW subdomain (www.autarky.co.in):
+
+**Add CNAME Record:**
+```
+Type: CNAME
+Host: www
+Value: epsit03.github.io
