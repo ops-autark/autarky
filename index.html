@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zen Notes</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f5f5f0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #f5f5f0;
+            --bg-secondary: #e8e8dc;
+            --card-bg: #ffffff;
+            --text-primary: #4a4a4a;
+            --text-secondary: #999999;
+            --accent: linear-gradient(135deg, #a8b5ff 0%, #c5a3ff 100%);
+            --accent-solid: #a8b5ff;
+            --border: #f0f0f0;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --shadow-hover: rgba(0, 0, 0, 0.12);
+        }
+
+        body.dark-mode {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #252525;
+            --card-bg: #2a2a2a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #999999;
+            --accent: linear-gradient(135deg, #7b8fff 0%, #a68fff 100%);
+            --accent-solid: #7b8fff;
+            --border: #3a3a3a;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --shadow-hover: rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Cute floating shapes */
+        .shape {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .shape1 { width: 300px; height: 300px; background: var(--accent-solid); top: -100px; right: -100px; }
+        .shape2 { width: 200px; height: 200px; background: #ffc5d9; bottom: -50px; left: -50px; }
+        .shape3 { width: 150px; height: 150px; background: #c5f3ff; top: 40%; right: 10%; }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px var(--shadow);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--text-primary);
+            letter-spacing: 3px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .brand-icon {
+            font-size: 1.8rem;
+        }
+
+        .nav-center {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-tab {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .nav-tab:hover {
+            background: var(--border);
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .theme-toggle {
+            background: var(--border);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            background: var(--accent);
+        }
+
+        /* Main Container */
+        .container {
+            position: absolute;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: auto;
+        }
+
+        .view {
+            display: none;
+            padding: 2rem;
+            min-height: calc(100vh - 80px);
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* Notes View */
+        #notesCanvas {
+            position: relative;
+            width: 100%;
+            min-height: calc(100vh - 120px);
+        }
+
+        .note-card {
+            position: absolute;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px var(--shadow);
+            padding: 0;
+            min-width: 200px;
+            min-height: 150px;
+            cursor: move;
+            transition: box-shadow 0.3s ease, transform 0.2s ease;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .note-card:hover {
+            box-shadow: 0 8px 30px var(--shadow-hover);
+            border-color: var(--accent-solid);
+        }
+
+        .note-card.dragging {
+            opacity: 0.8;
+            cursor: grabbing;
+            transform: rotate(3deg) scale(1.02);
+            z-index: 999;
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: var(--border);
+            cursor: grab;
+            user-select: none;
+        }
+
+        .note-header:active {
+            cursor: grabbing;
+        }
+
+        .note-title {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .note-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            padding: 0.2rem;
+            border-radius: 4px;
+        }
+
+        .note-btn:hover {
+            color: var(--text-primary);
+            background: var(--card-bg);
+        }
+
+        .note-delete:hover {
+            color: #ff6b6b;
+        }
+
+        .note-body {
+            padding: 1.5rem;
+        }
+
+        .note-content {
+            border: none;
+            outline: none;
+            width: 100%;
+            min-height: 100px;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            resize: none;
+            font-family: inherit;
+            background: transparent;
+            line-height: 1.6;
+        }
+
+        /* Rich Text Toolbar */
+        .rtf-toolbar {
+            display: flex;
+            gap: 0.25rem;
+            padding: 0.5rem 1.5rem;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .rtf-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .rtf-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: transparent;
+        }
+
+        .rtf-btn.active {
+            background: var(--accent-solid);
+            color: white;
+            border-color: transparent;
+        }
+
+        .resize-handle {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            cursor: nwse-resize;
+            background: var(--accent);
+            border-radius: 16px 0 16px 0;
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+
+        .note-card:hover .resize-handle {
+            opacity: 1;
+        }
+
+        .add-note-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px var(--shadow-hover);
+            transition: all 0.3s ease;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-note-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        /* Form Filler View */
+        .form-filler-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        .form-section h2 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-solid);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .saved-data-display {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .saved-data-display pre {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        /* Settings View */
+        .settings-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .settings-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        .settings-item {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item h3 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .settings-item p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .install-prompt {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            color: var(--accent-solid);
+            margin-top: 0.5rem;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="shape shape1"></div>
+    <div class="shape shape2"></div>
+    <div class="shape shape3"></div>
+
+    <nav class="nav">
+        <div class="nav-brand">
+            <span class="brand-icon">☁️</span>
+            ZEN
+        </div>
+        <div class="nav-center">
+            <button class="nav-tab active" data-view="notes">✨ Notes</button>
+            <button class="nav-tab" data-view="formFiller">📋 Form Filler</button>
+            <button class="nav-tab" data-view="settings">⚙️ Settings</button>
+        </div>
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+    </nav>
+
+    <div class="container">
+        <!-- Notes View -->
+        <div id="notes" class="view active">
+            <div id="notesCanvas"></div>
+            <button class="add-note-btn" id="addNoteBtn">+</button>
+        </div>
+
+        <!-- Form Filler View -->
+        <div id="formFiller" class="view">
+            <div class="form-filler-container">
+                <div class="form-section">
+                    <h2>💾 Save Your Information</h2>
+                    <form id="userDataForm">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" name="fullName" id="fullName">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" id="email">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="tel" name="phone" id="phone">
+                        </div>
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input type="text" name="address" id="address">
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" name="city" id="city">
+                        </div>
+                        <div class="form-group">
+                            <label>Zip Code</label>
+                            <input type="text" name="zipCode" id="zipCode">
+                        </div>
+                        <button type="submit" class="btn-primary">Save Data</button>
+                    </form>
+                    <div id="savedDataDisplay" class="saved-data-display" style="display: none;">
+                        <strong>Saved Data:</strong>
+                        <pre id="savedDataContent"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings View -->
+        <div id="settings" class="view">
+            <div class="settings-container">
+                <div class="settings-card">
+                    <div class="settings-item">
+                        <h3>🖥️ Install as Desktop App</h3>
+                        <p>Install Zen Notes as a Progressive Web App for offline access and desktop experience.</p>
+                        <button class="btn-primary" id="installBtn">Install App</button>
+                        <div id="installPrompt" class="install-prompt" style="display: none;">
+                            Click the install button in your browser's address bar or use the button above.
+                        </div>
+                    </div>
+                    <div class="settings-item">
+                        <h3>🧩 Chrome Extension</h3>
+                        <p>To use as a Chrome extension, load this app as an unpacked extension in Chrome's extension settings.</p>
+                        <button class="btn-primary" onclick="alert('1. Open Chrome\\n2. Go to chrome://extensions\\n3. Enable Developer Mode\\n4. Click Load Unpacked\\n5. Select the app folder')">Installation Guide</button>
+                    </div>
+                    <div class="settings-item">
+                        <h3>🗑️ Clear All Data</h3>
+                        <p>Remove all notes and saved form data from local storage.</p>
+                        <button class="btn-primary" id="clearDataBtn" style="background: #ff6b6b;">Clear Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let notes = JSON.parse(localStorage.getItem('zenNotes')) || [];
+        let formData = JSON.parse(localStorage.getItem('zenFormData')) || {};
+        let darkMode = localStorage.getItem('zenDarkMode') === 'true';
+        
+        // Dragging state
+        let isDragging = false;
+        let isResizing = false;
+        let currentNote = null;
+        let startX, startY, startWidth, startHeight, startLeft, startTop;
+
+        // Initialize theme
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeToggle').textContent = '☀️';
+        }
+
+        // Theme Toggle
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.body.classList.toggle('dark-mode');
+            document.getElementById('themeToggle').textContent = darkMode ? '☀️' : '🌙';
+            localStorage.setItem('zenDarkMode', darkMode);
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.view).classList.add('active');
+            });
+        });
+
+        // Notes Functionality
+        function createNoteCard(note) {
+            const card = document.createElement('div');
+            card.className = 'note-card';
+            card.id = `note-${note.id}`;
+            card.style.left = note.x + 'px';
+            card.style.top = note.y + 'px';
+            card.style.width = note.width || '280px';
+            card.style.height = note.height || '220px';
+            
+            card.innerHTML = `
+                <div class="note-header" data-note-id="${note.id}">
+                    <span class="note-title">NOTE</span>
+                    <div class="note-actions">
+                        <button class="note-btn note-delete" onclick="deleteNote('${note.id}')">✕</button>
+                    </div>
+                </div>
+                <div class="note-body">
+                    <div contenteditable="true" class="note-content" placeholder="Start typing...">${note.content || ''}</div>
+                </div>
+                <div class="rtf-toolbar">
+                    <button class="rtf-btn" data-cmd="bold" title="Bold">B</button>
+                    <button class="rtf-btn" data-cmd="italic" title="Italic"><i>I</i></button>
+                    <button class="rtf-btn" data-cmd="underline" title="Underline"><u>U</u></button>
+                    <button class="rtf-btn" data-cmd="strikeThrough" title="Strike">S</button>
+                    <button class="rtf-btn" data-cmd="insertUnorderedList" title="Bullet List">•</button>
+                    <button class="rtf-btn" data-cmd="insertOrderedList" title="Numbered List">1.</button>
+                </div>
+                <div class="resize-handle" data-note-id="${note.id}"></div>
+            `;
+
+            // Drag functionality
+            const header = card.querySelector('.note-header');
+            header.addEventListener('mousedown', startDrag);
+
+            // Content save
+            const content = card.querySelector('.note-content');
+            content.addEventListener('input', () => {
+                note.content = content.innerHTML;
+                saveNotes();
+            });
+
+            // RTF buttons
+            card.querySelectorAll('.rtf-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const cmd = btn.dataset.cmd;
+                    document.execCommand(cmd, false, null);
+                    content.focus();
+                });
+            });
+
+            // Resize functionality
+            const resizeHandle = card.querySelector('.resize-handle');
+            resizeHandle.addEventListener('mousedown', startResize);
+
+            return card;
+        }
+
+        function startDrag(e) {
+            if (e.target.classList.contains('note-btn')) return;
+            
+            const noteId = e.currentTarget.dataset.noteId;
+            currentNote = document.getElementById(`note-${noteId}`);
+            isDragging = true;
+            
+            currentNote.classList.add('dragging');
+            
+            const rect = currentNote.getBoundingClientRect();
+            const canvasRect = document.getElementById('notesCanvas').getBoundingClientRect();
+            
+            startX = e.clientX;
+            startY = e.clientY;
+            startLeft = rect.left - canvasRect.left;
+            startTop = rect.top - canvasRect.top;
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+            
+            e.preventDefault();
+        }
+
+        function drag(e) {
+            if (!isDragging || !currentNote) return;
+            
+            const canvas = document.getElementById('notesCanvas');
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            
+            let newLeft = startLeft + deltaX;
+            let newTop = startTop + deltaY;
+            
+            newLeft = Math.max(0, Math.min(newLeft, canvasRect.width - currentNote.offsetWidth));
+            newTop = Math.max(0, Math.min(newTop, canvasRect.height - currentNote.offsetHeight));
+
+            currentNote.style.left = newLeft + 'px';
+            currentNote.style.top = newTop + 'px';
+        }
+
+        function stopDrag() {
+            if (currentNote && isDragging) {
+                currentNote.classList.remove('dragging');
+                const noteId = currentNote.id.replace('note-', '');
+                const note = notes.find(n => n.id === noteId);
+                if (note) {
+                    note.x = parseInt(currentNote.style.left);
+                    note.y = parseInt(currentNote.style.top);
+                    saveNotes();
+                }
+            }
+            isDragging = false;
+            currentNote = null;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        function startResize(e) {
+            const noteId = e.currentTarget.dataset.noteId;
+            currentNote = document.getElementById(`note-${noteId}`);
+            isResizing = true;
+            
+            startX = e.clientX;
+            startY = e.clientY;
+            startWidth = currentNote.offsetWidth;
+            startHeight = currentNote.offsetHeight;
+
+            document.addEventListener('mousemove', resize);
+            document.addEventListener('mouseup', stopResize);
+            
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function resize(e) {
+            if (!isResizing || !currentNote) return;
+            
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            
+            const newWidth = Math.max(200, startWidth + deltaX);
+            const newHeight = Math.max(150, startHeight + deltaY);
+
+            currentNote.style.width = newWidth + 'px';
+            currentNote.style.height = newHeight + 'px';
+        }
+
+        function stopResize() {
+            if (currentNote && isResizing) {
+                const noteId = currentNote.id.replace('note-', '');
+                const note = notes.find(n => n.id === noteId);
+                if (note) {
+                    note.width = currentNote.style.width;
+                    note.height = currentNote.style.height;
+                    saveNotes();
+                }
+            }
+            isResizing = false;
+            currentNote = null;
+            document.removeEventListener('mousemove', resize);
+            document.removeEventListener('mouseup', stopResize);
+        }
+
+        function addNote() {
+            const note = {
+                id: Date.now().toString(),
+                x: Math.random() * 200 + 100,
+                y: Math.random() * 150 + 100,
+                content: '',
+                width: '280px',
+                height: '220px'
+            };
+            notes.push(note);
+            saveNotes();
+            const canvas = document.getElementById('notesCanvas');
+            canvas.appendChild(createNoteCard(note));
+        }
+
+        function deleteNote(id) {
+            notes = notes.filter(n => n.id !== id);
+            saveNotes();
+            const noteEl = document.getElementById(`note-${id}`);
+            noteEl.style.transform = 'scale(0) rotate(180deg)';
+            noteEl.style.opacity = '0';
+            setTimeout(() => noteEl.remove(), 300);
+        }
+
+        function saveNotes() {
+            localStorage.setItem('zenNotes', JSON.stringify(notes));
+        }
+
+        function loadNotes() {
+            const canvas = document.getElementById('notesCanvas');
+            canvas.innerHTML = '';
+            notes.forEach(note => {
+                canvas.appendChild(createNoteCard(note));
+            });
+        }
+
+        // Form Filler Functionality
+        document.getElementById('userDataForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+                fullName: form.fullName.value,
+                email: form.email.value,
+                phone: form.phone.value,
+                address: form.address.value,
+                city: form.city.value,
+                zipCode: form.zipCode.value
+            };
+            formData = data;
+            localStorage.setItem('zenFormData', JSON.stringify(data));
+            
+            document.getElementById('savedDataDisplay').style.display = 'block';
+            document.getElementById('savedDataContent').textContent = JSON.stringify(data, null, 2);
+            alert('✅ Form data saved successfully!');
+        });
+
+        // Load saved form data
+        if (Object.keys(formData).length > 0) {
+            Object.keys(formData).forEach(key => {
+                const input = document.getElementById(key);
+                if (input) input.value = formData[key];
+            });
+            document.getElementById('savedDataDisplay').style.display = 'block';
+            document.getElementById('savedDataContent').textContent = JSON.stringify(formData, null, 2);
+        }
+
+        // PWA Installation
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').style.display = 'block';
+        });
+
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+            } else {
+                alert('Installation is available through your browser menu or address bar.');
+            }
+        });
+
+        // Clear Data
+        document.getElementById('clearDataBtn').addEventListener('click', () => {
+            if (confirm('🗑️ Are you sure you want to clear all data? This cannot be undone.')) {
+                localStorage.clear();
+                notes = [];
+                formData = {};
+                loadNotes();
+                document.getElementById('userDataForm').reset();
+                document.getElementById('savedDataDisplay').style.display = 'none';
+                alert('✨ All data cleared!');
+            }
+        });
+
+        // Event Listeners
+        document.getElementById('addNoteBtn').addEventListener('click', addNote);
+
+        // Initialize
+        loadNotes();
+        if (notes.length === 0) {
+            addNote();
+        }
+    </script>
+</body>
+</html>
