@@ -1,1069 +1,861 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>ZenFoodie – Calm Food Delivery</title>
-  <link rel="manifest" href="manifest.json" />
-  <!-- Zen Font and Icons -->
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700|Sen:400,700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><circle fill='%23A7C8BD' cx='24' cy='24' r='24'/><text x='24' y='32' font-size='20' text-anchor='middle' fill='%23fff' font-family='Verdana'>禅</text></svg>" />
-  <style>
-    :root {
-      /* Zen Calm Color Palette */
-      --zen-bg: #f5f7f6;
-      --zen-bg-dark: #e2e7e3;
-      --zen-primary: #A7C8BD;
-      --zen-accent: #646a67;
-      --zen-soft: #f0f4f2;
-      --zen-gradient: linear-gradient(180deg, #eafaf6 0%, #f8f6f3 100%);
-      --zen-text: #393e41;
-      --zen-shadow: 0 2px 16px 0 rgba(100, 120, 110, 0.07);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zen AR Sticky Notes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-      --nav-height: 64px;
-      --radius: 20px;
-      --sp-xxs: 4px;
-      --sp-xs: 8px;
-      --sp-s: 16px;
-      --sp-m: 24px;
-      --sp-l: 40px;
-      --transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-    }
+        :root {
+            --zen-purple: #9b87f5;
+            --zen-pink: #f0abfc;
+            --zen-blue: #7dd3fc;
+            --zen-green: #86efac;
+            --zen-yellow: #fde047;
+            --zen-peach: #fda4af;
+            --bg-dark: #1a1625;
+            --text-light: #f8f8f8;
+            --text-muted: #a8a29e;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Sen', 'Montserrat', sans-serif;
-      background: var(--zen-gradient);
-      min-height: 100%;
-      color: var(--zen-text);
-      scroll-behavior: smooth;
-      -webkit-tap-highlight-color: transparent;
-    }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            overflow: hidden;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1625 0%, #2d1b4e 100%);
+            z-index: 1;
+        }
 
-    body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      background: var(--zen-gradient);
-    }
+        #camera {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-    /* Zen Layout Containers */
-    #app {
-      display: flex;
-      flex-direction: column;
-      flex: 1 1 0;
-      min-height: 0;
-      justify-content: flex-start;
-      align-items: stretch;
-      max-width: 510px;
-      margin: 0 auto;
-      padding-bottom: var(--nav-height);
-      box-sizing: border-box;
-      width: 100vw;
-    }
-    header {
-      width: 100%;
-      min-height: 60px;
-      padding: var(--sp-s) var(--sp-m);
-      box-sizing: border-box;
-      background: var(--zen-bg);
-      border-bottom: 1px solid var(--zen-primary);
-      box-shadow: var(--zen-shadow);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 1.3rem;
-      z-index: 30;
-    }
-    .zen-title {
-      font-family: 'Sen', 'Montserrat', sans-serif;
-      font-weight: 700;
-      letter-spacing: 2px;
-      color: var(--zen-accent);
-      text-shadow: 0 1px 0 #fff2, 0 2px 8px #a7c8bd33;
-      user-select: none;
-    }
-    /* Dual Role Toggle Button */
-    .role-toggle {
-      background: var(--zen-primary);
-      color: #fff;
-      border: none;
-      border-radius: 16px;
-      padding: var(--sp-xs) var(--sp-m);
-      cursor: pointer;
-      box-shadow: var(--zen-shadow);
-      transition: background var(--transition), transform var(--transition);
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      gap: var(--sp-xs);
-      outline: none;
-      position: relative;
-    }
-    .role-toggle span.material-icons {
-      font-size: 1.2em;
-    }
-    .role-toggle:active, .role-toggle:focus, .role-toggle:hover {
-      background: #82b8a6;
-      transform: scale(1.06);
-      box-shadow: 0 4px 32px 0 rgba(100,120,110,0.10);
-    }
-    /* Zen Card Styles */
-    .zen-card {
-      background: var(--zen-soft);
-      border-radius: var(--radius);
-      box-shadow: var(--zen-shadow);
-      padding: var(--sp-m);
-      margin: var(--sp-s) 0;
-      transition: box-shadow var(--transition), transform var(--transition);
-      overflow: hidden;
-      min-width: 0;
-      position: relative;
-    }
-    .zen-card:hover, .zen-card:focus-within {
-      box-shadow: 0 8px 32px 0 rgba(100,120,110,0.18);
-    }
+        #camera-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1625 0%, #2d1b4e 100%);
+            padding: 2rem;
+            text-align: center;
+        }
 
-    /* Main Content Area */
-    .main-content {
-      flex: 1 1 0;
-      padding: var(--sp-s) var(--sp-m) var(--sp-l) var(--sp-m);
-      box-sizing: border-box;
-      min-height: 60vh;
-    }
+        #camera-placeholder h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--zen-purple), var(--zen-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-    .zen-section-title {
-      margin-top: 0;
-      font-size: 1.18rem;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
+        /* Sticky Notes Container */
+        #notes-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
 
-    /* Restaurant & Menu List */
-    .restaurant-list, .order-list, .delivery-list {
-      display: flex;
-      flex-direction: column;
-      gap: var(--sp-s);
-      margin-top: var(--sp-xs);
-    }
+        /* Individual Sticky Note */
+        .sticky-note {
+            position: absolute;
+            width: 180px;
+            min-height: 120px;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px var(--shadow);
+            backdrop-filter: blur(10px);
+            pointer-events: all;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.5s ease, breathe 4s ease-in-out infinite;
+        }
 
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: var(--sp-s);
-      padding: var(--sp-xs) 0;
-      border-bottom: 1px dashed #e2e7e3;
-      transition: background var(--transition);
-    }
-    .menu-item:last-child {
-      border-bottom: none;
-    }
-    .menu-img {
-      width: 56px;
-      height: 56px;
-      object-fit: cover;
-      border-radius: 12px;
-      background: var(--zen-bg-dark);
-      box-shadow: var(--zen-shadow);
-      transition: transform var(--transition);
-    }
-    .menu-item:hover .menu-img {
-      transform: scale(1.05);
-    }
-    .menu-detail {
-      flex: 1;
-    }
-    .menu-title {
-      font-weight: 500;
-      margin: 0 0 5px 0;
-    }
-    .menu-desc {
-      font-size: 0.91rem;
-      color: #646a6799;
-      margin-bottom: 2px;
-    }
-    .menu-price {
-      color: var(--zen-primary);
-      font-weight: 600;
-      font-size: 1.09em;
-    }
-    /* Button Styles */
-    .zen-btn {
-      background: var(--zen-primary);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: var(--sp-xs) var(--sp-m);
-      font-size: 0.99em;
-      font-family: inherit;
-      margin-left: var(--sp-xs);
-      cursor: pointer;
-      box-shadow: var(--zen-shadow);
-      transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
-      outline: none;
-      display: inline-flex;
-      gap: var(--sp-xs);
-      align-items: center;
-    }
-    .zen-btn:active, .zen-btn:focus, .zen-btn:hover {
-      background: #82b8a6;
-      transform: scale(1.05);
-      box-shadow: 0 6px 18px 0 rgba(100,120,110,0.11);
-    }
-    .zen-btn.secondary {
-      background: #e2e7e3;
-      color: var(--zen-accent);
-    }
-    /* Zen Map */
-    .zen-map {
-      width: 100%;
-      height: 160px;
-      border-radius: 16px;
-      background: linear-gradient(97deg, #eafaf6 0%, #a7c8bd 100%);
-      margin: var(--sp-s) 0;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 0px 16px 0 rgba(100,120,110,0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: mapWave 7s linear infinite alternate;
-    }
-    @keyframes mapWave {
-      0% { background-position: 0 0;}
-      100% { background-position: 130px 77px;}
-    }
-    .map-marker {
-      width: 32px;
-      height: 32px;
-      border-radius: 99px;
-      background: #ffeccf;
-      box-shadow: 0 1px 12px 0 #fad9af76;
-      border: 2.5px solid #a7c8bd88;
-      position: absolute;
-      left: 48%;
-      top: 55%;
-      transform: translate(-50%,-55%) scale(1);
-      z-index: 9;
-      animation: markerPulse 2.3s ease-in-out infinite;
-    }
-    @keyframes markerPulse {
-      0% { box-shadow: 0 0px 6px 0 #fad9af56;}
-      50% { box-shadow: 0 0px 16px 6px #ffeccfaa;}
-      100% { box-shadow: 0 0px 6px 0 #fad9af56;}
-    }
-    /* Bottom Navigation Tray */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 524px;
-      background: var(--zen-soft);
-      border-radius: 30px 30px 0 0;
-      box-shadow: 0 3px 28px 0 rgba(100, 120, 110, 0.13);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      height: var(--nav-height);
-      z-index: 1000;
-      transition: box-shadow var(--transition);
-      font-size: 1.09rem;
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      user-select: none;
-    }
-    .bottom-nav button {
-      background: none;
-      border: none;
-      color: var(--zen-accent);
-      padding: var(--sp-xs);
-      flex: 1 1 0;
-      font-family: inherit;
-      font-size: 1.028em;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      transition: color var(--transition);
-      cursor: pointer;
-      border-radius: 16px;
-      outline: none;
-    }
-    .bottom-nav button.active,
-    .bottom-nav button:focus,
-    .bottom-nav button:hover {
-      color: var(--zen-primary);
-      background: #eafaf6cc;
-    }
-    .bottom-nav .material-icons {
-      font-size: 1.47em;
-      margin-bottom: 0px;
-      margin-top: 3px;
-    }
-    /* Modal Styles */
-    .zen-modal-backdrop {
-      display: none;
-      position: fixed;
-      z-index: 9999;
-      left: 0; top: 0;
-      width: 100vw; height: 100vh;
-      background: #e2e7e3dd;
-      justify-content: center;
-      align-items: center;
-    }
-    .zen-modal {
-      background: var(--zen-soft);
-      border-radius: var(--radius);
-      box-shadow: 0 0 28px 0 #a7c8bd66;
-      min-width: 80vw; max-width: 400px;
-      padding: var(--sp-m);
-      text-align: center;
-      animation: modalFadeIn 0.4s;
-      position: relative;
-      z-index: 2;
-    }
-    @keyframes modalFadeIn {
-      from { opacity: 0; transform: scale(0.90);}
-      to { opacity: 1; transform: scale(1);}
-    }
-    .zen-modal-backdrop.active { display: flex; }
-    /* Microanimations */
-    [data-zen-anim] {
-      opacity: 0;
-      transform: translateY(12px);
-      transition: opacity .6s var(--transition), transform .7s var(--transition);
-    }
-    [data-zen-anim].show {
-      opacity: 1;
-      transform: none;
-    }
-    /* Profile/Settings */
-    .zen-profile-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: var(--sp-s);
-      padding: var(--sp-xs) 0;
-    }
-    .zen-profile-label {
-      font-size: 1em;
-      font-weight: 600;
-      color: var(--zen-accent);
-    }
-    .zen-profile-value, .zen-settings-switch {
-      font-size: 1em;
-      color: var(--zen-primary);
-      padding-left: var(--sp-xs);
-    }
-    /* Simple Switch Toggle */
-    .zen-switch {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 24px;
-      margin-left: var(--sp-xs);
-      vertical-align: middle;
-    }
-    .zen-switch input {
-      opacity: 0; width: 0; height: 0;
-    }
-    .zen-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: #e2e7e3;
-      border-radius: 24px;
-      transition: background var(--transition);
-    }
-    .zen-slider:before {
-      position: absolute;
-      content: "";
-      height: 18px; width: 18px; left: 3px; bottom: 3px;
-      background: #fff;
-      border-radius: 50%;
-      box-shadow: 0 1px 5px #a7c8bd33;
-      transition: transform var(--transition);
-    }
-    .zen-switch input:checked + .zen-slider {
-      background: var(--zen-primary);
-    }
-    .zen-switch input:checked + .zen-slider:before {
-      transform: translateX(20px);
-    }
+        .sticky-note:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 32px var(--shadow);
+        }
 
-    /* Responsive Design */
-    @media (min-width: 620px) {
-      .main-content {
-        padding: var(--sp-l) var(--sp-l) var(--nav-height) var(--sp-l);
-      }
-      #app {
-        margin: var(--sp-l) auto var(--nav-height) auto;
-        border-radius: 24px;
-        box-shadow: var(--zen-shadow);
-        background: var(--zen-gradient);
-      }
-    }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
 
-    @media (min-width: 950px) {
-      #app {
-        margin: var(--sp-l) auto var(--nav-height) auto;
-        max-width: 530px;
-      }
-      .bottom-nav {
-        border-radius: 16px;
-        max-width: 530px;
-      }
-      .main-content {
-        padding: var(--sp-l) var(--sp-xl) var(--nav-height) var(--sp-xl);
-      }
-    }
-    /* Hide scrollbars */
-    ::-webkit-scrollbar {
-      width: 0px !important;
-      background: transparent;
-    }
-    /* End Zen CSS */
-  </style>
+        @keyframes breathe {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.8) translateY(-20px);
+            }
+        }
+
+        .sticky-note.removing {
+            animation: fadeOut 0.4s ease forwards;
+        }
+
+        /* Note Colors */
+        .note-idea {
+            background: linear-gradient(135deg, rgba(155, 135, 245, 0.9), rgba(240, 171, 252, 0.9));
+        }
+
+        .note-urgent {
+            background: linear-gradient(135deg, rgba(253, 224, 71, 0.9), rgba(253, 164, 175, 0.9));
+        }
+
+        .note-reminder {
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.9), rgba(134, 239, 172, 0.9));
+        }
+
+        .note-done {
+            background: linear-gradient(135deg, rgba(168, 162, 158, 0.7), rgba(120, 113, 108, 0.7));
+            opacity: 0.7;
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .note-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 0.3rem;
+        }
+
+        .note-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .note-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .note-content {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.95);
+            word-wrap: break-word;
+        }
+
+        .note-content.done {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .note-time {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.5rem;
+        }
+
+        /* Bottom Tray */
+        #bottom-tray {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 22, 37, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .tray-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .tray-btn:active {
+            transform: scale(0.95);
+        }
+
+        #add-note-btn {
+            background: linear-gradient(135deg, var(--zen-purple), var(--zen-pink));
+            color: white;
+            flex: 1;
+            max-width: 200px;
+            justify-content: center;
+        }
+
+        .tray-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2d1b4e 0%, #1a1625 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, var(--zen-purple), var(--zen-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        textarea, select {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            transition: all 0.2s ease;
+        }
+
+        textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--zen-purple);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        textarea {
+            min-height: 120px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--zen-purple), var(--zen-pink));
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(26, 22, 37, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 1.5rem;
+            border-radius: 24px;
+            box-shadow: 0 8px 24px var(--shadow);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* All Notes View */
+        #all-notes-list {
+            max-height: 60vh;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .note-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border-left: 4px solid var(--zen-purple);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .note-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .note-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .note-item-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .note-item-content {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--zen-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(155, 135, 245, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(155, 135, 245, 0.7);
+        }
+    </style>
 </head>
 <body>
-  <div id="app">
-    <header>
-      <span class="zen-title">禅 ZenFoodie</span>
-      <button class="role-toggle" id="roleToggleBtn" aria-label="Switch role">
-        <span id="roleIcon" class="material-icons" aria-hidden="true">person</span>
-        <span id="roleLabel">Customer</span>
-      </button>
-    </header>
-
-    <main class="main-content" id="mainContent">
-      <!-- Content gets injected here -->
-    </main>
-
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav" aria-label="Application Navigation">
-      <button id="navHome" class="active" data-page="home"><span class="material-icons">home</span>Home</button>
-      <button id="navOrders" data-page="orders"><span class="material-icons">assignment</span>Orders</button>
-      <button id="navProfile" data-page="profile"><span class="material-icons">person</span>Profile</button>
-      <button id="navRole" data-page="role"><span class="material-icons">swap_horiz</span>Role</button>
-    </nav>
-  </div>
-  <!-- Modal for notifications & offline -->
-  <div class="zen-modal-backdrop" id="modalBackdrop" tabindex="-1" aria-modal="true">
-    <div class="zen-modal" id="modalBox" role="dialog"></div>
-  </div>
-  <!-- Zen Mock Map SVG (hidden, injected as needed) -->
-  <template id="zenMapTemplate">
-    <div class="zen-map">
-      <svg width="100%" height="100%" viewBox="0 0 350 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute; top:0;left:0;">
-        <ellipse cx="175" cy="60" rx="120" ry="25" fill="#a7c8bd" fill-opacity="0.2"/>
-        <ellipse cx="60" cy="85" rx="25" ry="6" fill="#a7c8bd99"/>
-        <ellipse cx="285" cy="50" rx="30" ry="8" fill="#a7c8bd55"/>
-      </svg>
-      <div class="map-marker"></div>
+    <!-- Camera View -->
+    <div id="camera-container">
+        <video id="camera" autoplay playsinline></video>
+        <div id="camera-placeholder">
+            <div class="spinner"></div>
+            <h2>Initializing camera...</h2>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Grant camera permission to begin</p>
+        </div>
     </div>
-  </template>
-  <!-- Firebase App Placeholders (Uncomment & configure in real deployment) -->
-  <!--
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
+
+    <!-- Notes Overlay -->
+    <div id="notes-overlay"></div>
+
+    <!-- Bottom Tray -->
+    <div id="bottom-tray">
+        <button id="add-note-btn" class="tray-btn">
+            <span>+</span> Add Note
+        </button>
+        <button id="view-notes-btn" class="tray-btn tray-btn-secondary">
+            📋
+        </button>
+    </div>
+
+    <!-- Add/Edit Note Modal -->
+    <div id="note-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Floating Thoughts...</h3>
+                <button class="close-btn" onclick="closeNoteModal()">×</button>
+            </div>
+            <div class="form-group">
+                <label>Your Note</label>
+                <textarea id="note-text" placeholder="What's on your mind?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Mood</label>
+                <select id="note-type">
+                    <option value="idea">💡 Idea</option>
+                    <option value="urgent">⚡ Urgent</option>
+                    <option value="reminder">🔔 Reminder</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeNoteModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveNote()">Pinned! 📌</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Notes Modal -->
+    <div id="all-notes-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Your Thoughts</h3>
+                <button class="close-btn" onclick="closeAllNotesModal()">×</button>
+            </div>
+            <div id="all-notes-list"></div>
+            <button class="btn btn-secondary" style="width: 100%;" onclick="closeAllNotesModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
     <script>
-      // TODO: Replace with real keys
-      const firebaseConfig = {
-        apiKey: "",
-        authDomain: "",
-        projectId: "",
-        storageBucket: "",
-        messagingSenderId: "",
-        appId: ""
-      };
-      firebase.initializeApp(firebaseConfig);
-      // const db = firebase.firestore();
-      // const auth = firebase.auth();
+        // Global State
+        let notes = [];
+        let camera = null;
+        let currentEditingNote = null;
+        const NOTE_STORAGE_KEY = 'zen_ar_notes';
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNotes();
+            initCamera();
+            setupEventListeners();
+            renderNotes();
+        });
+
+        // Camera Initialization
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                camera = document.getElementById('camera');
+                camera.srcObject = stream;
+                document.getElementById('camera-placeholder').style.display = 'none';
+                camera.style.display = 'block';
+            } catch (err) {
+                console.error('Camera error:', err);
+                document.getElementById('camera-placeholder').innerHTML = `
+                    <h2>📸 Camera Access Needed</h2>
+                    <p style="color: var(--text-muted); margin-top: 0.5rem;">
+                        Please grant camera permission to place notes in your space
+                    </p>
+                `;
+            }
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            document.getElementById('add-note-btn').addEventListener('click', openNoteModal);
+            document.getElementById('view-notes-btn').addEventListener('click', openAllNotesModal);
+            
+            // Tap to place note on camera view
+            document.getElementById('camera-container').addEventListener('click', (e) => {
+                if (e.target.id === 'camera' || e.target.id === 'camera-container') {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                    openNoteModal(x, y);
+                }
+            });
+        }
+
+        // Note Management
+        function openNoteModal(x = null, y = null) {
+            currentEditingNote = null;
+            document.getElementById('modal-title').textContent = 'Floating Thoughts...';
+            document.getElementById('note-text').value = '';
+            document.getElementById('note-type').value = 'idea';
+            
+            // Store position for new note
+            if (x !== null && y !== null) {
+                currentEditingNote = { x, y };
+            } else {
+                // Random position if opened from button
+                currentEditingNote = {
+                    x: Math.random() * 70 + 15,
+                    y: Math.random() * 60 + 10
+                };
+            }
+            
+            document.getElementById('note-modal').classList.add('active');
+            document.getElementById('note-text').focus();
+        }
+
+        function closeNoteModal() {
+            document.getElementById('note-modal').classList.remove('active');
+            currentEditingNote = null;
+        }
+
+        function saveNote() {
+            const text = document.getElementById('note-text').value.trim();
+            const type = document.getElementById('note-type').value;
+            
+            if (!text) {
+                showToast('✍️ Write something first!');
+                return;
+            }
+            
+            const note = {
+                id: Date.now(),
+                text,
+                type,
+                x: currentEditingNote.x,
+                y: currentEditingNote.y,
+                done: false,
+                createdAt: new Date().toISOString()
+            };
+            
+            notes.push(note);
+            saveNotes();
+            renderNotes();
+            closeNoteModal();
+            showToast('📌 Pinned!');
+            vibrateDevice();
+        }
+
+        function editNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+            
+            currentEditingNote = note;
+            document.getElementById('modal-title').textContent = 'Edit Note';
+            document.getElementById('note-text').value = note.text;
+            document.getElementById('note-type').value = note.type;
+            document.getElementById('note-modal').classList.add('active');
+            
+            // Change save button to update
+            const saveBtn = document.querySelector('#note-modal .btn-primary');
+            saveBtn.textContent = 'Update 📝';
+            saveBtn.onclick = () => updateNote(id);
+        }
+
+        function updateNote(id) {
+            const text = document.getElementById('note-text').value.trim();
+            const type = document.getElementById('note-type').value;
+            
+            if (!text) return;
+            
+            const noteIndex = notes.findIndex(n => n.id === id);
+            if (noteIndex !== -1) {
+                notes[noteIndex].text = text;
+                notes[noteIndex].type = type;
+                saveNotes();
+                renderNotes();
+                closeNoteModal();
+                showToast('✨ Updated!');
+                
+                // Reset button
+                const saveBtn = document.querySelector('#note-modal .btn-primary');
+                saveBtn.textContent = 'Pinned! 📌';
+                saveBtn.onclick = saveNote;
+            }
+        }
+
+        function toggleDone(id) {
+            const note = notes.find(n => n.id === id);
+            if (note) {
+                note.done = !note.done;
+                note.type = note.done ? 'done' : note.type;
+                saveNotes();
+                renderNotes();
+                showToast(note.done ? '✓ Done!' : '↩️ Undone');
+                vibrateDevice();
+            }
+        }
+
+        function deleteNote(id) {
+            const noteEl = document.querySelector(`[data-id="${id}"]`);
+            if (noteEl) {
+                noteEl.classList.add('removing');
+                setTimeout(() => {
+                    notes = notes.filter(n => n.id !== id);
+                    saveNotes();
+                    renderNotes();
+                    showToast('🗑️ Removed');
+                    vibrateDevice();
+                }, 400);
+            }
+        }
+
+        // Render Notes
+        function renderNotes() {
+            const container = document.getElementById('notes-overlay');
+            container.innerHTML = '';
+            
+            notes.forEach(note => {
+                const noteEl = document.createElement('div');
+                noteEl.className = `sticky-note note-${note.type}`;
+                noteEl.style.left = `${note.x}%`;
+                noteEl.style.top = `${note.y}%`;
+                noteEl.setAttribute('data-id', note.id);
+                
+                const typeLabels = {
+                    idea: '💡 Idea',
+                    urgent: '⚡ Urgent',
+                    reminder: '🔔 Reminder',
+                    done: '✓ Done'
+                };
+                
+                noteEl.innerHTML = `
+                    <div class="note-header">
+                        <span class="note-tag">${typeLabels[note.type]}</span>
+                        <div class="note-actions">
+                            <button class="note-btn" onclick="toggleDone(${note.id})" title="Mark done">
+                                ${note.done ? '↩️' : '✓'}
+                            </button>
+                            <button class="note-btn" onclick="editNote(${note.id})" title="Edit">✏️</button>
+                            <button class="note-btn" onclick="deleteNote(${note.id})" title="Delete">×</button>
+                        </div>
+                    </div>
+                    <div class="note-content ${note.done ? 'done' : ''}">${escapeHtml(note.text)}</div>
+                    <div class="note-time">${formatTime(note.createdAt)}</div>
+                `;
+                
+                container.appendChild(noteEl);
+            });
+        }
+
+        // All Notes View
+        function openAllNotesModal() {
+            const list = document.getElementById('all-notes-list');
+            
+            if (notes.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No notes yet. Tap the camera to add one!</p>';
+            } else {
+                list.innerHTML = notes.map(note => {
+                    const typeLabels = {
+                        idea: '💡 Idea',
+                        urgent: '⚡ Urgent',
+                        reminder: '🔔 Reminder',
+                        done: '✓ Done'
+                    };
+                    return `
+                        <div class="note-item" onclick="focusNote(${note.id})">
+                            <div class="note-item-header">
+                                <span class="note-item-tag">${typeLabels[note.type]}</span>
+                                <span style="font-size: 0.7rem; color: var(--text-muted);">${formatTime(note.createdAt)}</span>
+                            </div>
+                            <div class="note-item-content">${escapeHtml(note.text)}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            document.getElementById('all-notes-modal').classList.add('active');
+        }
+
+        function closeAllNotesModal() {
+            document.getElementById('all-notes-modal').classList.remove('active');
+        }
+
+        function focusNote(id) {
+            closeAllNotesModal();
+            const noteEl = document.querySelector(`[data-id="${id}"]`);
+            if (noteEl) {
+                noteEl.style.animation = 'none';
+                setTimeout(() => {
+                    noteEl.style.animation = 'fadeIn 0.5s ease, breathe 2s ease-in-out 3';
+                }, 10);
+            }
+        }
+
+        // Storage
+        function saveNotes() {
+            try {
+                localStorage.setItem(NOTE_STORAGE_KEY, JSON.stringify(notes));
+            } catch (e) {
+                console.error('Storage error:', e);
+            }
+        }
+
+        function loadNotes() {
+            try {
+                const stored = localStorage.getItem(NOTE_STORAGE_KEY);
+                notes = stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                console.error('Load error:', e);
+                notes = [];
+            }
+        }
+
+        // Utilities
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        function vibrateDevice() {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+        }
+
+        function formatTime(isoString) {
+            const date = new Date(isoString);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            if (days < 7) return `${days}d ago`;
+            return date.toLocaleDateString();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
     </script>
-  -->
-  <script>
-    /* ------------------------------------------
-     * ZenFoodie App - Zen Delivery in One File!
-     * ------------------------------------------ */
-
-    // Local mock data for demo and offline cache
-    const DUMMY_RESTAURANTS = [
-      {
-        id: '1',
-        name: 'Calm Bowl Eatery',
-        desc: 'Healthy, slow-cooked Asian bowls.',
-        logo: 'https://source.unsplash.com/64x64/?bowl,food,zen',
-        menu: [
-          {id:'m1',name:'Zen Quinoa Pilaf',desc:'Herbs, lemon zest, seeds',price:169,img:'https://source.unsplash.com/88x88/?quinoa,bowl,food'},
-          {id:'m2',name:'Tofu Harmony Curry',desc:'Tofu, veggies, jasmine rice',price:219,img:'https://source.unsplash.com/88x88/?curry,vegan,tofu'},
-          {id:'m3',name:'Miso Serenity Soup',desc:'Silky broth w/ mushrooms',price:129,img:'https://source.unsplash.com/88x88/?soup,zen'}
-        ]
-      },
-      {
-        id: '2',
-        name: 'Minimal Tea House',
-        desc: 'Organic teas and light bites.',
-        logo: 'https://source.unsplash.com/64x64/?tea,minimal',
-        menu: [
-          {id:'m4',name:'Matcha Cloud','desc':'Ceremonial matcha, almond milk',price:99,img:'https://source.unsplash.com/88x88/?matcha,tea,latte'},
-          {id:'m5',name:'Lotus Rice Wraps',desc:'Rice paper, sprouts, sauce',price:135,img:'https://source.unsplash.com/88x88/?rice,springrolls'},
-        ]
-      }
-    ];
-
-    const DUMMY_ORDERS = [
-      { id:'o1', rest:'Calm Bowl Eatery', items:[{menu:'Zen Quinoa Pilaf',qty:1}], status:'preparing', total:169, eta:'12 min', placed:new Date(Date.now()-11*60000).toISOString(), address:'15 Zen Lane'},
-      { id:'o2', rest:'Minimal Tea House', items:[{menu:'Lotus Rice Wraps',qty:2}], status:'delivered', total:270, eta:'-', placed:new Date(Date.now()-53*60000).toISOString(), address:'28 Lotus St' }
-    ];
-
-    /* ----
-     * Default Settings
-     */
-    const STORAGE_KEY = "ZenFoodieApp";
-    const ZEN_DEFAULTS = {
-      role: "customer",
-      lastOrder: null,
-      ui: {
-        softMode: true,
-        colorMode: "default"
-      }
-    };
-
-    /* ----
-     * Utility Methods
-     */
-    const $ = sel => document.querySelector(sel);
-    const $$ = sel => Array.from(document.querySelectorAll(sel));
-    const delay = ms => new Promise(res=>setTimeout(res,ms));
-    const on = (el, ev, fn) => el && el.addEventListener(ev, fn);
-
-    function saveState(state) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : {...ZEN_DEFAULTS};
-      } catch { return {...ZEN_DEFAULTS}; }
-    }
-    /* ----- Basic IndexedDB Caching ---- */
-    let idb = null;
-    function zenOpenIDB() {
-      return new Promise(res => {
-        if(idb) { res(idb); return; }
-        let req = indexedDB.open("ZenFoodieDB", 1);
-        req.onupgradeneeded = (evt) => {
-          let db = evt.target.result;
-          if (!db.objectStoreNames.contains("menus")) db.createObjectStore("menus");
-          if (!db.objectStoreNames.contains("orders")) db.createObjectStore("orders");
-        };
-        req.onsuccess = evt => { idb = evt.target.result; res(idb); };
-      });
-    }
-    function zenIDBSet(store, key, val) {
-      return zenOpenIDB().then(db=>{
-        return new Promise(res=>{
-          let tx = db.transaction(store, "readwrite");
-          tx.objectStore(store).put(val, key);
-          tx.oncomplete = () => res(true);
-        });
-      });
-    }
-    function zenIDBGet(store, key) {
-      return zenOpenIDB().then(db=>{
-        return new Promise(res=>{
-          let tx = db.transaction(store, "readonly");
-          let req = tx.objectStore(store).get(key);
-          req.onsuccess = () => res(req.result||null);
-        });
-      });
-    }
-
-    /* ----
-     * State Management
-     */
-    let state = {...ZEN_DEFAULTS, ...loadState()};
-    let prevHash = window.location.hash;
-
-    // Persist state on any role/UI/order changes
-    function updateState(obj) {
-      state = { ...state, ...obj };
-      saveState(state);
-    }
-
-    // Responsive Zen Animation when content loads
-    function zenReveal() {
-      requestAnimationFrame(()=>{
-        $$('[data-zen-anim]').forEach(el=>{
-          el.classList.remove('show');
-          setTimeout(()=>el.classList.add('show'), 42);
-        });
-      });
-    }
-
-    /* ----
-     * Role Handling
-     */
-    const roles = {
-      customer: { icon: "person", label: "Customer" },
-      delivery: { icon: "motorcycle", label: "Delivery" }
-    };
-    function setRole(r) {
-      if(!roles[r]) return;
-      updateState({role:r});
-      $('#roleLabel').textContent = roles[r].label;
-      $('#roleIcon').textContent = roles[r].icon;
-      // Show/hide app elements as needed
-      renderNavHighlight();
-      renderMain();
-    }
-
-    // Toggle role on header button or nav tray
-    function toggleRole() {
-      let next = (state.role==='customer') ? 'delivery' : 'customer';
-      setRole(next);
-    }
-
-    /* ---
-     * NAVIGATION LOGIC
-     */
-    const pages = ['home','orders','profile','role'];
-    let currentPage = 'home';
-
-    function renderNavHighlight() {
-      $$('.bottom-nav button').forEach(btn=>{
-        btn.classList.toggle('active', btn.dataset.page===currentPage || (btn.dataset.page==="role" && currentPage==="role"));
-      });
-    }
-
-    function goPage(page) {
-      currentPage = page;
-      renderNavHighlight();
-      renderMain();
-    }
-
-    // Modal Dialog
-    function showModal(html, ms=2200) {
-      const modal = $('#modalBackdrop');
-      $('#modalBox').innerHTML = html;
-      modal.classList.add('active');
-      if(ms && ms>0) setTimeout(()=>modal.classList.remove('active'), ms);
-    }
-    function hideModal(){
-      $('#modalBackdrop').classList.remove('active');
-    }
-    on($('#modalBackdrop'),'click', (e)=>{
-      if(e.target === $('#modalBackdrop')) hideModal();
-    });
-
-    /* -------------
-     * MAIN UI RENDER
-     * ------------- */
-
-    function renderMain() {
-      let root = $('#mainContent'), html = "";
-      // Mobile: Remove scroll to top? Or animate.
-      window.scrollTo({top:0,behavior:'auto'});
-      if(currentPage==='home') {
-        if(state.role==='customer') html = renderCustomerHome();
-        else html = renderDeliveryHome();
-      } else if(currentPage==='orders') {
-        html = renderOrders();
-      } else if(currentPage==='profile') {
-        html = renderProfile();
-      } else if(currentPage==='role') {
-        html = renderRoleSwitch();
-      }
-      root.innerHTML = html;
-      zenReveal();
-      // Map integration in orders for delivery tracking
-      if(currentPage==='orders' && state.role==='customer' && state.lastOrder && (state.lastOrder.status==='on-way'||state.lastOrder.status==='preparing')) {
-        injectMap();
-      }
-    }
-
-    /* ------
-     * CUSTOMER: HOME: List restaurants
-     * ------ */
-    function renderCustomerHome() {
-      let restHTML = DUMMY_RESTAURANTS.map(r=>`
-        <div class="zen-card" data-zen-anim>
-          <div style="display: flex; align-items: center; gap: var(--sp-s); margin-bottom: 6px;">
-            <img src="${r.logo}" alt="${r.name} logo" style="width:48px;height:48px;border-radius:12px;background:var(--zen-bg-dark);" />
-            <div style="flex:1">
-              <div class="menu-title">${r.name}</div>
-              <div style="font-size:0.97em;color:#646a679a">${r.desc}</div>
-            </div>
-            <button class="zen-btn" onclick="showRestaurantMenu('${r.id}')"><span class="material-icons">restaurant_menu</span>Menu</button>
-          </div>
-        </div>
-      `).join('');
-      return `
-        <h2 class="zen-section-title" data-zen-anim>Discover Zen Eateries</h2>
-        <div class="restaurant-list" data-zen-anim>
-          ${restHTML}
-        </div>
-      `;
-    }
-
-    // Show Restaurant Menu Modal
-    window.showRestaurantMenu = function(restid) {
-      const rest = DUMMY_RESTAURANTS.find(r=>r.id===restid);
-      if(!rest) return;
-      let menuHTML = rest.menu.map(m=>`
-        <div class="menu-item">
-          <img class="menu-img" src="${m.img}" alt="${m.name}"/>
-          <div class="menu-detail">
-            <div class="menu-title">${m.name}</div>
-            <div class="menu-desc">${m.desc}</div>
-            <div class="menu-price">₹${m.price}</div>
-          </div>
-          <button class="zen-btn" onclick="addToOrder('${restid}','${m.id}')"><span class="material-icons">add</span></button>
-        </div>`).join('');
-      showModal(`
-        <div>
-          <div style="font-weight:700;font-size:1.11em;margin-bottom:8px">
-            ${rest.name} <span style="font-size:1.3em">${String.fromCharCode(0x1F35A)}</span>
-          </div>
-          <div>${menuHTML}</div>
-        </div>
-      `,0);
-    };
-
-    // Add menu item to order draft, user confirms ordering via UI
-    window.addToOrder = function(restid, menuid) {
-      const rest = DUMMY_RESTAURANTS.find(r=>r.id===restid);
-      const menu = rest.menu.find(m=>m.id===menuid);
-      let order = {
-        id:'new_'+Date.now(),
-        rest: rest.name,
-        items: [{menu: menu.name, qty:1}],
-        status: 'preparing',
-        total: menu.price,
-        eta:'~15 min',
-        placed: new Date().toISOString(),
-        address: 'Your saved address'
-      };
-      let confirmHTML = `
-        <div>
-          <div style="font-weight:bold">Order Confirmation</div>
-          <div style="margin:10px auto">
-            1 x ${menu.name}<br>
-            <b>From:</b> ${rest.name}<br>
-            <b>To:</b> Your saved address
-          </div>
-          <div class="menu-price" style="margin-bottom:10px;">Total: ₹${menu.price}</div>
-          <button class="zen-btn" onclick="confirmOrder('${order.id}')">Place Order</button>
-        </div>
-      `;
-      showModal(confirmHTML,0);
-      // Save to window for confirm
-      window.ZenOrderDraft = order;
-    };
-    window.confirmOrder = function(orderid){
-      if(window.ZenOrderDraft && window.ZenOrderDraft.id===orderid) {
-        state.lastOrder = window.ZenOrderDraft;
-        // Save to localStorage & cache to IndexedDB
-        updateState({lastOrder: state.lastOrder});
-        zenIDBSet('orders','lastOrder',state.lastOrder);
-        showModal('<div><span class="material-icons" style="color:var(--zen-primary);font-size:2em;">check_circle</span><br>Order placed!<br><em>Breathe. We track it for you.</em></div>');
-        goPage('orders');
-      }
-    };
-
-    /* ------
-     * CUSTOMER: ORDERS
-     * ------ */
-    function renderOrders() {
-      if(state.role==='customer') {
-        let currOrder = state.lastOrder;
-        if(currOrder) {
-          let orderStatusColor =
-            currOrder.status==='preparing' ? '#a7c8bd'
-            : currOrder.status==='on-way' ? '#82b8a6'
-            : currOrder.status==='delivered' ? "#8cad69" : "#c8c8a7";
-          return `
-            <div class="zen-card" data-zen-anim>
-              <div style="display:flex;justify-content:space-between;align-items:center;">
-                <div>
-                  <div class="zen-section-title">Latest Order – <span style="color:${orderStatusColor};text-transform:capitalize">${currOrder.status}</span></div>
-                  <div style="font-size:0.97em;color:#646a679a">at ${currOrder.rest}</div>
-                </div>
-              </div>
-              <div style="margin:10px 0 0 8px;">
-                <ul>
-                  ${currOrder.items.map(i=>`<li>${i.qty} x ${i.menu}</li>`).join('')}
-                </ul>
-                <div>To: ${currOrder.address}</div>
-              </div>
-              <div style="margin:7px 0 3px 8px;">
-                <span class="menu-price">Total: ₹${currOrder.total}</span>
-                <span style="float:right;"> ETA: ${currOrder.eta}</span>
-              </div>
-              ${currOrder.status==='on-way'||currOrder.status==='preparing'
-                ? `<div id="orderMap"></div><div style="text-align:center;color:var(--zen-primary);font-size:0.98em;"><span class="material-icons" style="vertical-align:middle">delivery_dining</span>
-                  Delivery tracking enabled
-                </div>`
-                : ""}
-            </div>
-          `;
-        } else {
-          return `
-            <div class="zen-card" data-zen-anim>
-              <div class="zen-section-title">No active orders.</div>
-              <div style="margin-top:10px;">Order your favorite bowl and track it real-time.</div>
-            </div>
-          `;
-        }
-      } else { // Delivery Person view
-        let myDeliveries = DUMMY_ORDERS.filter(o=>o.status==='preparing'||o.status==='on-way');
-        let ordersHTML = myDeliveries.length ? myDeliveries.map(o=>`
-          <div class="zen-card" data-zen-anim style="position:relative;">
-            <div style="display:flex;justify-content:space-between">
-              <div>
-                <div style="font-weight:bold;">${o.rest}</div>
-                <div style="font-size:0.89em;color:#646a677a">To: ${o.address||'Unknown'}</div>
-              </div>
-              <div style="font-size:0.96em;margin:6px 0;">
-                <span class="menu-price">₹${o.total}</span>
-              </div>
-            </div>
-            <div style="margin:4px 0 8px 8px;">
-              Items: ${o.items.map(x=>`${x.qty}x ${x.menu}`).join(', ')}
-            </div>
-            <div>
-               <span class="zen-btn secondary" onclick="updateDeliveryStatus('${o.id}','on-way')">Pick Up</span>
-               <span class="zen-btn" onclick="updateDeliveryStatus('${o.id}','delivered')">Delivered</span>
-            </div>
-            <div style="position:absolute;top:13px;right:20px;color:#a7c8bd;font-size:1.13em">${o.status==='on-way'?'🚚':'🛍️'}</div>
-          </div>
-        `).join('') : `<div class="zen-card" data-zen-anim>No pending deliveries.<br>Stay calm, new requests coming soon.</div>`;
-        return `
-          <h2 class="zen-section-title" data-zen-anim>Active Deliveries</h2>
-          <div class="delivery-list" data-zen-anim>
-            ${ordersHTML}
-          </div>
-        `;
-      }
-    }
-
-    // Delivery person can update delivery status (mocked, stateful in-memory)
-    window.updateDeliveryStatus = function(orderid, status) {
-      // Normally, you would push this to Firestore
-      let found = DUMMY_ORDERS.find(o=>o.id===orderid);
-      if(found) {
-        found.status = status;
-        showModal(`<span class="material-icons" style="font-size:1.8em;color:var(--zen-primary);">check_circle</span>
-        Order marked as <b>${status.replace('-',' ')}</b>!`,1300);
-        renderMain();
-      }
-    };
-
-    // CUSTOMER: Render animated delivery map
-    function injectMap() {
-      const mapTpl = $('#zenMapTemplate').content.cloneNode(true);
-      $('#orderMap').appendChild(mapTpl);
-    }
-
-    /* ------
-     * PROFILE / PREFERENCES
-     * ------ */
-    function renderProfile() {
-      return `
-        <div class="zen-card" data-zen-anim>
-          <h2 class="zen-section-title">Your Profile</h2>
-          <div class="zen-profile-row">
-            <div class="zen-profile-label">Role:</div>
-            <div class="zen-profile-value">${roles[state.role].label}</div>
-          </div>
-          <div class="zen-profile-row">
-            <div class="zen-profile-label">Soft UI Mode:</div>
-            <label class="zen-switch">
-              <input type="checkbox" id="toggleSoftMode" ${state.ui && state.ui.softMode ? 'checked':''}>
-              <span class="zen-slider"></span>
-            </label>
-          </div>
-          <div class="zen-profile-row">
-            <div class="zen-profile-label">Restore last order:</div>
-            <span>
-              <button class="zen-btn secondary" onclick="restoreLastOrder()">Restore</button>
-            </span>
-          </div>
-          <div style="font-size:0.92em;color:#646a6787">
-            Preferences are saved locally and work offline!
-          </div>
-        </div>
-      `;
-    }
-    // Soft UI Mode Toggle
-    on(document,'change',e=>{
-      if(e.target && e.target.id==='toggleSoftMode') {
-        updateState({ui:{...state.ui,softMode:e.target.checked}});
-        showModal(`<span style="color:var(--zen-primary)">Soft Mode: ${e.target.checked?'On':'Off'}</span>`,1100);
-      }
-    });
-
-    window.restoreLastOrder = function() {
-      zenIDBGet('orders','lastOrder').then(data=>{
-        if(data) {
-          state.lastOrder=data;
-          updateState({lastOrder: data});
-          showModal("Order restored.", 1100);
-        } else {
-          showModal("No previous order found.",1300);
-        }
-      });
-    };
-
-    /* -----
-     * ROLE SWITCH
-     */
-    function renderRoleSwitch() {
-      return `
-        <div class="zen-card" data-zen-anim style="text-align:center">
-          <span style="font-size:1.89em;color:var(--zen-primary)">
-            <span class="material-icons">${state.role==='customer'?'person':'motorcycle'}</span>
-          </span><br>
-          <div style="font-size:1.11em;margin-bottom:7px;">
-            Current mode: <b>${roles[state.role].label}</b>
-          </div>
-          <button class="zen-btn" onclick="toggleRole()">
-            <span class="material-icons">swap_horiz</span> Switch to ${roles[state.role==='customer'?'delivery':'customer'].label}
-          </button>
-        </div>
-      `;
-    }
-
-    /* -----
-     * DELIVERY MODE: Home
-     */
-    function renderDeliveryHome() {
-      let html = `
-        <h2 class="zen-section-title" data-zen-anim>Welcome, Delivery Partner</h2>
-        <div class="zen-card" data-zen-anim>
-          <div style="font-size:1.05em">
-            See all orders ready for pickup and delivery.<br>
-            Tap an order to update its status.
-          </div>
-        </div>
-      `;
-      return html;
-    };
-
-    /* -----
-     * OFFLINE SUPPORT: Service Worker Registration
-     */
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').then(reg => {
-          // Optional: confirmation
-        }).catch(() => {});
-      });
-    }
-
-    /* ------
-     * FIREBASE PLACEHOLDERS
-     * Insert real API calls when ready.
-     */
-    function initFirebase() {
-      // Place your Firebase initialization, auth, Firestore, Storage setup here.
-      // See commented <script> in HTML head.
-    }
-    function realtimeOrderUpdates(cb) {
-      // Place Firestore real-time listener here.
-      // On order changes: cb(order)
-    }
-    // Replace all uses of DUMMY_* arrays with real Firestore queries in production
-
-    /* ------
-     * UI INIT/ROUTING/LOAD
-     * ------ */
-    function firstLoad() {
-      // LocalStorage/IDB restoration
-      if(!state.lastOrder) {
-        zenIDBGet('orders','lastOrder').then(order=>{
-          if(order) {
-            updateState({lastOrder:order});
-            renderMain();
-          }
-        });
-      }
-    }
-
-    // Event listeners for nav tray and role button
-    $$('.bottom-nav button').forEach(btn=>{
-      on(btn,'click',(e)=>{
-        let p = btn.dataset.page;
-        if(p==="role"){ toggleRole(); goPage('home'); }
-        else goPage(p);
-      });
-    });
-    on($('#roleToggleBtn'), 'click', toggleRole);
-
-    // Listen for hash or hard refresh navigation (single page)
-    window.addEventListener('hashchange', ()=>{
-      if(location.hash !== prevHash) {
-        const page = location.hash.replace(/^#/,'');
-        if(pages.includes(page)) goPage(page);
-        prevHash = location.hash;
-      }
-    });
-
-    // Zen Anim reveal on new page render
-    renderNavHighlight();
-    setRole(state.role || 'customer');
-    renderMain();
-    firstLoad();
-  </script>
-  <!-- Service Worker inlined for monorepo format. Save as sw.js if required. -->
-  <script id="inline-sw" type="text/plain">
-    // sw.js
-    const CACHE_NAME = 'zenfoodie-static-v1';
-    const FILES_TO_CACHE = [
-      '/', '/index.html', // required for PWA
-    ];
-
-    self.addEventListener('install', (evt) => {
-      evt.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-          return cache.addAll(FILES_TO_CACHE);
-        })
-      );
-      self.skipWaiting();
-    });
-
-    self.addEventListener('activate', evt => {
-      evt.waitUntil(
-        caches.keys().then(keys => {
-          return Promise.all(keys.map(k=>{
-            if(k!==CACHE_NAME) return caches.delete(k);
-          }));
-        })
-      );
-      self.clients.claim();
-    });
-
-    self.addEventListener('fetch', evt => {
-      evt.respondWith(
-        caches.match(evt.request).then(response => {
-          return response || fetch(evt.request);
-        })
-      );
-    });
-  </script>
-  <script>
-    // Inline Service Worker Loader for monorepo usage
-    if('serviceWorker' in navigator) {
-      const swCode = document.getElementById('inline-sw').textContent.trim();
-      const blob = new Blob([swCode], {type: 'text/javascript'});
-      const swURL = URL.createObjectURL(blob);
-      navigator.serviceWorker.register(swURL).catch(()=>{});
-    }
-  </script>
 </body>
 </html>
