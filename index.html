@@ -30,6 +30,15 @@
             background: var(--bg-dark);
             color: var(--text-light);
             overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #camera-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
             background: linear-gradient(135deg, #1a1625 0%, #2d1b4e 100%);
             z-index: 1;
@@ -62,7 +71,6 @@
             background-clip: text;
         }
 
-        /* Sticky Notes Container */
         #notes-overlay {
             position: fixed;
             top: 0;
@@ -73,7 +81,6 @@
             z-index: 2;
         }
 
-        /* Individual Sticky Note */
         .sticky-note {
             position: absolute;
             width: 180px;
@@ -124,7 +131,6 @@
             animation: fadeOut 0.4s ease forwards;
         }
 
-        /* Note Colors */
         .note-idea {
             background: linear-gradient(135deg, rgba(155, 135, 245, 0.9), rgba(240, 171, 252, 0.9));
         }
@@ -199,7 +205,6 @@
             margin-top: 0.5rem;
         }
 
-        /* Bottom Tray */
         #bottom-tray {
             position: fixed;
             bottom: 0;
@@ -246,7 +251,6 @@
             color: var(--text-light);
         }
 
-        /* Modal */
         .modal {
             position: fixed;
             top: 0;
@@ -384,7 +388,6 @@
             transform: scale(0.95);
         }
 
-        /* Toast Notification */
         .toast {
             position: fixed;
             top: 2rem;
@@ -407,7 +410,6 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        /* All Notes View */
         #all-notes-list {
             max-height: 60vh;
             overflow-y: auto;
@@ -452,7 +454,12 @@
             -webkit-box-orient: vertical;
         }
 
-        /* Loading Spinner */
+        .note-location {
+            font-size: 0.7rem;
+            color: var(--zen-blue);
+            margin-top: 0.3rem;
+        }
+
         .spinner {
             width: 40px;
             height: 40px;
@@ -466,7 +473,36 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Scrollbar */
+        #capture-canvas {
+            display: none;
+        }
+
+        .ar-indicator {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(125, 211, 252, 0.2);
+            border: 1px solid var(--zen-blue);
+            color: var(--zen-blue);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 5;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .ar-indicator.active {
+            display: block;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -487,20 +523,21 @@
     </style>
 </head>
 <body>
-    <!-- Camera View -->
     <div id="camera-container">
         <video id="camera" autoplay playsinline></video>
         <div id="camera-placeholder">
             <div class="spinner"></div>
-            <h2>Initializing camera...</h2>
-            <p style="color: var(--text-muted); margin-top: 0.5rem;">Grant camera permission to begin</p>
+            <h2>Initializing AR camera...</h2>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Grant camera permission to place notes in your space</p>
         </div>
     </div>
 
-    <!-- Notes Overlay -->
+    <div class="ar-indicator" id="ar-indicator">🎯 Scanning environment...</div>
+
+    <canvas id="capture-canvas"></canvas>
+
     <div id="notes-overlay"></div>
 
-    <!-- Bottom Tray -->
     <div id="bottom-tray">
         <button id="add-note-btn" class="tray-btn">
             <span>+</span> Add Note
@@ -510,7 +547,6 @@
         </button>
     </div>
 
-    <!-- Add/Edit Note Modal -->
     <div id="note-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -536,7 +572,6 @@
         </div>
     </div>
 
-    <!-- All Notes Modal -->
     <div id="all-notes-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -548,7 +583,6 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
     <script>
@@ -556,26 +590,35 @@
         let notes = [];
         let camera = null;
         let currentEditingNote = null;
-        const NOTE_STORAGE_KEY = 'zen_ar_notes';
+        let visualAnchors = []; // Store visual fingerprints
+        const NOTE_STORAGE_KEY = 'zen_ar_notes_v2';
+        const ANCHOR_STORAGE_KEY = 'zen_ar_anchors_v2';
+        let isScanning = false;
+        let scanInterval = null;
 
         // Initialize App
         document.addEventListener('DOMContentLoaded', () => {
             loadNotes();
+            loadAnchors();
             initCamera();
             setupEventListeners();
-            renderNotes();
         });
 
         // Camera Initialization
         async function initCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment' } 
+                    video: { facingMode: 'environment', width: 1280, height: 720 } 
                 });
                 camera = document.getElementById('camera');
                 camera.srcObject = stream;
-                document.getElementById('camera-placeholder').style.display = 'none';
-                camera.style.display = 'block';
+                
+                camera.addEventListener('loadedmetadata', () => {
+                    document.getElementById('camera-placeholder').style.display = 'none';
+                    camera.style.display = 'block';
+                    startEnvironmentScanning();
+                    showToast('🎯 AR tracking active');
+                });
             } catch (err) {
                 console.error('Camera error:', err);
                 document.getElementById('camera-placeholder').innerHTML = `
@@ -587,9 +630,133 @@
             }
         }
 
+        // Visual Anchor System - The magic happens here!
+        function captureVisualFingerprint(x, y, radius = 100) {
+            const canvas = document.getElementById('capture-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size to capture region
+            canvas.width = radius * 2;
+            canvas.height = radius * 2;
+            
+            // Calculate capture area centered on tap point
+            const videoRect = camera.getBoundingClientRect();
+            const scaleX = camera.videoWidth / videoRect.width;
+            const scaleY = camera.videoHeight / videoRect.height;
+            
+            const centerX = (x / 100) * camera.videoWidth;
+            const centerY = (y / 100) * camera.videoHeight;
+            
+            // Draw the region from video
+            ctx.drawImage(
+                camera,
+                centerX - radius, centerY - radius, radius * 2, radius * 2,
+                0, 0, canvas.width, canvas.height
+            );
+            
+            // Extract visual features (simplified histogram)
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const histogram = computeColorHistogram(imageData);
+            const edgeMap = computeSimpleEdges(imageData);
+            
+            return {
+                histogram,
+                edgeMap,
+                centerX: x,
+                centerY: y,
+                timestamp: Date.now()
+            };
+        }
+
+        function computeColorHistogram(imageData) {
+            const bins = 16; // Reduced bins for performance
+            const histogram = { r: new Array(bins).fill(0), g: new Array(bins).fill(0), b: new Array(bins).fill(0) };
+            const binSize = 256 / bins;
+            
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                const r = Math.floor(imageData.data[i] / binSize);
+                const g = Math.floor(imageData.data[i + 1] / binSize);
+                const b = Math.floor(imageData.data[i + 2] / binSize);
+                
+                histogram.r[r]++;
+                histogram.g[g]++;
+                histogram.b[b]++;
+            }
+            
+            return histogram;
+        }
+
+        function computeSimpleEdges(imageData) {
+            const width = Math.sqrt(imageData.data.length / 4);
+            let edgeScore = 0;
+            
+            for (let i = 0; i < imageData.data.length - 4; i += 40) { // Sample every 10 pixels
+                const diff = Math.abs(imageData.data[i] - imageData.data[i + 4]);
+                edgeScore += diff;
+            }
+            
+            return edgeScore;
+        }
+
+        function compareVisualFingerprints(fp1, fp2) {
+            // Compare histograms using simplified correlation
+            let similarity = 0;
+            const channels = ['r', 'g', 'b'];
+            
+            channels.forEach(channel => {
+                for (let i = 0; i < fp1.histogram[channel].length; i++) {
+                    const diff = Math.abs(fp1.histogram[channel][i] - fp2.histogram[channel][i]);
+                    similarity += diff;
+                }
+            });
+            
+            // Compare edge maps
+            const edgeDiff = Math.abs(fp1.edgeMap - fp2.edgeMap);
+            similarity += edgeDiff / 1000;
+            
+            // Normalize to 0-1 scale (lower is better match)
+            return 1 - Math.min(similarity / 10000, 1);
+        }
+
+        function startEnvironmentScanning() {
+            if (scanInterval) return;
+            
+            const indicator = document.getElementById('ar-indicator');
+            indicator.classList.add('active');
+            
+            scanInterval = setInterval(() => {
+                if (!camera || camera.paused) return;
+                
+                // Scan center of view
+                const centerFingerprint = captureVisualFingerprint(50, 50, 80);
+                
+                // Find matching anchors
+                visualAnchors.forEach(anchor => {
+                    const similarity = compareVisualFingerprints(centerFingerprint, anchor.fingerprint);
+                    
+                    // If we find a good match, show notes for that location
+                    if (similarity > 0.7) { // 70% similarity threshold
+                        const matchingNotes = notes.filter(n => n.anchorId === anchor.id);
+                        if (matchingNotes.length > 0) {
+                            renderNotes();
+                            if (!isScanning) {
+                                showToast(`📍 Found ${matchingNotes.length} note${matchingNotes.length > 1 ? 's' : ''}`);
+                                vibrateDevice(100);
+                            }
+                            isScanning = true;
+                            setTimeout(() => isScanning = false, 2000);
+                        }
+                    }
+                });
+            }, 1000); // Scan every second
+        }
+
         // Event Listeners
         function setupEventListeners() {
-            document.getElementById('add-note-btn').addEventListener('click', openNoteModal);
+            document.getElementById('add-note-btn').addEventListener('click', () => {
+                openNoteModal(50, 50); // Center of screen
+            });
+            
             document.getElementById('view-notes-btn').addEventListener('click', openAllNotesModal);
             
             // Tap to place note on camera view
@@ -610,11 +777,9 @@
             document.getElementById('note-text').value = '';
             document.getElementById('note-type').value = 'idea';
             
-            // Store position for new note
             if (x !== null && y !== null) {
                 currentEditingNote = { x, y };
             } else {
-                // Random position if opened from button
                 currentEditingNote = {
                     x: Math.random() * 70 + 15,
                     y: Math.random() * 60 + 10
@@ -639,12 +804,19 @@
                 return;
             }
             
+            // Capture visual fingerprint of current view
+            const fingerprint = captureVisualFingerprint(currentEditingNote.x, currentEditingNote.y);
+            
+            // Create or find anchor
+            let anchorId = findOrCreateAnchor(fingerprint);
+            
             const note = {
                 id: Date.now(),
                 text,
                 type,
                 x: currentEditingNote.x,
                 y: currentEditingNote.y,
+                anchorId, // Link note to visual anchor
                 done: false,
                 createdAt: new Date().toISOString()
             };
@@ -653,8 +825,29 @@
             saveNotes();
             renderNotes();
             closeNoteModal();
-            showToast('📌 Pinned!');
-            vibrateDevice();
+            showToast('📌 Pinned to this location!');
+            vibrateDevice(50);
+        }
+
+        function findOrCreateAnchor(fingerprint) {
+            // Check if we already have a similar anchor
+            for (let anchor of visualAnchors) {
+                const similarity = compareVisualFingerprints(fingerprint, anchor.fingerprint);
+                if (similarity > 0.8) { // Very similar location
+                    return anchor.id;
+                }
+            }
+            
+            // Create new anchor
+            const newAnchor = {
+                id: 'anchor_' + Date.now(),
+                fingerprint,
+                createdAt: Date.now()
+            };
+            
+            visualAnchors.push(newAnchor);
+            saveAnchors();
+            return newAnchor.id;
         }
 
         function editNote(id) {
@@ -667,7 +860,6 @@
             document.getElementById('note-type').value = note.type;
             document.getElementById('note-modal').classList.add('active');
             
-            // Change save button to update
             const saveBtn = document.querySelector('#note-modal .btn-primary');
             saveBtn.textContent = 'Update 📝';
             saveBtn.onclick = () => updateNote(id);
@@ -688,7 +880,6 @@
                 closeNoteModal();
                 showToast('✨ Updated!');
                 
-                // Reset button
                 const saveBtn = document.querySelector('#note-modal .btn-primary');
                 saveBtn.textContent = 'Pinned! 📌';
                 saveBtn.onclick = saveNote;
@@ -699,11 +890,14 @@
             const note = notes.find(n => n.id === id);
             if (note) {
                 note.done = !note.done;
-                note.type = note.done ? 'done' : note.type;
+                note.type = note.done ? 'done' : (note.originalType || 'idea');
+                if (!note.done && !note.originalType) {
+                    note.originalType = note.type;
+                }
                 saveNotes();
                 renderNotes();
                 showToast(note.done ? '✓ Done!' : '↩️ Undone');
-                vibrateDevice();
+                vibrateDevice(50);
             }
         }
 
@@ -716,17 +910,32 @@
                     saveNotes();
                     renderNotes();
                     showToast('🗑️ Removed');
-                    vibrateDevice();
+                    vibrateDevice(50);
                 }, 400);
             }
         }
 
-        // Render Notes
+        // Render Notes - Only show notes for visible anchors
         function renderNotes() {
             const container = document.getElementById('notes-overlay');
             container.innerHTML = '';
             
+            // Get current view fingerprint
+            const currentFingerprint = captureVisualFingerprint(50, 50, 80);
+            
+            // Find which anchors are visible
+            const visibleAnchorIds = new Set();
+            visualAnchors.forEach(anchor => {
+                const similarity = compareVisualFingerprints(currentFingerprint, anchor.fingerprint);
+                if (similarity > 0.65) { // 65% match threshold for display
+                    visibleAnchorIds.add(anchor.id);
+                }
+            });
+            
+            // Only render notes for visible anchors
             notes.forEach(note => {
+                if (!visibleAnchorIds.has(note.anchorId)) return;
+                
                 const noteEl = document.createElement('div');
                 noteEl.className = `sticky-note note-${note.type}`;
                 noteEl.style.left = `${note.x}%`;
@@ -766,23 +975,44 @@
             if (notes.length === 0) {
                 list.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No notes yet. Tap the camera to add one!</p>';
             } else {
-                list.innerHTML = notes.map(note => {
-                    const typeLabels = {
-                        idea: '💡 Idea',
-                        urgent: '⚡ Urgent',
-                        reminder: '🔔 Reminder',
-                        done: '✓ Done'
-                    };
-                    return `
-                        <div class="note-item" onclick="focusNote(${note.id})">
-                            <div class="note-item-header">
-                                <span class="note-item-tag">${typeLabels[note.type]}</span>
-                                <span style="font-size: 0.7rem; color: var(--text-muted);">${formatTime(note.createdAt)}</span>
+                // Group notes by location
+                const notesByAnchor = {};
+                notes.forEach(note => {
+                    if (!notesByAnchor[note.anchorId]) {
+                        notesByAnchor[note.anchorId] = [];
+                    }
+                    notesByAnchor[note.anchorId].push(note);
+                });
+                
+                let html = '';
+                Object.keys(notesByAnchor).forEach((anchorId, index) => {
+                    const locationNotes = notesByAnchor[anchorId];
+                    html += `<div style="margin-bottom: 1.5rem;">
+                        <div style="font-size: 0.8rem; color: var(--zen-blue); margin-bottom: 0.5rem; font-weight: 600;">
+                            📍 Location ${index + 1} (${locationNotes.length} note${locationNotes.length > 1 ? 's' : ''})
+                        </div>`;
+                    
+                    locationNotes.forEach(note => {
+                        const typeLabels = {
+                            idea: '💡 Idea',
+                            urgent: '⚡ Urgent',
+                            reminder: '🔔 Reminder',
+                            done: '✓ Done'
+                        };
+                        html += `
+                            <div class="note-item" onclick="focusNote(${note.id})">
+                                <div class="note-item-header">
+                                    <span class="note-item-tag">${typeLabels[note.type]}</span>
+                                    <span style="font-size: 0.7rem; color: var(--text-muted);">${formatTime(note.createdAt)}</span>
+                                </div>
+                                <div class="note-item-content">${escapeHtml(note.text)}</div>
                             </div>
-                            <div class="note-item-content">${escapeHtml(note.text)}</div>
-                        </div>
-                    `;
-                }).join('');
+                        `;
+                    });
+                    html += '</div>';
+                });
+                
+                list.innerHTML = html;
             }
             
             document.getElementById('all-notes-modal').classList.add('active');
@@ -794,12 +1024,10 @@
 
         function focusNote(id) {
             closeAllNotesModal();
-            const noteEl = document.querySelector(`[data-id="${id}"]`);
-            if (noteEl) {
-                noteEl.style.animation = 'none';
-                setTimeout(() => {
-                    noteEl.style.animation = 'fadeIn 0.5s ease, breathe 2s ease-in-out 3';
-                }, 10);
+            const note = notes.find(n => n.id === id);
+            if (note) {
+                showToast('🎯 Point camera at that location to see the note');
+                vibrateDevice(100);
             }
         }
 
@@ -822,6 +1050,30 @@
             }
         }
 
+        function saveAnchors() {
+            try {
+                // Store only essential fingerprint data
+                const anchorsToStore = visualAnchors.map(a => ({
+                    id: a.id,
+                    fingerprint: a.fingerprint,
+                    createdAt: a.createdAt
+                }));
+                localStorage.setItem(ANCHOR_STORAGE_KEY, JSON.stringify(anchorsToStore));
+            } catch (e) {
+                console.error('Anchor storage error:', e);
+            }
+        }
+
+        function loadAnchors() {
+            try {
+                const stored = localStorage.getItem(ANCHOR_STORAGE_KEY);
+                visualAnchors = stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                console.error('Anchor load error:', e);
+                visualAnchors = [];
+            }
+        }
+
         // Utilities
         function showToast(message) {
             const toast = document.getElementById('toast');
@@ -830,9 +1082,9 @@
             setTimeout(() => toast.classList.remove('show'), 2500);
         }
 
-        function vibrateDevice() {
+        function vibrateDevice(duration = 50) {
             if ('vibrate' in navigator) {
-                navigator.vibrate(50);
+                navigator.vibrate(duration);
             }
         }
 
@@ -856,6 +1108,14 @@
             div.textContent = text;
             return div.innerHTML;
         }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (scanInterval) clearInterval(scanInterval);
+            if (camera && camera.srcObject) {
+                camera.srcObject.getTracks().forEach(track => track.stop());
+            }
+        });
     </script>
 </body>
 </html>
