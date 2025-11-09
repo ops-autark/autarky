@@ -1,475 +1,1089 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>CalmPaper – Zen Moodboard & Silent Room</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <!-- Google Fonts: Zen/Minimal -->
-  <link href="https://fonts.googleapis.com/css2?family=Sen:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <style>
-    /* ---- Zen Calm Global Styles ---- */
-    :root {
-      --bg-main: #f7f6f3;
-      --bg-jp: linear-gradient(120deg,#e3e2db 0,#f7eee3 35%,#cfe6df 100%);
-      --primary: #798478;
-      --accent: #c4ae7b;
-      --accent-2: #a2cfcf;
-      --note: #fdf7e9;
-      --note2: #eaf3ee;
-      --text: #2d2e2c;
-      --zen-shadow: 0 3px 28px 0 #bfc8ce4d;
-      --radius: 22px;
-      --sp-s: 11px;
-      --sp-m: 21px;
-    }
-    html,body {
-      min-height:100vh; margin:0; padding:0;
-      font-family: 'Sen','Montserrat',sans-serif;
-      background: var(--bg-jp);
-      color: var(--text);
-    }
-    #app {
-      min-height:100vh;
-      display:flex; flex-direction:column;
-      align-items:center;
-      width:100vw; max-width:600px; margin:0 auto;
-      box-sizing:border-box;
-      padding-bottom:87px;
-    }
-    header {
-      width:100%; max-width:600px;
-      display:flex; align-items:center; justify-content:space-between;
-      background:var(--note2); border-radius:0 0 22px 22px;
-      box-shadow: var(--zen-shadow);
-      margin-bottom:var(--sp-m);
-      padding:var(--sp-s) var(--sp-m);
-    }
-    .zen-logo {
-      font-family:'Sen','Montserrat',sans-serif; font-size:1.28em;
-      color:var(--primary); font-weight:800; letter-spacing:2px;
-      text-shadow:0 1px 0 #fff6,0 3px 18px #bfc8ce22;
-      user-select:none;
-    }
-    nav.bottom-nav {
-      position:fixed; left:50%; transform:translateX(-50%);
-      bottom:0; z-index:1000;
-      background:var(--note); width:100vw; max-width:600px;
-      border-radius:27px 27px 0 0;
-      box-shadow: 0 -2px 20px #cacaa633;
-      display:flex; justify-content:space-around;
-      height:67px;
-      align-items:center;
-    }
-    nav.bottom-nav button {
-      outline:none; border:none; background:transparent;
-      font-family:inherit; color:var(--primary);
-      font-size:1.04em; display:flex; flex-direction:column;
-      align-items:center; gap:1.6px;
-      cursor:pointer; border-radius:16px; padding:7px 7px;
-      transition:background .26s,color .26s;
-    }
-    nav.bottom-nav button.active,
-    nav.bottom-nav button:focus,
-    nav.bottom-nav button:hover {
-      background: var(--accent-2);
-      color:#fff;
-    }
-    main { width:96vw; max-width:570px;}
-    /* ----- Moodboard ----- */
-    .moodboard {
-      padding:var(--sp-m) 2vw; display:flex;
-      flex-direction:column; align-items:center;
-    }
-    .note-board-grid {
-      display:grid; grid-template-columns:repeat(auto-fill,minmax(178px,1fr));
-      gap: var(--sp-m); width:100%;
-    }
-    .note-tile {
-      background: var(--note);
-      border-radius:17px;
-      padding:var(--sp-s) var(--sp-m);
-      box-shadow:0 2px 13px #eeeae7bb;
-      font-family:inherit; font-size:1.09em;
-      margin-bottom: var(--sp-xs);
-      display:flex; flex-direction:column; gap:2px;
-      min-height:58px; transition:box-shadow .2s;
-      position:relative; word-wrap:break-word;
-      animation:boardIn .7s;
-    }
-    .note-tile .lang { font-size:0.78em; color:#b7b7b7;}
-    .note-public-mark {
-      position:absolute;top:6px;right:11px;font-size:1em;color:var(--primary);
-    }
-    @keyframes boardIn { from{opacity:.2;transform:translateY(22px)} to{opacity:1;transform:none} }
-    /* ----- New Note Section ----- */
-    .note-form-modal {
-      background: var(--note2); border-radius:18px;
-      box-shadow:var(--zen-shadow); margin:var(--sp-s) 0;
-      padding:var(--sp-m) var(--sp-m) var(--sp-s) var(--sp-m);
-      display:flex; flex-direction:column; align-items:stretch;
-      animation:modalFadeIn .6s;
-    }
-    @keyframes modalFadeIn { from{opacity:0;transform:scale(.95);} to{opacity:1;transform:none}}
-    textarea#newNote {
-      width:96%; min-height:49px; padding:10px;
-      font-size:1.09em; border-radius:12px;
-      border:1.5px solid #dedad1; font-family:inherit;
-      background:#fff6; color:var(--text);
-      resize:none; outline:none;
-      transition:border .23s;
-    }
-    textarea#newNote:focus { border:1.5px solid var(--primary);}
-    .note-action-row {
-      display:flex; align-items:center; gap:9px; margin-top: var(--sp-s);
-      justify-content:space-between;
-    }
-    .toggle-public {
-      display:flex; align-items:center; gap:2px;
-      cursor:pointer;
-      font-size:0.99em;
-    }
-    .toggle-public input {margin-right:4px;}
-    .note-btn {
-      background:var(--primary);color:#fff;
-      border:none; outline:none;
-      border-radius:12px; padding:7px 21px;
-      font-family:inherit;font-size:1em; cursor:pointer;
-      box-shadow:var(--zen-shadow); transition:background .19s,transform .13s;
-    }
-    .note-btn:hover, .note-btn:focus {background:var(--accent);}
-    /* ---- Focus Room: Video Room ---- */
-    .focus-room {
-      background: var(--bg-jp); padding:var(--sp-m) 1vw;
-      border-radius:20px; margin-top:var(--sp-m);
-      box-shadow:0 4px 24px 2px #a2cfcf33;
-      display:flex; flex-direction:column;align-items:center;
-      animation:boardIn .8s;
-    }
-    .focus-header {
-      display:flex; justify-content:space-between;
-      align-items:center; width:100%;
-      margin-bottom:5px;
-    }
-    .video-grid {
-      display:flex; flex-wrap:wrap; gap:var(--sp-m); justify-content:center;
-      margin:var(--sp-m) 0; width:100%;
-    }
-    .video-tile {
-      background:rgba(255,255,255,.34);
-      border-radius:11px; overflow:hidden;
-      display:flex; flex-direction:column;
-      align-items:center; box-shadow:0 2px 17px #5b66793a;
-      min-width:94px; min-height:103px; width:130px;
-      gap:3px;
-      aspect-ratio:11/13;
-      position:relative;
-    }
-    .video-name {
-      font-size:0.89em; color:#616e5d;
-      font-weight:600; background:#fff8;
-      border-radius:0 0 8px 8px; width:100%; text-align:center; padding:3px 2px;
-    }
-    .me-badge {
-      font-size:0.76em; color:#acc; padding:3px;
-      background:#b3ccb933;border-radius:7px;position:absolute;left:8px;top:8px;
-    }
-    /* --- Zen BGs & Ambient --- */
-    .zen-bg-jp {
-      background:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?fit=crop&w=900&q=40');
-      background-size:cover;
-      border-radius:18px; min-height:130px;
-      margin-bottom:var(--sp-m);
-      filter:brightness(1) contrast(1.06) sepia(.1) blur(1px);
-    }
-    .zen-bg-blur {
-      background:linear-gradient(125deg,#fbeec1aa 0,#c6e5c0aa 100%);
-      filter:blur(2px) brightness(.97);
-    }
-    /* --- Ambient Music Bar --- */
-    .music-bar {
-      display:flex;align-items:center;gap:7px;
-      font-size:0.89em;margin-bottom:9px;
-    }
-    .music-bar select, .music-bar button {
-      background:var(--note2);border:none;font-family:inherit;
-      border-radius:10px;padding:4px 9px;
-    }
-    .music-bar button {cursor:pointer;}
-    /* -- Responsive -- */
-    @media (max-width:540px){
-      #app,main{max-width:99vw;}
-      .video-tile{width:29vw;min-width:81px;}
-    }
-    @media (max-width:420px){
-      .note-board-grid{grid-template-columns:1fr;}
-      nav.bottom-nav{height:54px;}
-    }
-  </style>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalmPaper | Zen Moodboard & Silent Focus Room</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Variables for Zen Theme */
+        :root {
+            --primary-color: #8B7355; /* Earthy brown */
+            --secondary-color: #6B8E23; /* Olive green */
+            --accent-color: #CD5C5C; /* Soft red */
+            --bg-color: #F5F5F5; /* Off-white */
+            --text-color: #333333; /* Dark gray */
+            --light-text: #777777; /* Light gray */
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1a1a;
+                --text-color: #e0e0e0;
+                --light-text: #aaaaaa;
+            }
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: var(--transition);
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Button Styles */
+        button {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background-color: rgba(139, 115, 85, 0.1);
+        }
+
+        button.primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        button.primary:hover {
+            background-color: #7a6348;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            min-height: 70vh;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Note Entry Panel */
+        .note-panel {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .note-panel h2 {
+            font-weight: 400;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 16px;
+            resize: vertical;
+            transition: var(--transition);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.2);
+        }
+
+        .mood-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .mood-tag {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .mood-tag:hover {
+            transform: scale(1.05);
+        }
+
+        .mood-tag.selected {
+            border-color: var(--primary-color);
+        }
+
+        .privacy-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Moodboard Display */
+        .moodboard-panel {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            min-height: 500px;
+        }
+
+        .moodboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .moodboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .note-card {
+            background: #f9f9f9;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.5s ease;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .note-card.private {
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .note-card.public {
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .note-content {
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .note-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--light-text);
+        }
+
+        .note-mood {
+            font-size: 18px;
+        }
+
+        /* Focus Room */
+        .focus-room {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            z-index: 100;
+            flex-direction: column;
+        }
+
+        .focus-room.active {
+            display: flex;
+        }
+
+        .focus-room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: white;
+            box-shadow: var(--shadow);
+        }
+
+        .video-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 10px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+            font-size: 12px;
+        }
+
+        .focus-room-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .control-btn.raised-hand {
+            background: var(--accent-color);
+            animation: pulse 2s infinite;
+        }
+
+        /* Ambient Controls */
+        .ambient-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .ambient-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            color: var(--primary-color);
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .ambient-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .ambient-panel {
+            position: absolute;
+            bottom: 60px;
+            right: 0;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            width: 200px;
+            display: none;
+        }
+
+        .ambient-panel.active {
+            display: block;
+        }
+
+        .ambient-option {
+            padding: 10px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ambient-option:hover {
+            background: #f5f5f5;
+        }
+
+        .ambient-option.active {
+            background: rgba(139, 115, 85, 0.1);
+            color: var(--primary-color);
+        }
+
+        /* Background Animations */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-20 {
+            margin-top: 20px;
+        }
+
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--light-text);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
 </head>
 <body>
-  <div id="app">
-    <header>
-      <span class="zen-logo">禅 CalmPaper</span>
-      <button id="roomBtn" class="note-btn" tabindex="0"><span class="material-icons" style="font-size:1.2em">video_camera_front</span>Focus Room</button>
-    </header>
-    <main id="main">
-      <!-- Content rendered here -->
-    </main>
-    <nav class="bottom-nav" aria-label="Navigation">
-      <button data-page="moodboard" class="active"><span class="material-icons">dashboard</span>Moodboard</button>
-      <button data-page="room"><span class="material-icons">video_camera_front</span>Focus Room</button>
-    </nav>
-  </div>
-  <audio id="ambient" loop>
-    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9e8aab.mp3" type="audio/mp3">
-  </audio>
-  <script>
-    // ----- Ambient Music (can swap to more tracks)
-    const AMBIENT_TRACKS = [
-      {name:'Zen Garden', src:'https://cdn.pixabay.com/audio/2022/03/15/audio_115b9e8aab.mp3'},
-      {name:'Mountain Stream', src:'https://cdn.pixabay.com/audio/2022/03/03/audio_1152d09bfa.mp3'},
-      {name:'Night Sakura', src:'https://cdn.pixabay.com/audio/2023/04/11/audio_129e313347.mp3'},
-      {name:'Temple Rain', src:'https://cdn.pixabay.com/audio/2022/03/15/audio_115b9e8aab.mp3'}
-    ];
-    let ambient = document.getElementById('ambient');
-    let currentTrack = 0;
-    function playAmbient(idx) {
-      let t = AMBIENT_TRACKS[idx||0];
-      if(!t) return;
-      ambient.src = t.src; ambient.play(); currentTrack=idx||0;
-    }
-    // ---- Moodboard & Notes ----
-    const MOOD_KEY = "calmpaper_notes";
-    let state = {
-      page:'moodboard',
-      notes: [],
-      isPublic:false
-    };
-
-    function loadNotes() {
-      try {
-        let notes = JSON.parse(localStorage.getItem(MOOD_KEY) || "[]");
-        if (!Array.isArray(notes)) notes = [];
-        state.notes = notes;
-      } catch { state.notes = []; }
-    }
-    function saveNotes() {
-      localStorage.setItem(MOOD_KEY, JSON.stringify(state.notes));
-    }
-    // Simulate global board: for demo, "public" notes are saved locally and rotated in the board
-    function getPublicNotes() {
-      // Return only notes with public flag
-      return state.notes.filter(n=>n.public).slice(-20).reverse();
-    }
-    // ---- UI Rendering ----
-    const $ = sel => document.querySelector(sel);
-
-    function renderMoodboard() {
-      let publicNotes = getPublicNotes();
-      let board = `
-        <section class="moodboard" style="margin-top:11px;">
-          <div class="note-form-modal">
-            <textarea id="newNote" maxlength="160" placeholder="Type a calm thought, inspiration, or note… (any language, emoji)"></textarea>
-            <div class="note-action-row">
-              <label class="toggle-public">
-                <input type="checkbox" id="publicToggle"${state.isPublic?' checked':''}/>Public
-                <span class="material-icons" style="font-size:1.06em;vertical-align:middle;">public</span>
-              </label>
-              <button class="note-btn" id="addNote">Share</button>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-leaf"></i>
+                <h1>CalmPaper</h1>
             </div>
-          </div>
-          <div style="font-size:1.00em;margin-bottom:7px;color:#beb693;">
-            <span class="material-icons" style="font-size:1.11em;vertical-align:middle;color:var(--accent);">dashboard</span>
-            Recent world thoughts:
-          </div>
-          <div class="note-board-grid">
-            ${publicNotes.length?publicNotes.map(n=>
-              `<div class="note-tile">
-                  ${n.text.replace(/</g,'&lt;')}
-                  <div class="note-public-mark material-icons" title="public note">public</div>
-                  <div class="lang">${n.language||''}</div>
-              </div>`
-            ).join(''):
-            `<div style="padding:13px;color:#b9a469;opacity:.6;">No public notes yet. Add the first inspiration for the world.</div>`
-            }
-          </div>
-        </section>`;
-      $('#main').innerHTML = board;
-      $('#addNote').onclick = addNote;
-      $('#publicToggle').onchange = e => { state.isPublic = e.target.checked; };
-      $('#newNote').addEventListener('keydown',e=>{ if(e.key==='Enter' && !e.shiftKey) {addNote();e.preventDefault();}});
-    }
-
-    function addNote() {
-      let noteInput = $('#newNote');
-      let txt = noteInput.value.trim();
-      if(!txt) return;
-      let language = txt.match(/[^\x00-\x7F]/) ? '🌏' : '';
-      state.notes.push({text:txt,dt:Date.now(),public:state.isPublic,language});
-      if(state.notes.length>100) state.notes=state.notes.slice(-80);
-      saveNotes();
-      noteInput.value="";
-      renderMoodboard();
-    }
-    // ---- Page Routing & Nav ----
-    function goPage(page){
-      state.page=page;
-      document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
-      if(page==='moodboard') renderMoodboard();
-      if(page==='room') renderFocusRoom();
-    }
-    document.querySelectorAll('.bottom-nav button').forEach(b=>b.onclick=()=>goPage(b.dataset.page));
-    document.getElementById('roomBtn').onclick = ()=>goPage('room');
-
-    // ---- Focus Room (WebRTC demo, PeerJS cloud server used for quick test) ----
-    let peer = null, myID="", connections=[], localStream=null;
-    let focusUsers = {};
-
-    async function renderFocusRoom() {
-      let roomHTML = `
-        <div class="focus-room">
-          <div class="focus-header">
-            <span><span class="material-icons" style="font-size:1.2em;vertical-align:middle;">video_camera_front</span> Silent Focus Room (video required, all muted)</span>
-            <div class="music-bar">
-              <span class="material-icons" style="font-size:1.11em;vertical-align:middle;color:var(--accent);">music_note</span>
-              <select id="musicSel">${AMBIENT_TRACKS.map((t,i)=>`<option value="${i}"${i===currentTrack?' selected':''}>${t.name}</option>`).join('')}</select>
-              <button id="pauseMusic" title="Pause/Play ambient">${ambient.paused?'▶':'❙❙'}</button>
+            <div class="nav-buttons">
+                <button id="focus-room-btn">
+                    <i class="fas fa-video"></i> Focus Room
+                </button>
+                <button id="settings-btn">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
             </div>
-          </div>
-          <div class="zen-bg-jp" style="width:99%;height:90px;margin:6px auto 19px auto;"></div>
-          <div style="font-size:0.98em;color:#9da188;margin-bottom:8px;">
-            All video, all silent. Focus vibes only. Raise hand to share a note.
-          </div>
-          <div class="video-grid" id="videoGrid">
-            <div style="color:#b1b1a1;font-size:1em;" id="videoMsg">Connecting you to Zen focus room…</div>
-          </div>
-          <button class="note-btn" id="raiseHandBtn" style="margin:8px auto 0 auto;">
-            <span class="material-icons" style="font-size:1.09em;vertical-align:middle;">pan_tool</span>
-            Raise hand & post a mood note
-          </button>
+        </header>
+
+        <div class="main-content">
+            <div class="note-panel">
+                <h2>Share Your Thought</h2>
+                <textarea id="note-input" placeholder="Write your calm note here... (any language)"></textarea>
+                
+                <div class="mood-tags">
+                    <div class="mood-tag" data-mood="😊">😊</div>
+                    <div class="mood-tag" data-mood="😌">😌</div>
+                    <div class="mood-tag" data-mood="🧘">🧘</div>
+                    <div class="mood-tag" data-mood="🌱">🌱</div>
+                    <div class="mood-tag" data-mood="🌸">🌸</div>
+                    <div class="mood-tag" data-mood="🍃">🍃</div>
+                    <div class="mood-tag" data-mood="☕">☕</div>
+                    <div class="mood-tag" data-mood="📖">📖</div>
+                </div>
+                
+                <div class="privacy-toggle">
+                    <span>Private Note</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="privacy-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span>Share to World</span>
+                </div>
+                
+                <button id="post-note-btn" class="primary">
+                    <i class="fas fa-paper-plane"></i> Post Note
+                </button>
+            </div>
+
+            <div class="moodboard-panel">
+                <div class="moodboard-header">
+                    <h2>World Moodboard</h2>
+                    <button id="refresh-board">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                <div class="moodboard-grid" id="moodboard-grid">
+                    <!-- Notes will be dynamically added here -->
+                    <div class="empty-state">
+                        <i class="fas fa-wind"></i>
+                        <p>No notes yet. Be the first to share your calm thought.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-      `;
-      $('#main').innerHTML = roomHTML;
+    </div>
 
-      $("#musicSel").onchange=(e)=>{ playAmbient(+e.target.value); }
-      $("#pauseMusic").onclick=()=>{
-        if(ambient.paused) { ambient.play(); $("#pauseMusic").innerText='❙❙'; }
-        else { ambient.pause(); $("#pauseMusic").innerText='▶'; }
-      };
+    <!-- Focus Room -->
+    <div class="focus-room" id="focus-room">
+        <div class="focus-room-header">
+            <h2>Silent Focus Room</h2>
+            <button id="exit-focus-room">
+                <i class="fas fa-times"></i> Exit
+            </button>
+        </div>
+        <div class="video-grid" id="video-grid">
+            <!-- Video containers will be added here -->
+            <div class="video-container">
+                <video id="local-video" autoplay muted></video>
+                <div class="video-label">You</div>
+            </div>
+            <!-- Placeholder for remote participants -->
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <p>Waiting for others to join the focus room...</p>
+            </div>
+        </div>
+        <div class="focus-room-controls">
+            <button class="control-btn" id="toggle-video">
+                <i class="fas fa-video"></i>
+            </button>
+            <button class="control-btn" id="toggle-audio">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <button class="control-btn" id="raise-hand">
+                <i class="fas fa-hand-paper"></i>
+            </button>
+        </div>
+    </div>
 
-      $("#raiseHandBtn").onclick = ()=>{
-        showRaiseHand();
-      };
+    <!-- Ambient Controls -->
+    <div class="ambient-controls">
+        <div class="ambient-btn" id="ambient-sound-btn">
+            <i class="fas fa-music"></i>
+        </div>
+        <div class="ambient-btn" id="background-btn">
+            <i class="fas fa-mountain"></i>
+        </div>
+        
+        <div class="ambient-panel" id="sound-panel">
+            <div class="ambient-option" data-sound="rain">
+                <i class="fas fa-cloud-rain"></i> Rain
+            </div>
+            <div class="ambient-option" data-sound="wind">
+                <i class="fas fa-wind"></i> Wind
+            </div>
+            <div class="ambient-option" data-sound="stream">
+                <i class="fas fa-water"></i> Stream
+            </div>
+            <div class="ambient-option" data-sound="temple">
+                <i class="fas fa-place-of-worship"></i> Temple
+            </div>
+            <div class="ambient-option" data-sound="none">
+                <i class="fas fa-volume-mute"></i> None
+            </div>
+        </div>
+        
+        <div class="ambient-panel" id="background-panel">
+            <div class="ambient-option" data-bg="garden">
+                <i class="fas fa-seedling"></i> Garden
+            </div>
+            <div class="ambient-option" data-bg="rain">
+                <i class="fas fa-cloud-rain"></i> Rain
+            </div>
+            <div class="ambient-option" data-bg="night">
+                <i class="fas fa-moon"></i> Night
+            </div>
+            <div class="ambient-option" data-bg="shrine">
+                <i class="fas fa-torii-gate"></i> Shrine
+            </div>
+            <div class="ambient-option" data-bg="none">
+                <i class="fas fa-times"></i> None
+            </div>
+        </div>
+    </div>
 
-      await bootFocusRoom();
-    }
+    <!-- Background Animation -->
+    <div class="background-animation" id="background-animation"></div>
 
-    // ------ VIDEO ROOM VIA PEERJS CLOUD ------
-    async function bootFocusRoom() {
-      if(localStream) { showVideo(); return; }
-      // Request Camera
-      let videoMsg = document.getElementById('videoMsg');
-      if(!navigator.mediaDevices) {
-        videoMsg.innerText="Browser not supported.";
-        return;
-      }
-      try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:false });
-      } catch {
-        videoMsg.innerText="Camera required to join the Focus Room.";
-        return;
-      }
-      // PeerJS cloud room (random but stable room name)
-      if(!peer) peer = new Peer(undefined,{
-        host:"peerjs.com",
-        secure:true,
-        port:443
-      });
-      peer.on('open',id=>{
-        myID = id;
-        focusUsers[id] = true;
-        joinPeerRoom();
-      });
-      peer.on('call',call=>{
-        call.answer(localStream);
-        call.on('stream', remoteStream=>{
-          addRemoteVideo(call.peer,remoteStream);
-        });
-      });
-      peer.on('connection',conn=>{
-        conn.on('open',()=>connections.push(conn));
-      });
-      // No room logic, fast peer-mesh: call all existing seen IDs
-      window.peer=peer;
-    }
-    function joinPeerRoom() {
-      // For demo, collect all room IDs in url hash for new connections
-      setTimeout(()=>{
-        document.getElementById('videoMsg').innerText="You are live in the Focus Room!";
-        showVideo();
-        // Simulate mesh call by polling every 5s for new peers
-        setInterval(()=>{
-          if(!peer) return;
-          // In real: use server to share IDs; here crude url hash
-          let ids=(location.hash||"").replace('#','').split(',').filter(String);
-          if(!ids.includes(myID)) ids.push(myID);
-          location.hash = ids.join(',');
-          ids.filter(id=>id!==myID && !focusUsers[id])
-             .forEach(id=>{
-                let call = peer.call(id,localStream);
-                focusUsers[id]=true;
-                call.on('stream',stream=>addRemoteVideo(id,stream));
-             });
-       },5200);
-      },600);
-    }
-    function showVideo() {
-      const grid = $('#videoGrid');
-      grid.innerHTML = '';
-      // Local video
-      if(localStream) {
-        let v = document.createElement('video');
-        v.autoplay=true;v.muted=true;v.playsInline=true;
-        v.srcObject=localStream; v.style.width='94%';
-        let tile = document.createElement('div');
-        tile.className='video-tile';
-        tile.appendChild(v);
-        tile.innerHTML+='<div class="me-badge">You</div>';
-        tile.innerHTML+='<div class="video-name">Focus</div>';
-        grid.appendChild(tile);
-      }
-      // Other peers in room (demo: show how tiles work)
-      // For a real global room use a simple signaling server, e.g. Firebase or small static relay.
-    }
-    function addRemoteVideo(peerId,stream) {
-      if(document.getElementById("vid_"+peerId)) return;
-      let grid = $('#videoGrid');
-      let v = document.createElement('video');
-      v.autoplay=true; v.playsInline=true; v.srcObject=stream; v.style.width='94%';
-      let tile = document.createElement('div');
-      tile.className='video-tile'; tile.id="vid_"+peerId;
-      tile.appendChild(v);
-      tile.innerHTML+='<div class="video-name">Focus</div>';
-      grid.appendChild(tile);
-    }
+    <!-- Audio Elements -->
+    <audio id="rain-sound" loop>
+        <source src="https://assets.mixkit.co/active_storage/sfx/169/169-preview.mp3" type="audio/mp3">
+    </audio>
+    <audio id="wind-sound" loop>
+        <source src="https://assets.mixkit.co/active_storage/sfx/185/185-preview.mp3" type="audio/mp3">
+    </audio>
+    <audio id="stream-sound" loop>
+        <source src="https://assets.mixkit.co/active_storage/sfx/178/178-preview.mp3" type="audio/mp3">
+    </audio>
+    <audio id="temple-sound" loop>
+        <source src="https://assets.mixkit.co/active_storage/sfx/250/250-preview.mp3" type="audio/mp3">
+    </audio>
 
-    // ------------- RAISE HAND/NON-INTRUSIVE NOTE SHARING -----------
-    function showRaiseHand() {
-      let note = prompt("Share a brief mood/thought to the room (shown to all screens):");
-      if(note&&note.trim()) {
-        // For now, add to public notes.
-        state.notes.push({text:note.trim(),dt:Date.now(),public:true,language:''});
-        saveNotes();
-        alert("Your shared mood was posted to the world moodboard.");
-      }
-    }
+    <script>
+        // App State
+        const state = {
+            notes: JSON.parse(localStorage.getItem('calmpaper-notes')) || [],
+            currentMood: '',
+            isPublic: true,
+            currentSound: localStorage.getItem('calmpaper-sound') || 'none',
+            currentBackground: localStorage.getItem('calmpaper-background') || 'garden',
+            isInFocusRoom: false,
+            isVideoOn: true,
+            isAudioOn: false, // Always muted by default in focus room
+            isHandRaised: false
+        };
 
-    // -------- INITIAL BOOT -------
-    loadNotes();
-    goPage('moodboard');
-    playAmbient(0);
-  </script>
+        // DOM Elements
+        const noteInput = document.getElementById('note-input');
+        const moodTags = document.querySelectorAll('.mood-tag');
+        const privacyToggle = document.getElementById('privacy-toggle');
+        const postNoteBtn = document.getElementById('post-note-btn');
+        const moodboardGrid = document.getElementById('moodboard-grid');
+        const refreshBoardBtn = document.getElementById('refresh-board');
+        const focusRoomBtn = document.getElementById('focus-room-btn');
+        const focusRoom = document.getElementById('focus-room');
+        const exitFocusRoomBtn = document.getElementById('exit-focus-room');
+        const toggleVideoBtn = document.getElementById('toggle-video');
+        const toggleAudioBtn = document.getElementById('toggle-audio');
+        const raiseHandBtn = document.getElementById('raise-hand');
+        const localVideo = document.getElementById('local-video');
+        const videoGrid = document.getElementById('video-grid');
+        const ambientSoundBtn = document.getElementById('ambient-sound-btn');
+        const backgroundBtn = document.getElementById('background-btn');
+        const soundPanel = document.getElementById('sound-panel');
+        const backgroundPanel = document.getElementById('background-panel');
+        const soundOptions = document.querySelectorAll('#sound-panel .ambient-option');
+        const backgroundOptions = document.querySelectorAll('#background-panel .ambient-option');
+        const backgroundAnimation = document.getElementById('background-animation');
+        const audioElements = {
+            rain: document.getElementById('rain-sound'),
+            wind: document.getElementById('wind-sound'),
+            stream: document.getElementById('stream-sound'),
+            temple: document.getElementById('temple-sound')
+        };
+
+        // Initialize the app
+        function init() {
+            // Load saved notes
+            renderNotes();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Initialize ambient sound and background
+            setAmbientSound(state.currentSound);
+            setBackground(state.currentBackground);
+            
+            // Set initial privacy toggle state
+            privacyToggle.checked = state.isPublic;
+        }
+
+        // Set up all event listeners
+        function setupEventListeners() {
+            // Mood tag selection
+            moodTags.forEach(tag => {
+                tag.addEventListener('click', () => {
+                    // Remove selected class from all tags
+                    moodTags.forEach(t => t.classList.remove('selected'));
+                    // Add selected class to clicked tag
+                    tag.classList.add('selected');
+                    state.currentMood = tag.getAttribute('data-mood');
+                });
+            });
+
+            // Privacy toggle
+            privacyToggle.addEventListener('change', () => {
+                state.isPublic = privacyToggle.checked;
+            });
+
+            // Post note
+            postNoteBtn.addEventListener('click', addNote);
+
+            // Refresh moodboard
+            refreshBoardBtn.addEventListener('click', renderNotes);
+
+            // Focus room
+            focusRoomBtn.addEventListener('click', enterFocusRoom);
+            exitFocusRoomBtn.addEventListener('click', exitFocusRoom);
+            toggleVideoBtn.addEventListener('click', toggleVideo);
+            toggleAudioBtn.addEventListener('click', toggleAudio);
+            raiseHandBtn.addEventListener('click', toggleRaiseHand);
+
+            // Ambient controls
+            ambientSoundBtn.addEventListener('click', () => {
+                soundPanel.classList.toggle('active');
+                backgroundPanel.classList.remove('active');
+            });
+
+            backgroundBtn.addEventListener('click', () => {
+                backgroundPanel.classList.toggle('active');
+                soundPanel.classList.remove('active');
+            });
+
+            // Sound options
+            soundOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const sound = option.getAttribute('data-sound');
+                    setAmbientSound(sound);
+                    soundPanel.classList.remove('active');
+                });
+            });
+
+            // Background options
+            backgroundOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const bg = option.getAttribute('data-bg');
+                    setBackground(bg);
+                    backgroundPanel.classList.remove('active');
+                });
+            });
+
+            // Close ambient panels when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!ambientSoundBtn.contains(e.target) && !soundPanel.contains(e.target)) {
+                    soundPanel.classList.remove('active');
+                }
+                if (!backgroundBtn.contains(e.target) && !backgroundPanel.contains(e.target)) {
+                    backgroundPanel.classList.remove('active');
+                }
+            });
+        }
+
+        // Add a new note
+        function addNote() {
+            const content = noteInput.value.trim();
+            if (!content) return;
+
+            const newNote = {
+                id: Date.now().toString(),
+                content: content,
+                mood: state.currentMood,
+                isPublic: state.isPublic,
+                timestamp: new Date().toISOString()
+            };
+
+            state.notes.unshift(newNote);
+            saveNotes();
+            renderNotes();
+            
+            // Reset form
+            noteInput.value = '';
+            moodTags.forEach(tag => tag.classList.remove('selected'));
+            state.currentMood = '';
+            
+            // Show confirmation
+            showTemporaryMessage('Note added successfully', 'success');
+        }
+
+        // Save notes to localStorage
+        function saveNotes() {
+            localStorage.setItem('calmpaper-notes', JSON.stringify(state.notes));
+        }
+
+        // Render notes to the moodboard
+        function renderNotes() {
+            // Filter notes based on privacy setting (show only public notes in world moodboard)
+            const publicNotes = state.notes.filter(note => note.isPublic);
+            
+            if (publicNotes.length === 0) {
+                moodboardGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-wind"></i>
+                        <p>No notes yet. Be the first to share your calm thought.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            moodboardGrid.innerHTML = publicNotes.map(note => `
+                <div class="note-card public" data-id="${note.id}">
+                    <div class="note-content">${note.content}</div>
+                    <div class="note-meta">
+                        <span class="note-mood">${note.mood}</span>
+                        <span class="note-time">${formatTime(note.timestamp)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Format timestamp for display
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            
+            return date.toLocaleDateString();
+        }
+
+        // Set ambient sound
+        function setAmbientSound(sound) {
+            // Stop all sounds
+            Object.values(audioElements).forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
+            
+            // Update active state in UI
+            soundOptions.forEach(option => {
+                if (option.getAttribute('data-sound') === sound) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+            
+            // Play selected sound if not "none"
+            if (sound !== 'none' && audioElements[sound]) {
+                audioElements[sound].play().catch(e => {
+                    console.log('Audio play failed, user interaction might be required:', e);
+                });
+            }
+            
+            state.currentSound = sound;
+            localStorage.setItem('calmpaper-sound', sound);
+        }
+
+        // Set background animation
+        function setBackground(bg) {
+            // Update active state in UI
+            backgroundOptions.forEach(option => {
+                if (option.getAttribute('data-bg') === bg) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+            
+            // Set background animation based on selection
+            let bgHTML = '';
+            switch(bg) {
+                case 'garden':
+                    bgHTML = `
+                        <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #6B8E23 0%, #8FBC8F 100%);"></div>
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 30%; background: #8B7355;"></div>
+                    `;
+                    break;
+                case 'rain':
+                    bgHTML = `
+                        <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #4682B4 0%, #87CEEB 100%);"></div>
+                        <div class="rain-drops"></div>
+                    `;
+                    break;
+                case 'night':
+                    bgHTML = `
+                        <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #191970 0%, #000080 100%);"></div>
+                        <div class="stars"></div>
+                    `;
+                    break;
+                case 'shrine':
+                    bgHTML = `
+                        <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #8B7355 0%, #D2B48C 100%);"></div>
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 20%; background: #6B8E23;"></div>
+                    `;
+                    break;
+                default:
+                    bgHTML = '';
+            }
+            
+            backgroundAnimation.innerHTML = bgHTML;
+            state.currentBackground = bg;
+            localStorage.setItem('calmpaper-background', bg);
+        }
+
+        // Enter focus room
+        function enterFocusRoom() {
+            focusRoom.classList.add('active');
+            state.isInFocusRoom = true;
+            
+            // Initialize video (simulated for demo)
+            initializeVideo();
+            
+            // Add some placeholder participants for demo
+            setTimeout(() => {
+                if (videoGrid.querySelector('.empty-state')) {
+                    videoGrid.querySelector('.empty-state').remove();
+                    
+                    // Add placeholder participants
+                    for (let i = 1; i <= 3; i++) {
+                        const videoContainer = document.createElement('div');
+                        videoContainer.className = 'video-container';
+                        videoContainer.innerHTML = `
+                            <div style="width: 100%; height: 100%; background: #333; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-user" style="font-size: 40px;"></i>
+                            </div>
+                            <div class="video-label">Participant ${i}</div>
+                        `;
+                        videoGrid.appendChild(videoContainer);
+                    }
+                }
+            }, 2000);
+        }
+
+        // Exit focus room
+        function exitFocusRoom() {
+            focusRoom.classList.remove('active');
+            state.isInFocusRoom = false;
+            
+            // Stop video streams
+            if (localVideo.srcObject) {
+                localVideo.srcObject.getTracks().forEach(track => track.stop());
+                localVideo.srcObject = null;
+            }
+            
+            // Reset UI
+            toggleVideoBtn.innerHTML = '<i class="fas fa-video"></i>';
+            toggleAudioBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+            raiseHandBtn.classList.remove('raised-hand');
+            state.isVideoOn = true;
+            state.isAudioOn = false;
+            state.isHandRaised = false;
+        }
+
+        // Initialize video (simulated for demo)
+        function initializeVideo() {
+            // In a real implementation, this would use getUserMedia
+            // For demo purposes, we'll simulate it
+            console.log("Initializing video...");
+            
+            // Simulate video initialization
+            setTimeout(() => {
+                // This would normally set the video stream
+                // localVideo.srcObject = stream;
+                console.log("Video initialized (simulated)");
+            }, 500);
+        }
+
+        // Toggle video on/off
+        function toggleVideo() {
+            state.isVideoOn = !state.isVideoOn;
+            
+            if (state.isVideoOn) {
+                toggleVideoBtn.innerHTML = '<i class="fas fa-video"></i>';
+                // In real implementation: enable video track
+                console.log("Video enabled");
+            } else {
+                toggleVideoBtn.innerHTML = '<i class="fas fa-video-slash"></i>';
+                // In real implementation: disable video track
+                console.log("Video disabled");
+            }
+        }
+
+        // Toggle audio on/off (always starts muted)
+        function toggleAudio() {
+            state.isAudioOn = !state.isAudioOn;
+            
+            if (state.isAudioOn) {
+                toggleAudioBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                // In real implementation: enable audio track
+                console.log("Audio enabled");
+            } else {
+                toggleAudioBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+                // In real implementation: disable audio track
+                console.log("Audio disabled");
+            }
+        }
+
+        // Toggle raise hand
+        function toggleRaiseHand() {
+            state.isHandRaised = !state.isHandRaised;
+            
+            if (state.isHandRaised) {
+                raiseHandBtn.classList.add('raised-hand');
+                // Show a temporary note in the focus room
+                showTemporaryMessage('You raised your hand', 'info');
+            } else {
+                raiseHandBtn.classList.remove('raised-hand');
+            }
+        }
+
+        // Show temporary message
+        function showTemporaryMessage(message, type) {
+            const messageEl = document.createElement('div');
+            messageEl.textContent = message;
+            messageEl.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 10px 20px;
+                border-radius: var(--border-radius);
+                background: ${type === 'success' ? '#4CAF50' : '#2196F3'};
+                color: white;
+                z-index: 1000;
+                animation: fadeIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+            `;
+            
+            document.body.appendChild(messageEl);
+            
+            setTimeout(() => {
+                if (document.body.contains(messageEl)) {
+                    document.body.removeChild(messageEl);
+                }
+            }, 3000);
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>
