@@ -3,1087 +3,446 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CalmPaper | Zen Moodboard & Silent Focus Room</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Zen Portfolio</title>
     <style>
-        /* CSS Variables for Zen Theme */
-        :root {
-            --primary-color: #8B7355; /* Earthy brown */
-            --secondary-color: #6B8E23; /* Olive green */
-            --accent-color: #CD5C5C; /* Soft red */
-            --bg-color: #F5F5F5; /* Off-white */
-            --text-color: #333333; /* Dark gray */
-            --light-text: #777777; /* Light gray */
-            --border-radius: 8px;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            --transition: all 0.3s ease;
-        }
-
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #1a1a1a;
-                --text-color: #e0e0e0;
-                --light-text: #aaaaaa;
-            }
-        }
-
-        /* Base Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+        }
+        
+        body {
+            background-color: #f8f5f2;
+            color: #333;
             line-height: 1.6;
             overflow-x: hidden;
-            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-
-        .app-container {
+        
+        .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 2rem;
+            flex: 1;
         }
-
-        /* Header Styles */
+        
         header {
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            margin-bottom: 3rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            color: #2a2a2a;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            font-weight: 300;
+            color: #777;
+            letter-spacing: 3px;
+        }
+        
+        .nav-container {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            justify-content: center;
+            margin: 2rem 0;
         }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo i {
-            font-size: 24px;
-            color: var(--primary-color);
-        }
-
-        .logo h1 {
-            font-size: 24px;
+        
+        .nav-item {
+            padding: 0.8rem 1.5rem;
+            margin: 0 0.5rem;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.3s ease;
             font-weight: 300;
             letter-spacing: 1px;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 15px;
-        }
-
-        /* Button Styles */
-        button {
-            background: transparent;
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 8px 16px;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        button:hover {
-            background-color: rgba(139, 115, 85, 0.1);
-        }
-
-        button.primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        button.primary:hover {
-            background-color: #7a6348;
-        }
-
-        /* Main Content Area */
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 30px;
-            min-height: 70vh;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Note Entry Panel */
-        .note-panel {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .note-panel h2 {
-            font-weight: 400;
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 120px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-            font-family: inherit;
-            font-size: 16px;
-            resize: vertical;
-            transition: var(--transition);
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.2);
-        }
-
-        .mood-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 10px 0;
-        }
-
-        .mood-tag {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: var(--transition);
-            border: 1px solid transparent;
-        }
-
-        .mood-tag:hover {
-            transform: scale(1.05);
-        }
-
-        .mood-tag.selected {
-            border-color: var(--primary-color);
-        }
-
-        .privacy-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 10px 0;
-        }
-
-        .toggle-switch {
             position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
+            overflow: hidden;
         }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
+        
+        .nav-item::after {
+            content: '';
             position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
             bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
+            left: 50%;
+            width: 0;
+            height: 1px;
+            background-color: #333;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
         }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
+        
+        .nav-item:hover::after {
+            width: 70%;
         }
-
-        input:checked + .slider {
-            background-color: var(--primary-color);
+        
+        .nav-item.active {
+            background-color: rgba(0,0,0,0.03);
         }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        /* Moodboard Display */
-        .moodboard-panel {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            min-height: 500px;
-        }
-
-        .moodboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .moodboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .note-card {
-            background: #f9f9f9;
-            border-radius: var(--border-radius);
-            padding: 15px;
-            box-shadow: var(--shadow);
+        
+        .content-section {
+            display: none;
             animation: fadeIn 0.5s ease;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
         }
-
-        .note-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .note-card.private {
-            border-left: 4px solid var(--accent-color);
-        }
-
-        .note-card.public {
-            border-left: 4px solid var(--secondary-color);
-        }
-
-        .note-content {
-            margin-bottom: 10px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .note-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--light-text);
-        }
-
-        .note-mood {
-            font-size: 18px;
-        }
-
-        /* Focus Room */
-        .focus-room {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-color);
-            z-index: 100;
-            flex-direction: column;
-        }
-
-        .focus-room.active {
-            display: flex;
-        }
-
-        .focus-room-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background: white;
-            box-shadow: var(--shadow);
-        }
-
-        .video-grid {
-            flex: 1;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 10px;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .video-container {
-            position: relative;
-            background: #000;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            aspect-ratio: 16/9;
-        }
-
-        .video-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .video-label {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            padding: 5px 10px;
-            border-radius: var(--border-radius);
-            font-size: 12px;
-        }
-
-        .focus-room-controls {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .control-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .control-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .control-btn.raised-hand {
-            background: var(--accent-color);
-            animation: pulse 2s infinite;
-        }
-
-        /* Ambient Controls */
-        .ambient-controls {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 10;
-        }
-
-        .ambient-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            color: var(--primary-color);
-            border: 1px solid #ddd;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
-        }
-
-        .ambient-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .ambient-panel {
-            position: absolute;
-            bottom: 60px;
-            right: 0;
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 15px;
-            box-shadow: var(--shadow);
-            width: 200px;
-            display: none;
-        }
-
-        .ambient-panel.active {
+        
+        .content-section.active {
             display: block;
         }
-
-        .ambient-option {
-            padding: 10px;
-            border-radius: var(--border-radius);
+        
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .project-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
             cursor: pointer;
-            transition: var(--transition);
+            position: relative;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        
+        .project-image {
+            height: 200px;
+            background-color: #eaeaea;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            color: #999;
+            font-size: 0.9rem;
         }
-
-        .ambient-option:hover {
-            background: #f5f5f5;
+        
+        .project-content {
+            padding: 1.5rem;
         }
-
-        .ambient-option.active {
-            background: rgba(139, 115, 85, 0.1);
-            color: var(--primary-color);
+        
+        .project-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 400;
         }
-
-        /* Background Animations */
-        .background-animation {
+        
+        .project-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .about-content {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #eaeaea;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+        
+        .about-text {
+            margin-bottom: 2rem;
+            font-weight: 300;
+            line-height: 1.8;
+        }
+        
+        .contact-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #aaa;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .submit-btn:hover {
+            background: #555;
+            transform: translateY(-2px);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        .haptic-feedback {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
-            opacity: 0.1;
             pointer-events: none;
+            z-index: 1000;
         }
-
-        /* Animations */
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        /* Utility Classes */
-        .hidden {
-            display: none;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .mt-20 {
-            margin-top: 20px;
-        }
-
-        .mb-20 {
-            margin-bottom: 20px;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--light-text);
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.5;
+        
+        @media (max-width: 768px) {
+            .project-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-container {
+                flex-wrap: wrap;
+            }
+            
+            .nav-item {
+                margin: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
+    <div class="haptic-feedback" id="hapticFeedback"></div>
+    
+    <div class="container">
         <header>
-            <div class="logo">
-                <i class="fas fa-leaf"></i>
-                <h1>CalmPaper</h1>
-            </div>
-            <div class="nav-buttons">
-                <button id="focus-room-btn">
-                    <i class="fas fa-video"></i> Focus Room
-                </button>
-                <button id="settings-btn">
-                    <i class="fas fa-cog"></i> Settings
-                </button>
-            </div>
+            <h1>Your Name</h1>
+            <div class="subtitle">DESIGNER & DEVELOPER</div>
         </header>
-
-        <div class="main-content">
-            <div class="note-panel">
-                <h2>Share Your Thought</h2>
-                <textarea id="note-input" placeholder="Write your calm note here... (any language)"></textarea>
-                
-                <div class="mood-tags">
-                    <div class="mood-tag" data-mood="😊">😊</div>
-                    <div class="mood-tag" data-mood="😌">😌</div>
-                    <div class="mood-tag" data-mood="🧘">🧘</div>
-                    <div class="mood-tag" data-mood="🌱">🌱</div>
-                    <div class="mood-tag" data-mood="🌸">🌸</div>
-                    <div class="mood-tag" data-mood="🍃">🍃</div>
-                    <div class="mood-tag" data-mood="☕">☕</div>
-                    <div class="mood-tag" data-mood="📖">📖</div>
-                </div>
-                
-                <div class="privacy-toggle">
-                    <span>Private Note</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="privacy-toggle">
-                        <span class="slider"></span>
-                    </label>
-                    <span>Share to World</span>
-                </div>
-                
-                <button id="post-note-btn" class="primary">
-                    <i class="fas fa-paper-plane"></i> Post Note
-                </button>
-            </div>
-
-            <div class="moodboard-panel">
-                <div class="moodboard-header">
-                    <h2>World Moodboard</h2>
-                    <button id="refresh-board">
-                        <i class="fas fa-sync-alt"></i> Refresh
-                    </button>
-                </div>
-                <div class="moodboard-grid" id="moodboard-grid">
-                    <!-- Notes will be dynamically added here -->
-                    <div class="empty-state">
-                        <i class="fas fa-wind"></i>
-                        <p>No notes yet. Be the first to share your calm thought.</p>
+        
+        <div class="nav-container">
+            <div class="nav-item active" data-target="work">Work</div>
+            <div class="nav-item" data-target="about">About</div>
+            <div class="nav-item" data-target="contact">Contact</div>
+        </div>
+        
+        <main>
+            <section id="work" class="content-section active">
+                <div class="project-grid">
+                    <div class="project-card">
+                        <div class="project-image">Project Image</div>
+                        <div class="project-content">
+                            <h3 class="project-title">Project One</h3>
+                            <p class="project-description">A brief description of the project, its purpose, and the technologies used.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <div class="project-image">Project Image</div>
+                        <div class="project-content">
+                            <h3 class="project-title">Project Two</h3>
+                            <p class="project-description">A brief description of the project, its purpose, and the technologies used.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <div class="project-image">Project Image</div>
+                        <div class="project-content">
+                            <h3 class="project-title">Project Three</h3>
+                            <p class="project-description">A brief description of the project, its purpose, and the technologies used.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </section>
+            
+            <section id="about" class="content-section">
+                <div class="about-content">
+                    <div class="profile-image">Your Photo</div>
+                    <p class="about-text">
+                        I am a designer and developer with a passion for creating intuitive, human-centered experiences. 
+                        My work is guided by principles of simplicity, clarity, and mindfulness.
+                    </p>
+                    <p class="about-text">
+                        With over X years of experience, I've collaborated with startups and established companies 
+                        to create digital products that resonate with users on an emotional level.
+                    </p>
+                </div>
+            </section>
+            
+            <section id="contact" class="content-section">
+                <div class="contact-form">
+                    <div class="form-group">
+                        <input type="text" placeholder="Your Name" id="name">
+                    </div>
+                    <div class="form-group">
+                        <input type="email" placeholder="Your Email" id="email">
+                    </div>
+                    <div class="form-group">
+                        <textarea placeholder="Your Message" id="message"></textarea>
+                    </div>
+                    <button class="submit-btn">Send Message</button>
+                </div>
+            </section>
+        </main>
     </div>
-
-    <!-- Focus Room -->
-    <div class="focus-room" id="focus-room">
-        <div class="focus-room-header">
-            <h2>Silent Focus Room</h2>
-            <button id="exit-focus-room">
-                <i class="fas fa-times"></i> Exit
-            </button>
-        </div>
-        <div class="video-grid" id="video-grid">
-            <!-- Video containers will be added here -->
-            <div class="video-container">
-                <video id="local-video" autoplay muted></video>
-                <div class="video-label">You</div>
-            </div>
-            <!-- Placeholder for remote participants -->
-            <div class="empty-state">
-                <i class="fas fa-users"></i>
-                <p>Waiting for others to join the focus room...</p>
-            </div>
-        </div>
-        <div class="focus-room-controls">
-            <button class="control-btn" id="toggle-video">
-                <i class="fas fa-video"></i>
-            </button>
-            <button class="control-btn" id="toggle-audio">
-                <i class="fas fa-microphone"></i>
-            </button>
-            <button class="control-btn" id="raise-hand">
-                <i class="fas fa-hand-paper"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- Ambient Controls -->
-    <div class="ambient-controls">
-        <div class="ambient-btn" id="ambient-sound-btn">
-            <i class="fas fa-music"></i>
-        </div>
-        <div class="ambient-btn" id="background-btn">
-            <i class="fas fa-mountain"></i>
-        </div>
-        
-        <div class="ambient-panel" id="sound-panel">
-            <div class="ambient-option" data-sound="rain">
-                <i class="fas fa-cloud-rain"></i> Rain
-            </div>
-            <div class="ambient-option" data-sound="wind">
-                <i class="fas fa-wind"></i> Wind
-            </div>
-            <div class="ambient-option" data-sound="stream">
-                <i class="fas fa-water"></i> Stream
-            </div>
-            <div class="ambient-option" data-sound="temple">
-                <i class="fas fa-place-of-worship"></i> Temple
-            </div>
-            <div class="ambient-option" data-sound="none">
-                <i class="fas fa-volume-mute"></i> None
-            </div>
-        </div>
-        
-        <div class="ambient-panel" id="background-panel">
-            <div class="ambient-option" data-bg="garden">
-                <i class="fas fa-seedling"></i> Garden
-            </div>
-            <div class="ambient-option" data-bg="rain">
-                <i class="fas fa-cloud-rain"></i> Rain
-            </div>
-            <div class="ambient-option" data-bg="night">
-                <i class="fas fa-moon"></i> Night
-            </div>
-            <div class="ambient-option" data-bg="shrine">
-                <i class="fas fa-torii-gate"></i> Shrine
-            </div>
-            <div class="ambient-option" data-bg="none">
-                <i class="fas fa-times"></i> None
-            </div>
-        </div>
-    </div>
-
-    <!-- Background Animation -->
-    <div class="background-animation" id="background-animation"></div>
-
-    <!-- Audio Elements -->
-    <audio id="rain-sound" loop>
-        <source src="https://assets.mixkit.co/active_storage/sfx/169/169-preview.mp3" type="audio/mp3">
-    </audio>
-    <audio id="wind-sound" loop>
-        <source src="https://assets.mixkit.co/active_storage/sfx/185/185-preview.mp3" type="audio/mp3">
-    </audio>
-    <audio id="stream-sound" loop>
-        <source src="https://assets.mixkit.co/active_storage/sfx/178/178-preview.mp3" type="audio/mp3">
-    </audio>
-    <audio id="temple-sound" loop>
-        <source src="https://assets.mixkit.co/active_storage/sfx/250/250-preview.mp3" type="audio/mp3">
-    </audio>
+    
+    <footer>
+        <p>© 2023 Your Name. All rights reserved.</p>
+    </footer>
 
     <script>
-        // App State
-        const state = {
-            notes: JSON.parse(localStorage.getItem('calmpaper-notes')) || [],
-            currentMood: '',
-            isPublic: true,
-            currentSound: localStorage.getItem('calmpaper-sound') || 'none',
-            currentBackground: localStorage.getItem('calmpaper-background') || 'garden',
-            isInFocusRoom: false,
-            isVideoOn: true,
-            isAudioOn: false, // Always muted by default in focus room
-            isHandRaised: false
-        };
-
-        // DOM Elements
-        const noteInput = document.getElementById('note-input');
-        const moodTags = document.querySelectorAll('.mood-tag');
-        const privacyToggle = document.getElementById('privacy-toggle');
-        const postNoteBtn = document.getElementById('post-note-btn');
-        const moodboardGrid = document.getElementById('moodboard-grid');
-        const refreshBoardBtn = document.getElementById('refresh-board');
-        const focusRoomBtn = document.getElementById('focus-room-btn');
-        const focusRoom = document.getElementById('focus-room');
-        const exitFocusRoomBtn = document.getElementById('exit-focus-room');
-        const toggleVideoBtn = document.getElementById('toggle-video');
-        const toggleAudioBtn = document.getElementById('toggle-audio');
-        const raiseHandBtn = document.getElementById('raise-hand');
-        const localVideo = document.getElementById('local-video');
-        const videoGrid = document.getElementById('video-grid');
-        const ambientSoundBtn = document.getElementById('ambient-sound-btn');
-        const backgroundBtn = document.getElementById('background-btn');
-        const soundPanel = document.getElementById('sound-panel');
-        const backgroundPanel = document.getElementById('background-panel');
-        const soundOptions = document.querySelectorAll('#sound-panel .ambient-option');
-        const backgroundOptions = document.querySelectorAll('#background-panel .ambient-option');
-        const backgroundAnimation = document.getElementById('background-animation');
-        const audioElements = {
-            rain: document.getElementById('rain-sound'),
-            wind: document.getElementById('wind-sound'),
-            stream: document.getElementById('stream-sound'),
-            temple: document.getElementById('temple-sound')
-        };
-
-        // Initialize the app
-        function init() {
-            // Load saved notes
-            renderNotes();
-            
-            // Set up event listeners
-            setupEventListeners();
-            
-            // Initialize ambient sound and background
-            setAmbientSound(state.currentSound);
-            setBackground(state.currentBackground);
-            
-            // Set initial privacy toggle state
-            privacyToggle.checked = state.isPublic;
-        }
-
-        // Set up all event listeners
-        function setupEventListeners() {
-            // Mood tag selection
-            moodTags.forEach(tag => {
-                tag.addEventListener('click', () => {
-                    // Remove selected class from all tags
-                    moodTags.forEach(t => t.classList.remove('selected'));
-                    // Add selected class to clicked tag
-                    tag.classList.add('selected');
-                    state.currentMood = tag.getAttribute('data-mood');
-                });
-            });
-
-            // Privacy toggle
-            privacyToggle.addEventListener('change', () => {
-                state.isPublic = privacyToggle.checked;
-            });
-
-            // Post note
-            postNoteBtn.addEventListener('click', addNote);
-
-            // Refresh moodboard
-            refreshBoardBtn.addEventListener('click', renderNotes);
-
-            // Focus room
-            focusRoomBtn.addEventListener('click', enterFocusRoom);
-            exitFocusRoomBtn.addEventListener('click', exitFocusRoom);
-            toggleVideoBtn.addEventListener('click', toggleVideo);
-            toggleAudioBtn.addEventListener('click', toggleAudio);
-            raiseHandBtn.addEventListener('click', toggleRaiseHand);
-
-            // Ambient controls
-            ambientSoundBtn.addEventListener('click', () => {
-                soundPanel.classList.toggle('active');
-                backgroundPanel.classList.remove('active');
-            });
-
-            backgroundBtn.addEventListener('click', () => {
-                backgroundPanel.classList.toggle('active');
-                soundPanel.classList.remove('active');
-            });
-
-            // Sound options
-            soundOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    const sound = option.getAttribute('data-sound');
-                    setAmbientSound(sound);
-                    soundPanel.classList.remove('active');
-                });
-            });
-
-            // Background options
-            backgroundOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    const bg = option.getAttribute('data-bg');
-                    setBackground(bg);
-                    backgroundPanel.classList.remove('active');
-                });
-            });
-
-            // Close ambient panels when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!ambientSoundBtn.contains(e.target) && !soundPanel.contains(e.target)) {
-                    soundPanel.classList.remove('active');
-                }
-                if (!backgroundBtn.contains(e.target) && !backgroundPanel.contains(e.target)) {
-                    backgroundPanel.classList.remove('active');
-                }
-            });
-        }
-
-        // Add a new note
-        function addNote() {
-            const content = noteInput.value.trim();
-            if (!content) return;
-
-            const newNote = {
-                id: Date.now().toString(),
-                content: content,
-                mood: state.currentMood,
-                isPublic: state.isPublic,
-                timestamp: new Date().toISOString()
-            };
-
-            state.notes.unshift(newNote);
-            saveNotes();
-            renderNotes();
-            
-            // Reset form
-            noteInput.value = '';
-            moodTags.forEach(tag => tag.classList.remove('selected'));
-            state.currentMood = '';
-            
-            // Show confirmation
-            showTemporaryMessage('Note added successfully', 'success');
-        }
-
-        // Save notes to localStorage
-        function saveNotes() {
-            localStorage.setItem('calmpaper-notes', JSON.stringify(state.notes));
-        }
-
-        // Render notes to the moodboard
-        function renderNotes() {
-            // Filter notes based on privacy setting (show only public notes in world moodboard)
-            const publicNotes = state.notes.filter(note => note.isPublic);
-            
-            if (publicNotes.length === 0) {
-                moodboardGrid.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-wind"></i>
-                        <p>No notes yet. Be the first to share your calm thought.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            moodboardGrid.innerHTML = publicNotes.map(note => `
-                <div class="note-card public" data-id="${note.id}">
-                    <div class="note-content">${note.content}</div>
-                    <div class="note-meta">
-                        <span class="note-mood">${note.mood}</span>
-                        <span class="note-time">${formatTime(note.timestamp)}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Format timestamp for display
-        function formatTime(timestamp) {
-            const date = new Date(timestamp);
-            const now = new Date();
-            const diffMs = now - date;
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-            const diffDays = Math.floor(diffMs / 86400000);
-
-            if (diffMins < 1) return 'Just now';
-            if (diffMins < 60) return `${diffMins}m ago`;
-            if (diffHours < 24) return `${diffHours}h ago`;
-            if (diffDays < 7) return `${diffDays}d ago`;
-            
-            return date.toLocaleDateString();
-        }
-
-        // Set ambient sound
-        function setAmbientSound(sound) {
-            // Stop all sounds
-            Object.values(audioElements).forEach(audio => {
-                audio.pause();
-                audio.currentTime = 0;
-            });
-            
-            // Update active state in UI
-            soundOptions.forEach(option => {
-                if (option.getAttribute('data-sound') === sound) {
-                    option.classList.add('active');
-                } else {
-                    option.classList.remove('active');
-                }
-            });
-            
-            // Play selected sound if not "none"
-            if (sound !== 'none' && audioElements[sound]) {
-                audioElements[sound].play().catch(e => {
-                    console.log('Audio play failed, user interaction might be required:', e);
-                });
-            }
-            
-            state.currentSound = sound;
-            localStorage.setItem('calmpaper-sound', sound);
-        }
-
-        // Set background animation
-        function setBackground(bg) {
-            // Update active state in UI
-            backgroundOptions.forEach(option => {
-                if (option.getAttribute('data-bg') === bg) {
-                    option.classList.add('active');
-                } else {
-                    option.classList.remove('active');
-                }
-            });
-            
-            // Set background animation based on selection
-            let bgHTML = '';
-            switch(bg) {
-                case 'garden':
-                    bgHTML = `
-                        <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #6B8E23 0%, #8FBC8F 100%);"></div>
-                        <div style="position: absolute; bottom: 0; width: 100%; height: 30%; background: #8B7355;"></div>
-                    `;
-                    break;
-                case 'rain':
-                    bgHTML = `
-                        <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #4682B4 0%, #87CEEB 100%);"></div>
-                        <div class="rain-drops"></div>
-                    `;
-                    break;
-                case 'night':
-                    bgHTML = `
-                        <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #191970 0%, #000080 100%);"></div>
-                        <div class="stars"></div>
-                    `;
-                    break;
-                case 'shrine':
-                    bgHTML = `
-                        <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #8B7355 0%, #D2B48C 100%);"></div>
-                        <div style="position: absolute; bottom: 0; width: 100%; height: 20%; background: #6B8E23;"></div>
-                    `;
-                    break;
-                default:
-                    bgHTML = '';
-            }
-            
-            backgroundAnimation.innerHTML = bgHTML;
-            state.currentBackground = bg;
-            localStorage.setItem('calmpaper-background', bg);
-        }
-
-        // Enter focus room
-        function enterFocusRoom() {
-            focusRoom.classList.add('active');
-            state.isInFocusRoom = true;
-            
-            // Initialize video (simulated for demo)
-            initializeVideo();
-            
-            // Add some placeholder participants for demo
-            setTimeout(() => {
-                if (videoGrid.querySelector('.empty-state')) {
-                    videoGrid.querySelector('.empty-state').remove();
-                    
-                    // Add placeholder participants
-                    for (let i = 1; i <= 3; i++) {
-                        const videoContainer = document.createElement('div');
-                        videoContainer.className = 'video-container';
-                        videoContainer.innerHTML = `
-                            <div style="width: 100%; height: 100%; background: #333; display: flex; align-items: center; justify-content: center; color: white;">
-                                <i class="fas fa-user" style="font-size: 40px;"></i>
-                            </div>
-                            <div class="video-label">Participant ${i}</div>
-                        `;
-                        videoGrid.appendChild(videoContainer);
+        // Navigation functionality
+        const navItems = document.querySelectorAll('.nav-item');
+        const contentSections = document.querySelectorAll('.content-section');
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const target = this.getAttribute('data-target');
+                
+                // Update active nav item
+                navItems.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show target section
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                    if(section.id === target) {
+                        section.classList.add('active');
                     }
-                }
-            }, 2000);
-        }
-
-        // Exit focus room
-        function exitFocusRoom() {
-            focusRoom.classList.remove('active');
-            state.isInFocusRoom = false;
+                });
+                
+                // Add haptic feedback
+                createRipple(this);
+            });
+        });
+        
+        // Project card interactions
+        const projectCards = document.querySelectorAll('.project-card');
+        
+        projectCards.forEach(card => {
+            card.addEventListener('click', function() {
+                createRipple(this);
+                // In a real implementation, this would open a project detail view
+            });
+        });
+        
+        // Form interactions
+        const formInputs = document.querySelectorAll('input, textarea');
+        
+        formInputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                createRipple(this);
+            });
+        });
+        
+        const submitBtn = document.querySelector('.submit-btn');
+        submitBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            createRipple(this);
             
-            // Stop video streams
-            if (localVideo.srcObject) {
-                localVideo.srcObject.getTracks().forEach(track => track.stop());
-                localVideo.srcObject = null;
-            }
+            // Simple form validation
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
             
-            // Reset UI
-            toggleVideoBtn.innerHTML = '<i class="fas fa-video"></i>';
-            toggleAudioBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
-            raiseHandBtn.classList.remove('raised-hand');
-            state.isVideoOn = true;
-            state.isAudioOn = false;
-            state.isHandRaised = false;
-        }
-
-        // Initialize video (simulated for demo)
-        function initializeVideo() {
-            // In a real implementation, this would use getUserMedia
-            // For demo purposes, we'll simulate it
-            console.log("Initializing video...");
-            
-            // Simulate video initialization
-            setTimeout(() => {
-                // This would normally set the video stream
-                // localVideo.srcObject = stream;
-                console.log("Video initialized (simulated)");
-            }, 500);
-        }
-
-        // Toggle video on/off
-        function toggleVideo() {
-            state.isVideoOn = !state.isVideoOn;
-            
-            if (state.isVideoOn) {
-                toggleVideoBtn.innerHTML = '<i class="fas fa-video"></i>';
-                // In real implementation: enable video track
-                console.log("Video enabled");
+            if(name && email && message) {
+                alert('Thank you for your message. In a real implementation, this would be sent to a server.');
             } else {
-                toggleVideoBtn.innerHTML = '<i class="fas fa-video-slash"></i>';
-                // In real implementation: disable video track
-                console.log("Video disabled");
+                alert('Please fill in all fields.');
             }
-        }
-
-        // Toggle audio on/off (always starts muted)
-        function toggleAudio() {
-            state.isAudioOn = !state.isAudioOn;
+        });
+        
+        // Haptic feedback function
+        function createRipple(element) {
+            const rect = element.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
             
-            if (state.isAudioOn) {
-                toggleAudioBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-                // In real implementation: enable audio track
-                console.log("Audio enabled");
-            } else {
-                toggleAudioBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
-                // In real implementation: disable audio track
-                console.log("Audio disabled");
-            }
-        }
-
-        // Toggle raise hand
-        function toggleRaiseHand() {
-            state.isHandRaised = !state.isHandRaised;
+            const ripple = document.createElement('div');
+            ripple.classList.add('ripple');
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
             
-            if (state.isHandRaised) {
-                raiseHandBtn.classList.add('raised-hand');
-                // Show a temporary note in the focus room
-                showTemporaryMessage('You raised your hand', 'info');
-            } else {
-                raiseHandBtn.classList.remove('raised-hand');
-            }
-        }
-
-        // Show temporary message
-        function showTemporaryMessage(message, type) {
-            const messageEl = document.createElement('div');
-            messageEl.textContent = message;
-            messageEl.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                padding: 10px 20px;
-                border-radius: var(--border-radius);
-                background: ${type === 'success' ? '#4CAF50' : '#2196F3'};
-                color: white;
-                z-index: 1000;
-                animation: fadeIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
-            `;
-            
-            document.body.appendChild(messageEl);
+            document.getElementById('hapticFeedback').appendChild(ripple);
             
             setTimeout(() => {
-                if (document.body.contains(messageEl)) {
-                    document.body.removeChild(messageEl);
-                }
-            }, 3000);
+                ripple.remove();
+            }, 600);
         }
-
-        // Initialize the app when DOM is loaded
-        document.addEventListener('DOMContentLoaded', init);
+        
+        // Add subtle interaction to page load
+        window.addEventListener('load', function() {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
     </script>
 </body>
 </html>
