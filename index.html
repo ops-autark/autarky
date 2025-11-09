@@ -1,914 +1,475 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#e8f4f8">
-  <meta name="description" content="FloatNote - Capture moments, add visual notes">
-  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiRmxvYXROb3RlIiwic2hvcnRfbmFtZSI6IkZsb2F0Tm90ZSIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZThmNGY4IiwidGhlbWVfY29sb3IiOiIjZThmNGY4IiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTkyIDE5Mic%2BJTNDcmVjdCBmaWxsPSclMjNlOGY0ZjgnIHdpZHRoPScxOTInIGhlaWdodD0nMTkyJy8%2BJTNDdGV4dCB4PScxMCcgeT0nMTIwJyBmb250LXNpemU9JzEwMCcgZmlsbD0nJTIzNGE5MGE0JyUzRfCfk7glM0MvdGV4dCUzRSUzQy9zdmclM0UiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
-  <title>FloatNote</title>
+  <meta charset="UTF-8" />
+  <title>CalmPaper – Zen Moodboard & Silent Room</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <!-- Google Fonts: Zen/Minimal -->
+  <link href="https://fonts.googleapis.com/css2?family=Sen:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    /* ---- Zen Calm Global Styles ---- */
     :root {
-      --zen-bg: linear-gradient(135deg, #e8f4f8 0%, #f0e8f4 100%);
-      --zen-primary: #4a90a4;
-      --zen-secondary: #a47ba4;
-      --zen-accent: #7ba4a4;
-      --zen-light: #ffffff;
-      --zen-shadow: rgba(74, 144, 164, 0.15);
-      --zen-text: #2c3e50;
-      --zen-text-light: #7f8c8d;
+      --bg-main: #f7f6f3;
+      --bg-jp: linear-gradient(120deg,#e3e2db 0,#f7eee3 35%,#cfe6df 100%);
+      --primary: #798478;
+      --accent: #c4ae7b;
+      --accent-2: #a2cfcf;
+      --note: #fdf7e9;
+      --note2: #eaf3ee;
+      --text: #2d2e2c;
+      --zen-shadow: 0 3px 28px 0 #bfc8ce4d;
+      --radius: 22px;
+      --sp-s: 11px;
+      --sp-m: 21px;
     }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: var(--zen-bg);
-      color: var(--zen-text);
-      min-height: 100vh;
-      overflow-x: hidden;
-      position: relative;
+    html,body {
+      min-height:100vh; margin:0; padding:0;
+      font-family: 'Sen','Montserrat',sans-serif;
+      background: var(--bg-jp);
+      color: var(--text);
     }
-
-    /* Breathing animation for text */
-    @keyframes breathe {
-      0%, 100% { opacity: 0.8; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.02); }
+    #app {
+      min-height:100vh;
+      display:flex; flex-direction:column;
+      align-items:center;
+      width:100vw; max-width:600px; margin:0 auto;
+      box-sizing:border-box;
+      padding-bottom:87px;
     }
-
-    /* Header */
-    .header {
-      padding: 1.5rem;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.6);
-      backdrop-filter: blur(10px);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 20px var(--zen-shadow);
+    header {
+      width:100%; max-width:600px;
+      display:flex; align-items:center; justify-content:space-between;
+      background:var(--note2); border-radius:0 0 22px 22px;
+      box-shadow: var(--zen-shadow);
+      margin-bottom:var(--sp-m);
+      padding:var(--sp-s) var(--sp-m);
     }
-
-    .header h1 {
-      font-size: 1.8rem;
-      font-weight: 300;
-      color: var(--zen-primary);
-      animation: breathe 4s ease-in-out infinite;
-      letter-spacing: 2px;
+    .zen-logo {
+      font-family:'Sen','Montserrat',sans-serif; font-size:1.28em;
+      color:var(--primary); font-weight:800; letter-spacing:2px;
+      text-shadow:0 1px 0 #fff6,0 3px 18px #bfc8ce22;
+      user-select:none;
     }
-
-    .header p {
-      font-size: 0.9rem;
-      color: var(--zen-text-light);
-      margin-top: 0.3rem;
-      font-weight: 300;
+    nav.bottom-nav {
+      position:fixed; left:50%; transform:translateX(-50%);
+      bottom:0; z-index:1000;
+      background:var(--note); width:100vw; max-width:600px;
+      border-radius:27px 27px 0 0;
+      box-shadow: 0 -2px 20px #cacaa633;
+      display:flex; justify-content:space-around;
+      height:67px;
+      align-items:center;
     }
-
-    /* Floating Button */
-    .float-btn {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--zen-primary), var(--zen-accent));
-      box-shadow: 0 8px 30px var(--zen-shadow);
-      border: none;
-      color: white;
-      font-size: 2rem;
-      cursor: pointer;
-      z-index: 1000;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    nav.bottom-nav button {
+      outline:none; border:none; background:transparent;
+      font-family:inherit; color:var(--primary);
+      font-size:1.04em; display:flex; flex-direction:column;
+      align-items:center; gap:1.6px;
+      cursor:pointer; border-radius:16px; padding:7px 7px;
+      transition:background .26s,color .26s;
     }
-
-    .float-btn:active {
-      transform: scale(0.95);
+    nav.bottom-nav button.active,
+    nav.bottom-nav button:focus,
+    nav.bottom-nav button:hover {
+      background: var(--accent-2);
+      color:#fff;
     }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
+    main { width:96vw; max-width:570px;}
+    /* ----- Moodboard ----- */
+    .moodboard {
+      padding:var(--sp-m) 2vw; display:flex;
+      flex-direction:column; align-items:center;
     }
-
-    .float-btn {
-      animation: float 3s ease-in-out infinite;
+    .note-board-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(178px,1fr));
+      gap: var(--sp-m); width:100%;
     }
-
-    /* Gallery */
-    .gallery {
-      padding: 1.5rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 1rem;
-      max-width: 1200px;
-      margin: 0 auto;
+    .note-tile {
+      background: var(--note);
+      border-radius:17px;
+      padding:var(--sp-s) var(--sp-m);
+      box-shadow:0 2px 13px #eeeae7bb;
+      font-family:inherit; font-size:1.09em;
+      margin-bottom: var(--sp-xs);
+      display:flex; flex-direction:column; gap:2px;
+      min-height:58px; transition:box-shadow .2s;
+      position:relative; word-wrap:break-word;
+      animation:boardIn .7s;
     }
-
-    .gallery-item {
-      position: relative;
-      aspect-ratio: 1;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px var(--zen-shadow);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      background: white;
+    .note-tile .lang { font-size:0.78em; color:#b7b7b7;}
+    .note-public-mark {
+      position:absolute;top:6px;right:11px;font-size:1em;color:var(--primary);
     }
-
-    .gallery-item:active {
-      transform: scale(0.97);
+    @keyframes boardIn { from{opacity:.2;transform:translateY(22px)} to{opacity:1;transform:none} }
+    /* ----- New Note Section ----- */
+    .note-form-modal {
+      background: var(--note2); border-radius:18px;
+      box-shadow:var(--zen-shadow); margin:var(--sp-s) 0;
+      padding:var(--sp-m) var(--sp-m) var(--sp-s) var(--sp-m);
+      display:flex; flex-direction:column; align-items:stretch;
+      animation:modalFadeIn .6s;
     }
-
-    .gallery-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    @keyframes modalFadeIn { from{opacity:0;transform:scale(.95);} to{opacity:1;transform:none}}
+    textarea#newNote {
+      width:96%; min-height:49px; padding:10px;
+      font-size:1.09em; border-radius:12px;
+      border:1.5px solid #dedad1; font-family:inherit;
+      background:#fff6; color:var(--text);
+      resize:none; outline:none;
+      transition:border .23s;
     }
-
-    .gallery-item .note-count {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: rgba(74, 144, 164, 0.9);
-      color: white;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      backdrop-filter: blur(5px);
+    textarea#newNote:focus { border:1.5px solid var(--primary);}
+    .note-action-row {
+      display:flex; align-items:center; gap:9px; margin-top: var(--sp-s);
+      justify-content:space-between;
     }
-
-    /* Empty State */
-    .empty-state {
-      text-align: center;
-      padding: 4rem 2rem;
-      animation: breathe 4s ease-in-out infinite;
+    .toggle-public {
+      display:flex; align-items:center; gap:2px;
+      cursor:pointer;
+      font-size:0.99em;
     }
-
-    .empty-state .icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
+    .toggle-public input {margin-right:4px;}
+    .note-btn {
+      background:var(--primary);color:#fff;
+      border:none; outline:none;
+      border-radius:12px; padding:7px 21px;
+      font-family:inherit;font-size:1em; cursor:pointer;
+      box-shadow:var(--zen-shadow); transition:background .19s,transform .13s;
     }
-
-    .empty-state h2 {
-      font-size: 1.5rem;
-      font-weight: 300;
-      color: var(--zen-text);
-      margin-bottom: 0.5rem;
+    .note-btn:hover, .note-btn:focus {background:var(--accent);}
+    /* ---- Focus Room: Video Room ---- */
+    .focus-room {
+      background: var(--bg-jp); padding:var(--sp-m) 1vw;
+      border-radius:20px; margin-top:var(--sp-m);
+      box-shadow:0 4px 24px 2px #a2cfcf33;
+      display:flex; flex-direction:column;align-items:center;
+      animation:boardIn .8s;
     }
-
-    .empty-state p {
-      color: var(--zen-text-light);
-      font-weight: 300;
+    .focus-header {
+      display:flex; justify-content:space-between;
+      align-items:center; width:100%;
+      margin-bottom:5px;
     }
-
-    /* Modal Overlay */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 2000;
-      opacity: 0;
-      transition: opacity 0.3s ease;
+    .video-grid {
+      display:flex; flex-wrap:wrap; gap:var(--sp-m); justify-content:center;
+      margin:var(--sp-m) 0; width:100%;
     }
-
-    .modal.active {
-      display: flex;
-      opacity: 1;
+    .video-tile {
+      background:rgba(255,255,255,.34);
+      border-radius:11px; overflow:hidden;
+      display:flex; flex-direction:column;
+      align-items:center; box-shadow:0 2px 17px #5b66793a;
+      min-width:94px; min-height:103px; width:130px;
+      gap:3px;
+      aspect-ratio:11/13;
+      position:relative;
     }
-
-    .modal-content {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      background: var(--zen-light);
+    .video-name {
+      font-size:0.89em; color:#616e5d;
+      font-weight:600; background:#fff8;
+      border-radius:0 0 8px 8px; width:100%; text-align:center; padding:3px 2px;
     }
-
-    /* Canvas Container */
-    .canvas-container {
-      position: relative;
-      flex: 1;
-      overflow: hidden;
-      background: #f8f9fa;
+    .me-badge {
+      font-size:0.76em; color:#acc; padding:3px;
+      background:#b3ccb933;border-radius:7px;position:absolute;left:8px;top:8px;
     }
-
-    .canvas-wrapper {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    /* --- Zen BGs & Ambient --- */
+    .zen-bg-jp {
+      background:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?fit=crop&w=900&q=40');
+      background-size:cover;
+      border-radius:18px; min-height:130px;
+      margin-bottom:var(--sp-m);
+      filter:brightness(1) contrast(1.06) sepia(.1) blur(1px);
     }
-
-    #photoCanvas, #drawCanvas {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      max-width: 100%;
-      max-height: 100%;
+    .zen-bg-blur {
+      background:linear-gradient(125deg,#fbeec1aa 0,#c6e5c0aa 100%);
+      filter:blur(2px) brightness(.97);
     }
-
-    /* Sticky Notes */
-    .sticky-note {
-      position: absolute;
-      min-width: 120px;
-      padding: 12px;
-      background: var(--note-color, #fff9c4);
-      border-radius: 8px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      font-size: 14px;
-      cursor: move;
-      transition: transform 0.2s ease;
-      z-index: 10;
-      user-select: none;
+    /* --- Ambient Music Bar --- */
+    .music-bar {
+      display:flex;align-items:center;gap:7px;
+      font-size:0.89em;margin-bottom:9px;
     }
-
-    .sticky-note:active {
-      transform: scale(1.05) rotate(2deg);
-      z-index: 20;
+    .music-bar select, .music-bar button {
+      background:var(--note2);border:none;font-family:inherit;
+      border-radius:10px;padding:4px 9px;
     }
-
-    .sticky-note textarea {
-      width: 100%;
-      border: none;
-      background: transparent;
-      resize: none;
-      font-family: inherit;
-      font-size: 13px;
-      color: var(--zen-text);
-      outline: none;
+    .music-bar button {cursor:pointer;}
+    /* -- Responsive -- */
+    @media (max-width:540px){
+      #app,main{max-width:99vw;}
+      .video-tile{width:29vw;min-width:81px;}
     }
-
-    .sticky-note .delete-btn {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: var(--zen-secondary);
-      color: white;
-      border: none;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    .sticky-note:hover .delete-btn {
-      opacity: 1;
-    }
-
-    /* Toolbar */
-    .toolbar {
-      display: flex;
-      gap: 8px;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid rgba(74, 144, 164, 0.1);
-      overflow-x: auto;
-      flex-wrap: nowrap;
-    }
-
-    .toolbar button {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 20px;
-      background: var(--zen-primary);
-      color: white;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .toolbar button:active {
-      transform: scale(0.95);
-    }
-
-    .toolbar button.active {
-      background: var(--zen-secondary);
-    }
-
-    .toolbar input[type="color"] {
-      width: 40px;
-      height: 40px;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-
-    .toolbar input[type="range"] {
-      width: 80px;
-    }
-
-    /* Color Palette */
-    .color-palette {
-      display: flex;
-      gap: 8px;
-      padding: 8px;
-    }
-
-    .color-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 2px solid white;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      transition: transform 0.2s;
-    }
-
-    .color-btn:active {
-      transform: scale(0.9);
-    }
-
-    /* Camera Input */
-    #cameraInput {
-      display: none;
-    }
-
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: rgba(74, 144, 164, 0.95);
-      color: white;
-      padding: 12px 24px;
-      border-radius: 24px;
-      font-size: 14px;
-      z-index: 3000;
-      opacity: 0;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* Loading */
-    .loading {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 2rem;
-      z-index: 4000;
-      animation: breathe 2s ease-in-out infinite;
-    }
-
-    @media (max-width: 768px) {
-      .header h1 {
-        font-size: 1.5rem;
-      }
-      
-      .gallery {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        padding: 1rem;
-      }
-      
-      .float-btn {
-        width: 60px;
-        height: 60px;
-        bottom: 1.5rem;
-        right: 1.5rem;
-      }
+    @media (max-width:420px){
+      .note-board-grid{grid-template-columns:1fr;}
+      nav.bottom-nav{height:54px;}
     }
   </style>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
-  <div class="header">
-    <h1>🌸 FloatNote</h1>
-    <p>Floating thoughts...</p>
+  <div id="app">
+    <header>
+      <span class="zen-logo">禅 CalmPaper</span>
+      <button id="roomBtn" class="note-btn" tabindex="0"><span class="material-icons" style="font-size:1.2em">video_camera_front</span>Focus Room</button>
+    </header>
+    <main id="main">
+      <!-- Content rendered here -->
+    </main>
+    <nav class="bottom-nav" aria-label="Navigation">
+      <button data-page="moodboard" class="active"><span class="material-icons">dashboard</span>Moodboard</button>
+      <button data-page="room"><span class="material-icons">video_camera_front</span>Focus Room</button>
+    </nav>
   </div>
-
-  <div class="gallery" id="gallery"></div>
-
-  <div class="empty-state" id="emptyState">
-    <div class="icon">📸</div>
-    <h2>Capture your first moment</h2>
-    <p>Tap the floating button to begin</p>
-  </div>
-
-  <button class="float-btn" id="floatBtn">📷</button>
-  <input type="file" id="cameraInput" accept="image/*" capture="environment">
-
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <div class="canvas-container">
-        <div class="canvas-wrapper" id="canvasWrapper">
-          <canvas id="photoCanvas"></canvas>
-          <canvas id="drawCanvas"></canvas>
-        </div>
-      </div>
-      <div class="toolbar">
-        <button id="addNoteBtn">📌 Note</button>
-        <button id="drawBtn">✏️ Draw</button>
-        <button id="eraserBtn">🧹 Erase</button>
-        <input type="color" id="colorPicker" value="#000000">
-        <input type="range" id="brushSize" min="1" max="20" value="3">
-        <button id="clearDrawBtn">Clear</button>
-        <button id="saveBtn">💾 Save</button>
-        <button id="closeBtn">✕</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"></div>
-
+  <audio id="ambient" loop>
+    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9e8aab.mp3" type="audio/mp3">
+  </audio>
   <script>
-    // State management
-    const state = {
-      currentPhoto: null,
-      currentPhotoId: null,
+    // ----- Ambient Music (can swap to more tracks)
+    const AMBIENT_TRACKS = [
+      {name:'Zen Garden', src:'https://cdn.pixabay.com/audio/2022/03/15/audio_115b9e8aab.mp3'},
+      {name:'Mountain Stream', src:'https://cdn.pixabay.com/audio/2022/03/03/audio_1152d09bfa.mp3'},
+      {name:'Night Sakura', src:'https://cdn.pixabay.com/audio/2023/04/11/audio_129e313347.mp3'},
+      {name:'Temple Rain', src:'https://cdn.pixabay.com/audio/2022/03/15/audio_115b9e8aab.mp3'}
+    ];
+    let ambient = document.getElementById('ambient');
+    let currentTrack = 0;
+    function playAmbient(idx) {
+      let t = AMBIENT_TRACKS[idx||0];
+      if(!t) return;
+      ambient.src = t.src; ambient.play(); currentTrack=idx||0;
+    }
+    // ---- Moodboard & Notes ----
+    const MOOD_KEY = "calmpaper_notes";
+    let state = {
+      page:'moodboard',
       notes: [],
-      isDrawing: false,
-      drawMode: false,
-      eraserMode: false,
-      lastX: 0,
-      lastY: 0,
-      drawings: []
+      isPublic:false
     };
 
-    // Note colors
-    const noteColors = ['#fff9c4', '#f8bbd0', '#c5e1a5', '#b3e5fc', '#ffccbc', '#e1bee7'];
+    function loadNotes() {
+      try {
+        let notes = JSON.parse(localStorage.getItem(MOOD_KEY) || "[]");
+        if (!Array.isArray(notes)) notes = [];
+        state.notes = notes;
+      } catch { state.notes = []; }
+    }
+    function saveNotes() {
+      localStorage.setItem(MOOD_KEY, JSON.stringify(state.notes));
+    }
+    // Simulate global board: for demo, "public" notes are saved locally and rotated in the board
+    function getPublicNotes() {
+      // Return only notes with public flag
+      return state.notes.filter(n=>n.public).slice(-20).reverse();
+    }
+    // ---- UI Rendering ----
+    const $ = sel => document.querySelector(sel);
 
-    // Elements
-    const floatBtn = document.getElementById('floatBtn');
-    const cameraInput = document.getElementById('cameraInput');
-    const modal = document.getElementById('modal');
-    const gallery = document.getElementById('gallery');
-    const emptyState = document.getElementById('emptyState');
-    const photoCanvas = document.getElementById('photoCanvas');
-    const drawCanvas = document.getElementById('drawCanvas');
-    const canvasWrapper = document.getElementById('canvasWrapper');
-    const toast = document.getElementById('toast');
-
-    // Buttons
-    const addNoteBtn = document.getElementById('addNoteBtn');
-    const drawBtn = document.getElementById('drawBtn');
-    const eraserBtn = document.getElementById('eraserBtn');
-    const clearDrawBtn = document.getElementById('clearDrawBtn');
-    const saveBtn = document.getElementById('saveBtn');
-    const closeBtn = document.getElementById('closeBtn');
-    const colorPicker = document.getElementById('colorPicker');
-    const brushSize = document.getElementById('brushSize');
-
-    const photoCtx = photoCanvas.getContext('2d');
-    const drawCtx = drawCanvas.getContext('2d');
-
-    // Initialize
-    loadGallery();
-
-    // Event Listeners
-    floatBtn.addEventListener('click', () => {
-      vibrate(10);
-      cameraInput.click();
-    });
-
-    cameraInput.addEventListener('change', handleImageUpload);
-    addNoteBtn.addEventListener('click', addStickyNote);
-    drawBtn.addEventListener('click', toggleDrawMode);
-    eraserBtn.addEventListener('click', toggleEraserMode);
-    clearDrawBtn.addEventListener('click', clearDrawing);
-    saveBtn.addEventListener('click', saveCurrentPhoto);
-    closeBtn.addEventListener('click', closeModal);
-
-    // Drawing events
-    drawCanvas.addEventListener('mousedown', startDrawing);
-    drawCanvas.addEventListener('mousemove', draw);
-    drawCanvas.addEventListener('mouseup', stopDrawing);
-    drawCanvas.addEventListener('mouseout', stopDrawing);
-
-    drawCanvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      const rect = drawCanvas.getBoundingClientRect();
-      state.lastX = touch.clientX - rect.left;
-      state.lastY = touch.clientY - rect.top;
-      state.isDrawing = true;
-    });
-
-    drawCanvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      if (!state.isDrawing || !state.drawMode) return;
-      const touch = e.touches[0];
-      const rect = drawCanvas.getBoundingClientRect();
-      const x = touch.clientX - rect.left;
-      const y = touch.clientY - rect.top;
-      drawLine(state.lastX, state.lastY, x, y);
-      state.lastX = x;
-      state.lastY = y;
-    });
-
-    drawCanvas.addEventListener('touchend', () => {
-      state.isDrawing = false;
-    });
-
-    // Functions
-    function handleImageUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          state.currentPhoto = img;
-          state.currentPhotoId = Date.now().toString();
-          state.notes = [];
-          state.drawings = [];
-          openModal(img);
-          showToast('Pinned! ✨');
-        };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
-      cameraInput.value = '';
+    function renderMoodboard() {
+      let publicNotes = getPublicNotes();
+      let board = `
+        <section class="moodboard" style="margin-top:11px;">
+          <div class="note-form-modal">
+            <textarea id="newNote" maxlength="160" placeholder="Type a calm thought, inspiration, or note… (any language, emoji)"></textarea>
+            <div class="note-action-row">
+              <label class="toggle-public">
+                <input type="checkbox" id="publicToggle"${state.isPublic?' checked':''}/>Public
+                <span class="material-icons" style="font-size:1.06em;vertical-align:middle;">public</span>
+              </label>
+              <button class="note-btn" id="addNote">Share</button>
+            </div>
+          </div>
+          <div style="font-size:1.00em;margin-bottom:7px;color:#beb693;">
+            <span class="material-icons" style="font-size:1.11em;vertical-align:middle;color:var(--accent);">dashboard</span>
+            Recent world thoughts:
+          </div>
+          <div class="note-board-grid">
+            ${publicNotes.length?publicNotes.map(n=>
+              `<div class="note-tile">
+                  ${n.text.replace(/</g,'&lt;')}
+                  <div class="note-public-mark material-icons" title="public note">public</div>
+                  <div class="lang">${n.language||''}</div>
+              </div>`
+            ).join(''):
+            `<div style="padding:13px;color:#b9a469;opacity:.6;">No public notes yet. Add the first inspiration for the world.</div>`
+            }
+          </div>
+        </section>`;
+      $('#main').innerHTML = board;
+      $('#addNote').onclick = addNote;
+      $('#publicToggle').onchange = e => { state.isPublic = e.target.checked; };
+      $('#newNote').addEventListener('keydown',e=>{ if(e.key==='Enter' && !e.shiftKey) {addNote();e.preventDefault();}});
     }
 
-    function openModal(img) {
-      // Set canvas sizes
-      const maxWidth = window.innerWidth;
-      const maxHeight = window.innerHeight - 100;
-      let width = img.width;
-      let height = img.height;
-
-      const ratio = Math.min(maxWidth / width, maxHeight / height);
-      width *= ratio;
-      height *= ratio;
-
-      photoCanvas.width = drawCanvas.width = width;
-      photoCanvas.height = drawCanvas.height = height;
-
-      // Draw image
-      photoCtx.drawImage(img, 0, 0, width, height);
-
-      // Clear draw canvas
-      drawCtx.clearRect(0, 0, width, height);
-
-      modal.classList.add('active');
+    function addNote() {
+      let noteInput = $('#newNote');
+      let txt = noteInput.value.trim();
+      if(!txt) return;
+      let language = txt.match(/[^\x00-\x7F]/) ? '🌏' : '';
+      state.notes.push({text:txt,dt:Date.now(),public:state.isPublic,language});
+      if(state.notes.length>100) state.notes=state.notes.slice(-80);
+      saveNotes();
+      noteInput.value="";
+      renderMoodboard();
     }
+    // ---- Page Routing & Nav ----
+    function goPage(page){
+      state.page=page;
+      document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+      if(page==='moodboard') renderMoodboard();
+      if(page==='room') renderFocusRoom();
+    }
+    document.querySelectorAll('.bottom-nav button').forEach(b=>b.onclick=()=>goPage(b.dataset.page));
+    document.getElementById('roomBtn').onclick = ()=>goPage('room');
 
-    function addStickyNote() {
-      vibrate(10);
-      const color = noteColors[Math.floor(Math.random() * noteColors.length)];
-      const note = {
-        id: Date.now().toString(),
-        text: '',
-        x: 50,
-        y: 50,
-        color: color
+    // ---- Focus Room (WebRTC demo, PeerJS cloud server used for quick test) ----
+    let peer = null, myID="", connections=[], localStream=null;
+    let focusUsers = {};
+
+    async function renderFocusRoom() {
+      let roomHTML = `
+        <div class="focus-room">
+          <div class="focus-header">
+            <span><span class="material-icons" style="font-size:1.2em;vertical-align:middle;">video_camera_front</span> Silent Focus Room (video required, all muted)</span>
+            <div class="music-bar">
+              <span class="material-icons" style="font-size:1.11em;vertical-align:middle;color:var(--accent);">music_note</span>
+              <select id="musicSel">${AMBIENT_TRACKS.map((t,i)=>`<option value="${i}"${i===currentTrack?' selected':''}>${t.name}</option>`).join('')}</select>
+              <button id="pauseMusic" title="Pause/Play ambient">${ambient.paused?'▶':'❙❙'}</button>
+            </div>
+          </div>
+          <div class="zen-bg-jp" style="width:99%;height:90px;margin:6px auto 19px auto;"></div>
+          <div style="font-size:0.98em;color:#9da188;margin-bottom:8px;">
+            All video, all silent. Focus vibes only. Raise hand to share a note.
+          </div>
+          <div class="video-grid" id="videoGrid">
+            <div style="color:#b1b1a1;font-size:1em;" id="videoMsg">Connecting you to Zen focus room…</div>
+          </div>
+          <button class="note-btn" id="raiseHandBtn" style="margin:8px auto 0 auto;">
+            <span class="material-icons" style="font-size:1.09em;vertical-align:middle;">pan_tool</span>
+            Raise hand & post a mood note
+          </button>
+        </div>
+      `;
+      $('#main').innerHTML = roomHTML;
+
+      $("#musicSel").onchange=(e)=>{ playAmbient(+e.target.value); }
+      $("#pauseMusic").onclick=()=>{
+        if(ambient.paused) { ambient.play(); $("#pauseMusic").innerText='❙❙'; }
+        else { ambient.pause(); $("#pauseMusic").innerText='▶'; }
       };
 
-      state.notes.push(note);
-      renderNote(note);
-      showToast('Note added 📝');
-    }
-
-    function renderNote(note) {
-      const noteEl = document.createElement('div');
-      noteEl.className = 'sticky-note';
-      noteEl.style.left = note.x + 'px';
-      noteEl.style.top = note.y + 'px';
-      noteEl.style.setProperty('--note-color', note.color);
-      noteEl.dataset.id = note.id;
-
-      const textarea = document.createElement('textarea');
-      textarea.value = note.text;
-      textarea.rows = 3;
-      textarea.placeholder = 'Type here...';
-      textarea.addEventListener('input', (e) => {
-        note.text = e.target.value;
-      });
-
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'delete-btn';
-      deleteBtn.textContent = '×';
-      deleteBtn.addEventListener('click', () => {
-        vibrate(5);
-        state.notes = state.notes.filter(n => n.id !== note.id);
-        noteEl.remove();
-      });
-
-      noteEl.appendChild(textarea);
-      noteEl.appendChild(deleteBtn);
-      canvasWrapper.appendChild(noteEl);
-
-      makeDraggable(noteEl, note);
-    }
-
-    function makeDraggable(el, note) {
-      let isDragging = false;
-      let startX, startY, initialX, initialY;
-
-      const onStart = (e) => {
-        isDragging = true;
-        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        const rect = el.getBoundingClientRect();
-        startX = clientX - rect.left;
-        startY = clientY - rect.top;
-        initialX = rect.left - canvasWrapper.getBoundingClientRect().left;
-        initialY = rect.top - canvasWrapper.getBoundingClientRect().top;
-        el.style.zIndex = 20;
+      $("#raiseHandBtn").onclick = ()=>{
+        showRaiseHand();
       };
 
-      const onMove = (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        const wrapperRect = canvasWrapper.getBoundingClientRect();
-        const x = clientX - wrapperRect.left - startX;
-        const y = clientY - wrapperRect.top - startY;
-        el.style.left = x + 'px';
-        el.style.top = y + 'px';
-        note.x = x;
-        note.y = y;
-      };
-
-      const onEnd = () => {
-        isDragging = false;
-        el.style.zIndex = 10;
-      };
-
-      el.addEventListener('mousedown', onStart);
-      el.addEventListener('touchstart', onStart);
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('touchmove', onMove, { passive: false });
-      document.addEventListener('mouseup', onEnd);
-      document.addEventListener('touchend', onEnd);
+      await bootFocusRoom();
     }
 
-    function toggleDrawMode() {
-      state.drawMode = !state.drawMode;
-      state.eraserMode = false;
-      drawBtn.classList.toggle('active');
-      eraserBtn.classList.remove('active');
-      drawCanvas.style.cursor = state.drawMode ? 'crosshair' : 'default';
-      drawCanvas.style.pointerEvents = state.drawMode ? 'auto' : 'none';
-      vibrate(10);
-    }
-
-    function toggleEraserMode() {
-      state.eraserMode = !state.eraserMode;
-      state.drawMode = state.eraserMode;
-      eraserBtn.classList.toggle('active');
-      if (state.eraserMode) drawBtn.classList.add('active');
-      drawCanvas.style.cursor = state.eraserMode ? 'grab' : (state.drawMode ? 'crosshair' : 'default');
-      drawCanvas.style.pointerEvents = state.drawMode ? 'auto' : 'none';
-      vibrate(10);
-    }
-
-    function startDrawing(e) {
-      if (!state.drawMode) return;
-      state.isDrawing = true;
-      const rect = drawCanvas.getBoundingClientRect();
-      state.lastX = e.clientX - rect.left;
-      state.lastY = e.clientY - rect.top;
-    }
-
-    function draw(e) {
-      if (!state.isDrawing || !state.drawMode) return;
-      const rect = drawCanvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      drawLine(state.lastX, state.lastY, x, y);
-      state.lastX = x;
-      state.lastY = y;
-    }
-
-    function drawLine(x1, y1, x2, y2) {
-      drawCtx.beginPath();
-      drawCtx.moveTo(x1, y1);
-      drawCtx.lineTo(x2, y2);
-      drawCtx.strokeStyle = state.eraserMode ? '#ffffff' : colorPicker.value;
-      drawCtx.lineWidth = brushSize.value;
-      drawCtx.lineCap = 'round';
-      drawCtx.stroke();
-
-      state.drawings.push({
-        x1, y1, x2, y2,
-        color: state.eraserMode ? '#ffffff' : colorPicker.value,
-        width: brushSize.value
-      });
-    }
-
-    function stopDrawing() {
-      state.isDrawing = false;
-    }
-
-    function clearDrawing() {
-      vibrate(10);
-      drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-      state.drawings = [];
-      showToast('Canvas cleared 🧹');
-    }
-
-    function saveCurrentPhoto() {
-      vibrate(15);
-      
-      // Create composite canvas
-      const composite = document.createElement('canvas');
-      composite.width = photoCanvas.width;
-      composite.height = photoCanvas.height;
-      const ctx = composite.getContext('2d');
-      
-      // Draw photo and drawings
-      ctx.drawImage(photoCanvas, 0, 0);
-      ctx.drawImage(drawCanvas, 0, 0);
-
-      const photoData = {
-        id: state.currentPhotoId,
-        image: composite.toDataURL('image/jpeg', 0.9),
-        notes: state.notes,
-        drawings: state.drawings,
-        timestamp: Date.now()
-      };
-
-      // Save to storage
-      const photos = JSON.parse(localStorage.getItem('floatnote_photos') || '[]');
-      const existingIndex = photos.findIndex(p => p.id === photoData.id);
-      
-      if (existingIndex >= 0) {
-        photos[existingIndex] = photoData;
-      } else {
-        photos.unshift(photoData);
-      }
-      
-      localStorage.setItem('floatnote_photos', JSON.stringify(photos));
-      
-      showToast('Saved! 💾');
-      setTimeout(() => {
-        closeModal();
-        loadGallery();
-      }, 500);
-    }
-
-    function closeModal() {
-      vibrate(5);
-      modal.classList.remove('active');
-      state.notes.forEach(note => {
-        const el = document.querySelector(`[data-id="${note.id}"]`);
-        if (el) el.remove();
-      });
-      state.notes = [];
-      state.drawings = [];
-      state.drawMode = false;
-      state.eraserMode = false;
-      drawBtn.classList.remove('active');
-      eraserBtn.classList.remove('active');
-    }
-
-    function loadGallery() {
-      const photos = JSON.parse(localStorage.getItem('floatnote_photos') || '[]');
-      gallery.innerHTML = '';
-      
-      if (photos.length === 0) {
-        emptyState.style.display = 'block';
+    // ------ VIDEO ROOM VIA PEERJS CLOUD ------
+    async function bootFocusRoom() {
+      if(localStream) { showVideo(); return; }
+      // Request Camera
+      let videoMsg = document.getElementById('videoMsg');
+      if(!navigator.mediaDevices) {
+        videoMsg.innerText="Browser not supported.";
         return;
       }
-      
-      emptyState.style.display = 'none';
-      
-      photos.forEach(photo => {
-        const item = document.createElement('div');
-        item.className = 'gallery-item';
-        
-        const img = document.createElement('img');
-        img.src = photo.image;
-        
-        const count = document.createElement('div');
-        count.className = 'note-count';
-        count.textContent = `${photo.notes.length} 📌`;
-        
-        item.appendChild(img);
-        item.appendChild(count);
-        gallery.appendChild(item);
-        
-        item.addEventListener('click', () => {
-          vibrate(10);
-          openExistingPhoto(photo);
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:false });
+      } catch {
+        videoMsg.innerText="Camera required to join the Focus Room.";
+        return;
+      }
+      // PeerJS cloud room (random but stable room name)
+      if(!peer) peer = new Peer(undefined,{
+        host:"peerjs.com",
+        secure:true,
+        port:443
+      });
+      peer.on('open',id=>{
+        myID = id;
+        focusUsers[id] = true;
+        joinPeerRoom();
+      });
+      peer.on('call',call=>{
+        call.answer(localStream);
+        call.on('stream', remoteStream=>{
+          addRemoteVideo(call.peer,remoteStream);
         });
       });
+      peer.on('connection',conn=>{
+        conn.on('open',()=>connections.push(conn));
+      });
+      // No room logic, fast peer-mesh: call all existing seen IDs
+      window.peer=peer;
+    }
+    function joinPeerRoom() {
+      // For demo, collect all room IDs in url hash for new connections
+      setTimeout(()=>{
+        document.getElementById('videoMsg').innerText="You are live in the Focus Room!";
+        showVideo();
+        // Simulate mesh call by polling every 5s for new peers
+        setInterval(()=>{
+          if(!peer) return;
+          // In real: use server to share IDs; here crude url hash
+          let ids=(location.hash||"").replace('#','').split(',').filter(String);
+          if(!ids.includes(myID)) ids.push(myID);
+          location.hash = ids.join(',');
+          ids.filter(id=>id!==myID && !focusUsers[id])
+             .forEach(id=>{
+                let call = peer.call(id,localStream);
+                focusUsers[id]=true;
+                call.on('stream',stream=>addRemoteVideo(id,stream));
+             });
+       },5200);
+      },600);
+    }
+    function showVideo() {
+      const grid = $('#videoGrid');
+      grid.innerHTML = '';
+      // Local video
+      if(localStream) {
+        let v = document.createElement('video');
+        v.autoplay=true;v.muted=true;v.playsInline=true;
+        v.srcObject=localStream; v.style.width='94%';
+        let tile = document.createElement('div');
+        tile.className='video-tile';
+        tile.appendChild(v);
+        tile.innerHTML+='<div class="me-badge">You</div>';
+        tile.innerHTML+='<div class="video-name">Focus</div>';
+        grid.appendChild(tile);
+      }
+      // Other peers in room (demo: show how tiles work)
+      // For a real global room use a simple signaling server, e.g. Firebase or small static relay.
+    }
+    function addRemoteVideo(peerId,stream) {
+      if(document.getElementById("vid_"+peerId)) return;
+      let grid = $('#videoGrid');
+      let v = document.createElement('video');
+      v.autoplay=true; v.playsInline=true; v.srcObject=stream; v.style.width='94%';
+      let tile = document.createElement('div');
+      tile.className='video-tile'; tile.id="vid_"+peerId;
+      tile.appendChild(v);
+      tile.innerHTML+='<div class="video-name">Focus</div>';
+      grid.appendChild(tile);
     }
 
-    function openExistingPhoto(photoData) {
-      const img = new Image();
-      img.onload = () => {
-        state.currentPhoto = img;
-        state.currentPhotoId = photoData.id;
-        state.notes = [...photoData.notes];
-        state.drawings = [...photoData.drawings];
-        
-        openModal(img);
-        
-        // Redraw drawings
-        photoData.drawings.forEach(d => {
-          drawCtx.beginPath();
-          drawCtx.moveTo(d.x1, d.y1);
-          drawCtx.lineTo(d.x2, d.y2);
-          drawCtx.strokeStyle = d.color;
-          drawCtx.lineWidth = d.width;
-          drawCtx.lineCap = 'round';
-          drawCtx.stroke();
-        });
-        
-        // Render notes
-        photoData.notes.forEach(note => renderNote(note));
-      };
-      img.src = photoData.image;
-    }
-
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 2000);
-    }
-
-    function vibrate(ms) {
-      if ('vibrate' in navigator) {
-        navigator.vibrate(ms);
+    // ------------- RAISE HAND/NON-INTRUSIVE NOTE SHARING -----------
+    function showRaiseHand() {
+      let note = prompt("Share a brief mood/thought to the room (shown to all screens):");
+      if(note&&note.trim()) {
+        // For now, add to public notes.
+        state.notes.push({text:note.trim(),dt:Date.now(),public:true,language:''});
+        saveNotes();
+        alert("Your shared mood was posted to the world moodboard.");
       }
     }
 
-    // Service Worker Registration
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        const swCode = `
-          const CACHE_NAME = 'floatnote-v1';
-          
-          self.addEventListener('install', (e) => {
-            e.waitUntil(
-              caches.open(CACHE_NAME).then(cache => {
-                return cache.addAll(['/']);
-              })
-            );
-            self.skipWaiting();
-          });
-          
-          self.addEventListener('activate', (e) => {
-            e.waitUntil(
-              caches.keys().then(keys => {
-                return Promise.all(
-                  keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-                );
-              })
-            );
-            return self.clients.claim();
-          });
-          
-          self.addEventListener('fetch', (e) => {
-            e.respondWith(
-              caches.match(e.request).then(response => {
-                return response || fetch(e.request);
-              })
-            );
-          });
-        `;
-        
-        const blob = new Blob([swCode], { type: 'application/javascript' });
-        const swUrl = URL.createObjectURL(blob);
-        
-        navigator.serviceWorker.register(swUrl).then(() => {
-          console.log('FloatNote PWA ready! 🌸');
-        }).catch(err => {
-          console.log('SW registration failed:', err);
-        });
-      });
-    }
-
-    // Install prompt
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      showToast('Tap to install FloatNote! 📲');
-    });
+    // -------- INITIAL BOOT -------
+    loadNotes();
+    goPage('moodboard');
+    playAmbient(0);
+  </script>
+</body>
+</html>
