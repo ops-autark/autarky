@@ -1,1264 +1,1069 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PocketUtils - Zen Toolkit</title>
-    <style>
-        /* ===== RESET & BASE STYLES ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>ZenFoodie – Calm Food Delivery</title>
+  <link rel="manifest" href="manifest.json" />
+  <!-- Zen Font and Icons -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700|Sen:400,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><circle fill='%23A7C8BD' cx='24' cy='24' r='24'/><text x='24' y='32' font-size='20' text-anchor='middle' fill='%23fff' font-family='Verdana'>禅</text></svg>" />
+  <style>
+    :root {
+      /* Zen Calm Color Palette */
+      --zen-bg: #f5f7f6;
+      --zen-bg-dark: #e2e7e3;
+      --zen-primary: #A7C8BD;
+      --zen-accent: #646a67;
+      --zen-soft: #f0f4f2;
+      --zen-gradient: linear-gradient(180deg, #eafaf6 0%, #f8f6f3 100%);
+      --zen-text: #393e41;
+      --zen-shadow: 0 2px 16px 0 rgba(100, 120, 110, 0.07);
 
-        :root {
-            /* Zen Color Palette */
-            --bg-primary: #f8f9fa;
-            --bg-secondary: #ffffff;
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --text-primary: #2d3748;
-            --text-secondary: #718096;
-            --accent: #667eea;
-            --accent-light: #7c8ff0;
-            --border: #e2e8f0;
-            --shadow: rgba(0, 0, 0, 0.1);
-            --success: #48bb78;
-            --warning: #ed8936;
-            --danger: #f56565;
-        }
+      --nav-height: 64px;
+      --radius: 20px;
+      --sp-xxs: 4px;
+      --sp-xs: 8px;
+      --sp-s: 16px;
+      --sp-m: 24px;
+      --sp-l: 40px;
+      --transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-            padding-bottom: 80px; /* Space for bottom nav */
-        }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Sen', 'Montserrat', sans-serif;
+      background: var(--zen-gradient);
+      min-height: 100%;
+      color: var(--zen-text);
+      scroll-behavior: smooth;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        /* ===== HEADER ===== */
-        .header {
-            background: var(--bg-gradient);
-            color: white;
-            padding: 2rem 1rem;
-            text-align: center;
-            box-shadow: 0 2px 20px var(--shadow);
-        }
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--zen-gradient);
+    }
 
-        .header h1 {
-            font-size: 2rem;
-            font-weight: 300;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
-        }
+    /* Zen Layout Containers */
+    #app {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 0;
+      min-height: 0;
+      justify-content: flex-start;
+      align-items: stretch;
+      max-width: 510px;
+      margin: 0 auto;
+      padding-bottom: var(--nav-height);
+      box-sizing: border-box;
+      width: 100vw;
+    }
+    header {
+      width: 100%;
+      min-height: 60px;
+      padding: var(--sp-s) var(--sp-m);
+      box-sizing: border-box;
+      background: var(--zen-bg);
+      border-bottom: 1px solid var(--zen-primary);
+      box-shadow: var(--zen-shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 1.3rem;
+      z-index: 30;
+    }
+    .zen-title {
+      font-family: 'Sen', 'Montserrat', sans-serif;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--zen-accent);
+      text-shadow: 0 1px 0 #fff2, 0 2px 8px #a7c8bd33;
+      user-select: none;
+    }
+    /* Dual Role Toggle Button */
+    .role-toggle {
+      background: var(--zen-primary);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      padding: var(--sp-xs) var(--sp-m);
+      cursor: pointer;
+      box-shadow: var(--zen-shadow);
+      transition: background var(--transition), transform var(--transition);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: var(--sp-xs);
+      outline: none;
+      position: relative;
+    }
+    .role-toggle span.material-icons {
+      font-size: 1.2em;
+    }
+    .role-toggle:active, .role-toggle:focus, .role-toggle:hover {
+      background: #82b8a6;
+      transform: scale(1.06);
+      box-shadow: 0 4px 32px 0 rgba(100,120,110,0.10);
+    }
+    /* Zen Card Styles */
+    .zen-card {
+      background: var(--zen-soft);
+      border-radius: var(--radius);
+      box-shadow: var(--zen-shadow);
+      padding: var(--sp-m);
+      margin: var(--sp-s) 0;
+      transition: box-shadow var(--transition), transform var(--transition);
+      overflow: hidden;
+      min-width: 0;
+      position: relative;
+    }
+    .zen-card:hover, .zen-card:focus-within {
+      box-shadow: 0 8px 32px 0 rgba(100,120,110,0.18);
+    }
 
-        .header p {
-            opacity: 0.9;
-            font-size: 0.9rem;
-        }
+    /* Main Content Area */
+    .main-content {
+      flex: 1 1 0;
+      padding: var(--sp-s) var(--sp-m) var(--sp-l) var(--sp-m);
+      box-sizing: border-box;
+      min-height: 60vh;
+    }
 
-        /* ===== MAIN CONTENT ===== */
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
+    .zen-section-title {
+      margin-top: 0;
+      font-size: 1.18rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
 
-        .tool-card {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 15px var(--shadow);
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.5s ease forwards;
-            display: none;
-        }
+    /* Restaurant & Menu List */
+    .restaurant-list, .order-list, .delivery-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-s);
+      margin-top: var(--sp-xs);
+    }
 
-        .tool-card.active {
-            display: block;
-        }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-s);
+      padding: var(--sp-xs) 0;
+      border-bottom: 1px dashed #e2e7e3;
+      transition: background var(--transition);
+    }
+    .menu-item:last-child {
+      border-bottom: none;
+    }
+    .menu-img {
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 12px;
+      background: var(--zen-bg-dark);
+      box-shadow: var(--zen-shadow);
+      transition: transform var(--transition);
+    }
+    .menu-item:hover .menu-img {
+      transform: scale(1.05);
+    }
+    .menu-detail {
+      flex: 1;
+    }
+    .menu-title {
+      font-weight: 500;
+      margin: 0 0 5px 0;
+    }
+    .menu-desc {
+      font-size: 0.91rem;
+      color: #646a6799;
+      margin-bottom: 2px;
+    }
+    .menu-price {
+      color: var(--zen-primary);
+      font-weight: 600;
+      font-size: 1.09em;
+    }
+    /* Button Styles */
+    .zen-btn {
+      background: var(--zen-primary);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: var(--sp-xs) var(--sp-m);
+      font-size: 0.99em;
+      font-family: inherit;
+      margin-left: var(--sp-xs);
+      cursor: pointer;
+      box-shadow: var(--zen-shadow);
+      transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+      outline: none;
+      display: inline-flex;
+      gap: var(--sp-xs);
+      align-items: center;
+    }
+    .zen-btn:active, .zen-btn:focus, .zen-btn:hover {
+      background: #82b8a6;
+      transform: scale(1.05);
+      box-shadow: 0 6px 18px 0 rgba(100,120,110,0.11);
+    }
+    .zen-btn.secondary {
+      background: #e2e7e3;
+      color: var(--zen-accent);
+    }
+    /* Zen Map */
+    .zen-map {
+      width: 100%;
+      height: 160px;
+      border-radius: 16px;
+      background: linear-gradient(97deg, #eafaf6 0%, #a7c8bd 100%);
+      margin: var(--sp-s) 0;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0px 16px 0 rgba(100,120,110,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: mapWave 7s linear infinite alternate;
+    }
+    @keyframes mapWave {
+      0% { background-position: 0 0;}
+      100% { background-position: 130px 77px;}
+    }
+    .map-marker {
+      width: 32px;
+      height: 32px;
+      border-radius: 99px;
+      background: #ffeccf;
+      box-shadow: 0 1px 12px 0 #fad9af76;
+      border: 2.5px solid #a7c8bd88;
+      position: absolute;
+      left: 48%;
+      top: 55%;
+      transform: translate(-50%,-55%) scale(1);
+      z-index: 9;
+      animation: markerPulse 2.3s ease-in-out infinite;
+    }
+    @keyframes markerPulse {
+      0% { box-shadow: 0 0px 6px 0 #fad9af56;}
+      50% { box-shadow: 0 0px 16px 6px #ffeccfaa;}
+      100% { box-shadow: 0 0px 6px 0 #fad9af56;}
+    }
+    /* Bottom Navigation Tray */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 524px;
+      background: var(--zen-soft);
+      border-radius: 30px 30px 0 0;
+      box-shadow: 0 3px 28px 0 rgba(100, 120, 110, 0.13);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: var(--nav-height);
+      z-index: 1000;
+      transition: box-shadow var(--transition);
+      font-size: 1.09rem;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      user-select: none;
+    }
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: var(--zen-accent);
+      padding: var(--sp-xs);
+      flex: 1 1 0;
+      font-family: inherit;
+      font-size: 1.028em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transition: color var(--transition);
+      cursor: pointer;
+      border-radius: 16px;
+      outline: none;
+    }
+    .bottom-nav button.active,
+    .bottom-nav button:focus,
+    .bottom-nav button:hover {
+      color: var(--zen-primary);
+      background: #eafaf6cc;
+    }
+    .bottom-nav .material-icons {
+      font-size: 1.47em;
+      margin-bottom: 0px;
+      margin-top: 3px;
+    }
+    /* Modal Styles */
+    .zen-modal-backdrop {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: #e2e7e3dd;
+      justify-content: center;
+      align-items: center;
+    }
+    .zen-modal {
+      background: var(--zen-soft);
+      border-radius: var(--radius);
+      box-shadow: 0 0 28px 0 #a7c8bd66;
+      min-width: 80vw; max-width: 400px;
+      padding: var(--sp-m);
+      text-align: center;
+      animation: modalFadeIn 0.4s;
+      position: relative;
+      z-index: 2;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.90);}
+      to { opacity: 1; transform: scale(1);}
+    }
+    .zen-modal-backdrop.active { display: flex; }
+    /* Microanimations */
+    [data-zen-anim] {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .6s var(--transition), transform .7s var(--transition);
+    }
+    [data-zen-anim].show {
+      opacity: 1;
+      transform: none;
+    }
+    /* Profile/Settings */
+    .zen-profile-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--sp-s);
+      padding: var(--sp-xs) 0;
+    }
+    .zen-profile-label {
+      font-size: 1em;
+      font-weight: 600;
+      color: var(--zen-accent);
+    }
+    .zen-profile-value, .zen-settings-switch {
+      font-size: 1em;
+      color: var(--zen-primary);
+      padding-left: var(--sp-xs);
+    }
+    /* Simple Switch Toggle */
+    .zen-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      margin-left: var(--sp-xs);
+      vertical-align: middle;
+    }
+    .zen-switch input {
+      opacity: 0; width: 0; height: 0;
+    }
+    .zen-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #e2e7e3;
+      border-radius: 24px;
+      transition: background var(--transition);
+    }
+    .zen-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px; width: 18px; left: 3px; bottom: 3px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 1px 5px #a7c8bd33;
+      transition: transform var(--transition);
+    }
+    .zen-switch input:checked + .zen-slider {
+      background: var(--zen-primary);
+    }
+    .zen-switch input:checked + .zen-slider:before {
+      transform: translateX(20px);
+    }
 
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    /* Responsive Design */
+    @media (min-width: 620px) {
+      .main-content {
+        padding: var(--sp-l) var(--sp-l) var(--nav-height) var(--sp-l);
+      }
+      #app {
+        margin: var(--sp-l) auto var(--nav-height) auto;
+        border-radius: 24px;
+        box-shadow: var(--zen-shadow);
+        background: var(--zen-gradient);
+      }
+    }
 
-        .tool-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid var(--border);
-        }
-
-        .tool-icon {
-            font-size: 2rem;
-            margin-right: 1rem;
-        }
-
-        .tool-header h2 {
-            font-size: 1.5rem;
-            font-weight: 400;
-            color: var(--text-primary);
-        }
-
-        /* ===== FORM ELEMENTS ===== */
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="number"],
-        input[type="password"],
-        textarea,
-        select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: var(--bg-primary);
-        }
-
-        input:focus,
-        textarea:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        /* ===== BUTTONS ===== */
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-light);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-secondary {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            border: 2px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
-        }
-
-        .btn-icon {
-            padding: 0.5rem;
-            width: 36px;
-            height: 36px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* ===== LIST ITEMS ===== */
-        .list-item {
-            background: var(--bg-primary);
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .list-item:hover {
-            transform: translateX(4px);
-            box-shadow: 0 2px 8px var(--shadow);
-        }
-
-        .list-item-content {
-            flex: 1;
-            margin-right: 1rem;
-            word-break: break-word;
-        }
-
-        .list-item-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .list-item-timestamp {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-top: 0.25rem;
-        }
-
-        /* ===== BOTTOM NAVIGATION ===== */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-secondary);
-            box-shadow: 0 -2px 20px var(--shadow);
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-            padding: 0.5rem;
-            z-index: 1000;
-            max-width: 100%;
-            overflow-x: auto;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            color: var(--text-secondary);
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            background: rgba(102, 126, 234, 0.1);
-            color: var(--accent);
-        }
-
-        .nav-item-icon {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .nav-item-label {
-            font-size: 0.7rem;
-            text-align: center;
-        }
-
-        /* ===== UTILITY CLASSES ===== */
-        .flex {
-            display: flex;
-        }
-
-        .flex-wrap {
-            flex-wrap: wrap;
-        }
-
-        .gap-1 {
-            gap: 0.5rem;
-        }
-
-        .gap-2 {
-            gap: 1rem;
-        }
-
-        .mb-1 {
-            margin-bottom: 0.5rem;
-        }
-
-        .mb-2 {
-            margin-bottom: 1rem;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .text-secondary {
-            color: var(--text-secondary);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--text-secondary);
-        }
-
-        .empty-state-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        /* ===== MODAL ===== */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalSlideUp 0.3s ease;
-        }
-
-        @keyframes modalSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-close {
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            transition: color 0.3s ease;
-        }
-
-        .modal-close:hover {
-            color: var(--danger);
-        }
-
-        /* ===== QR CODE ===== */
-        #qrcode {
-            display: flex;
-            justify-content: center;
-            margin: 1rem 0;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .container {
-                padding: 1rem 0.5rem;
-            }
-
-            .tool-card {
-                padding: 1.5rem;
-                border-radius: 12px;
-            }
-
-            .bottom-nav {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        /* ===== ANIMATIONS ===== */
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        .recording {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-    </style>
+    @media (min-width: 950px) {
+      #app {
+        margin: var(--sp-l) auto var(--nav-height) auto;
+        max-width: 530px;
+      }
+      .bottom-nav {
+        border-radius: 16px;
+        max-width: 530px;
+      }
+      .main-content {
+        padding: var(--sp-l) var(--sp-xl) var(--nav-height) var(--sp-xl);
+      }
+    }
+    /* Hide scrollbars */
+    ::-webkit-scrollbar {
+      width: 0px !important;
+      background: transparent;
+    }
+    /* End Zen CSS */
+  </style>
 </head>
 <body>
-    <!-- HEADER -->
-    <header class="header">
-        <h1>🧘 PocketUtils</h1>
-        <p>Your Zen Toolkit for Everyday Tasks</p>
+  <div id="app">
+    <header>
+      <span class="zen-title">禅 ZenFoodie</span>
+      <button class="role-toggle" id="roleToggleBtn" aria-label="Switch role">
+        <span id="roleIcon" class="material-icons" aria-hidden="true">person</span>
+        <span id="roleLabel">Customer</span>
+      </button>
     </header>
 
-    <!-- MAIN CONTAINER -->
-    <div class="container" id="app-container">
-        <!-- Tools will be dynamically loaded here -->
-    </div>
+    <main class="main-content" id="mainContent">
+      <!-- Content gets injected here -->
+    </main>
 
-    <!-- BOTTOM NAVIGATION -->
-    <nav class="bottom-nav" id="bottom-nav">
-        <div class="nav-item active" data-tool="clipboard">
-            <div class="nav-item-icon">📋</div>
-            <div class="nav-item-label">Clipboard</div>
-        </div>
-        <div class="nav-item" data-tool="voice">
-            <div class="nav-item-icon">🎙️</div>
-            <div class="nav-item-label">Voice</div>
-        </div>
-        <div class="nav-item" data-tool="ocr">
-            <div class="nav-item-icon">📸</div>
-            <div class="nav-item-label">OCR</div>
-        </div>
-        <div class="nav-item" data-tool="vault">
-            <div class="nav-item-icon">🔐</div>
-            <div class="nav-item-label">Vault</div>
-        </div>
-        <div class="nav-item" data-tool="forms">
-            <div class="nav-item-icon">📝</div>
-            <div class="nav-item-label">Forms</div>
-        </div>
-        <div class="nav-item" data-tool="share">
-            <div class="nav-item-icon">📤</div>
-            <div class="nav-item-label">Share</div>
-        </div>
-        <div class="nav-item" data-tool="utils">
-            <div class="nav-item-icon">🛠️</div>
-            <div class="nav-item-label">Utils</div>
-        </div>
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav" aria-label="Application Navigation">
+      <button id="navHome" class="active" data-page="home"><span class="material-icons">home</span>Home</button>
+      <button id="navOrders" data-page="orders"><span class="material-icons">assignment</span>Orders</button>
+      <button id="navProfile" data-page="profile"><span class="material-icons">person</span>Profile</button>
+      <button id="navRole" data-page="role"><span class="material-icons">swap_horiz</span>Role</button>
     </nav>
-
-    <!-- MODAL -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">Modal</h3>
-                <span class="modal-close" onclick="closeModal()">✕</span>
-            </div>
-            <div id="modal-body"></div>
-        </div>
+  </div>
+  <!-- Modal for notifications & offline -->
+  <div class="zen-modal-backdrop" id="modalBackdrop" tabindex="-1" aria-modal="true">
+    <div class="zen-modal" id="modalBox" role="dialog"></div>
+  </div>
+  <!-- Zen Mock Map SVG (hidden, injected as needed) -->
+  <template id="zenMapTemplate">
+    <div class="zen-map">
+      <svg width="100%" height="100%" viewBox="0 0 350 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute; top:0;left:0;">
+        <ellipse cx="175" cy="60" rx="120" ry="25" fill="#a7c8bd" fill-opacity="0.2"/>
+        <ellipse cx="60" cy="85" rx="25" ry="6" fill="#a7c8bd99"/>
+        <ellipse cx="285" cy="50" rx="30" ry="8" fill="#a7c8bd55"/>
+      </svg>
+      <div class="map-marker"></div>
     </div>
-
-    <!-- QR Code Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
-    <!-- Tesseract.js for OCR -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js"></script>
-
+  </template>
+  <!-- Firebase App Placeholders (Uncomment & configure in real deployment) -->
+  <!--
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
     <script>
-        // ===== GLOBAL STATE & UTILITIES =====
-        const APP = {
-            currentTool: 'clipboard',
-            data: {
-                clipboard: [],
-                voiceNotes: [],
-                vault: [],
-                formProfiles: [],
-                vaultPassword: null
-            },
-            recognition: null
-        };
-
-        // Load data from localStorage
-        function loadData() {
-            const saved = localStorage.getItem('pocketutils_data');
-            if (saved) {
-                try {
-                    APP.data = JSON.parse(saved);
-                } catch (e) {
-                    console.error('Error loading data:', e);
-                }
-            }
-        }
-
-        // Save data to localStorage
-        function saveData() {
-            localStorage.setItem('pocketutils_data', JSON.stringify(APP.data));
-        }
-
-        // Format timestamp
-        function formatTime(timestamp) {
-            const date = new Date(timestamp);
-            const now = new Date();
-            const diff = now - date;
-            
-            if (diff < 60000) return 'Just now';
-            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-            return date.toLocaleDateString();
-        }
-
-        // Copy to clipboard
-        async function copyToClipboard(text) {
-            try {
-                await navigator.clipboard.writeText(text);
-                showToast('Copied to clipboard!');
-            } catch (e) {
-                // Fallback for older browsers
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showToast('Copied to clipboard!');
-            }
-        }
-
-        // Show toast notification
-        function showToast(message, duration = 2000) {
-            const toast = document.createElement('div');
-            toast.textContent = message;
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: var(--accent);
-                color: white;
-                padding: 1rem 1.5rem;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px var(--shadow);
-                z-index: 3000;
-                animation: slideInRight 0.3s ease;
-            `;
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.style.animation = 'slideOutRight 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, duration);
-        }
-
-        // Modal functions
-        function openModal(title, content) {
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-body').innerHTML = content;
-            document.getElementById('modal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-        }
-
-        // ===== TOOL: CLIPBOARD HISTORY =====
-        const ClipboardTool = {
-            render() {
-                return `
-                    <div class="tool-card active" id="clipboard-tool">
-                        <div class="tool-header">
-                            <span class="tool-icon">📋</span>
-                            <h2>Clipboard History</h2>
-                        </div>
-                        <div class="input-group">
-                            <textarea id="clipboard-input" placeholder="Paste or type something to save..."></textarea>
-                        </div>
-                        <button class="btn btn-primary" onclick="ClipboardTool.save()">💾 Save to History</button>
-                        <div style="margin-top: 2rem;">
-                            <h3 style="margin-bottom: 1rem; color: var(--text-secondary);">History</h3>
-                            <div id="clipboard-list"></div>
-                        </div>
-                    </div>
-                `;
-            },
-            save() {
-                const input = document.getElementById('clipboard-input');
-                const text = input.value.trim();
-                if (!text) return showToast('Please enter some text', 2000);
-                
-                APP.data.clipboard.unshift({
-                    id: Date.now(),
-                    text: text,
-                    timestamp: Date.now()
-                });
-                
-                saveData();
-                input.value = '';
-                this.renderList();
-                showToast('Saved to history!');
-            },
-            renderList() {
-                const list = document.getElementById('clipboard-list');
-                if (APP.data.clipboard.length === 0) {
-                    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No clipboard history yet</p></div>';
-                    return;
-                }
-                
-                list.innerHTML = APP.data.clipboard.map(item => `
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <div>${item.text.substring(0, 100)}${item.text.length > 100 ? '...' : ''}</div>
-                            <div class="list-item-timestamp">${formatTime(item.timestamp)}</div>
-                        </div>
-                        <div class="list-item-actions">
-                            <button class="btn btn-icon btn-secondary" onclick="copyToClipboard('${item.text.replace(/'/g, "\\'")}')">📋</button>
-                            <button class="btn btn-icon btn-secondary" onclick="ClipboardTool.delete(${item.id})">🗑️</button>
-                        </div>
-                    </div>
-                `).join('');
-            },
-            delete(id) {
-                APP.data.clipboard = APP.data.clipboard.filter(item => item.id !== id);
-                saveData();
-                this.renderList();
-                showToast('Deleted!');
-            }
-        };
-
-        // ===== TOOL: VOICE NOTES =====
-        const VoiceTool = {
-            render() {
-                return `
-                    <div class="tool-card" id="voice-tool">
-                        <div class="tool-header">
-                            <span class="tool-icon">🎙️</span>
-                            <h2>Voice to Text</h2>
-                        </div>
-                        <div class="input-group">
-                            <textarea id="voice-output" placeholder="Transcribed text will appear here..." readonly></textarea>
-                        </div>
-                        <div class="flex gap-1">
-                            <button class="btn btn-primary" id="voice-start" onclick="VoiceTool.start()">🎙️ Start Recording</button>
-                            <button class="btn btn-secondary" onclick="VoiceTool.save()">💾 Save Note</button>
-                        </div>
-                        <div style="margin-top: 2rem;">
-                            <h3 style="margin-bottom: 1rem; color: var(--text-secondary);">Saved Notes</h3>
-                            <div id="voice-list"></div>
-                        </div>
-                    </div>
-                `;
-            },
-            start() {
-                const btn = document.getElementById('voice-start');
-                
-                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                    showToast('Speech recognition not supported in this browser', 3000);
-                    return;
-                }
-
-                if (APP.recognition && APP.recognition.running) {
-                    APP.recognition.stop();
-                    btn.textContent = '🎙️ Start Recording';
-                    btn.classList.remove('recording');
-                    return;
-                }
-
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                APP.recognition = new SpeechRecognition();
-                APP.recognition.continuous = true;
-                APP.recognition.interimResults = true;
-
-                const output = document.getElementById('voice-output');
-                let finalTranscript = output.value;
-
-                APP.recognition.onresult = (event) => {
-                    let interimTranscript = '';
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        const transcript = event.results[i][0].transcript;
-                        if (event.results[i].isFinal) {
-                            finalTranscript += transcript + ' ';
-                        } else {
-                            interimTranscript += transcript;
-                        }
-                    }
-                    output.value = finalTranscript + interimTranscript;
-                };
-
-                APP.recognition.start();
-                APP.recognition.running = true;
-                btn.textContent = '⏹️ Stop Recording';
-                btn.classList.add('recording');
-                showToast('Recording started...');
-            },
-            save() {
-                const text = document.getElementById('voice-output').value.trim();
-                if (!text) return showToast('No text to save', 2000);
-                
-                APP.data.voiceNotes.unshift({
-                    id: Date.now(),
-                    text: text,
-                    timestamp: Date.now()
-                });
-                
-                saveData();
-                document.getElementById('voice-output').value = '';
-                this.renderList();
-                showToast('Note saved!');
-            },
-            renderList() {
-                const list = document.getElementById('voice-list');
-                if (APP.data.voiceNotes.length === 0) {
-                    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎤</div><p>No voice notes yet</p></div>';
-                    return;
-                }
-                
-                list.innerHTML = APP.data.voiceNotes.map(item => `
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <div>${item.text.substring(0, 100)}${item.text.length > 100 ? '...' : ''}</div>
-                            <div class="list-item-timestamp">${formatTime(item.timestamp)}</div>
-                        </div>
-                        <div class="list-item-actions">
-                            <button class="btn btn-icon btn-secondary" onclick="copyToClipboard('${item.text.replace(/'/g, "\\'")}')">📋</button>
-                            <button class="btn btn-icon btn-secondary" onclick="VoiceTool.delete(${item.id})">🗑️</button>
-                        </div>
-                    </div>
-                `).join('');
-            },
-            delete(id) {
-                APP.data.voiceNotes = APP.data.voiceNotes.filter(item => item.id !== id);
-                saveData();
-                this.renderList();
-                showToast('Deleted!');
-            }
-        };
-
-        // ===== TOOL: OCR =====
-        const OCRTool = {
-            render() {
-                return `
-                    <div class="tool-card" id="ocr-tool">
-                        <div class="tool-header">
-                            <span class="tool-icon">📸</span>
-                            <h2>Screenshot Text Extractor</h2>
-                        </div>
-                        <div class="input-group">
-                            <label>Upload an image to extract text</label>
-                            <input type="file" id="ocr-file" accept="image/*" onchange="OCRTool.process()" style="display:none">
-                            <button class="btn btn-primary" onclick="document.getElementById('ocr-file').click()">📷 Choose Image</button>
-                        </div>
-                        <div id="ocr-preview" style="margin: 1rem 0;"></div>
-                        <div id="ocr-status" style="color: var(--text-secondary); margin: 1rem 0;"></div>
-                        <div class="input-group">
-                            <textarea id="ocr-output" placeholder="Extracted text will appear here..." readonly></textarea>
-                        </div>
-                        <button class="btn btn-secondary" onclick="copyToClipboard(document.getElementById('ocr-output').value)">📋 Copy Text</button>
-                    </div>
-                `;
-            },
-            async process() {
-                const file = document.getElementById('ocr-file').files[0];
-                if (!file) return;
-
-                const preview = document.getElementById('ocr-preview');
-                const status = document.getElementById('ocr-status');
-                const output = document.getElementById('ocr-output');
-
-                // Show preview
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    preview.innerHTML = `<img src="${e.target.result}" style="max-width: 100%; border-radius: 8px;">`;
-                };
-                reader.readAsDataURL(file);
-
-                // Process with Tesseract
-                status.textContent = '🔄 Processing image...';
-                output.value = '';
-
-                try {
-                    const result = await Tesseract.recognize(file, 'eng', {
-                        logger: (m) => {
-                            if (m.status === 'recognizing text') {
-                                status.textContent = `🔄 Recognizing text: ${Math.round(m.progress * 100)}%`;
-                            }
-                        }
-                    });
-                    
-                    output.value = result.data.text;
-                    status.textContent = '✅ Text extracted successfully!';
-                    showToast('Text extracted!');
-                } catch (e) {
-                    status.textContent = '❌ Error processing image';
-                    showToast('Error processing image', 3000);
-                }
-            }
-        };
-
-        // ===== TOOL: VAULT =====
-        const VaultTool = {
-            render() {
-                return `
-                    <div class="tool-card" id="vault-tool">
-                        <div class="tool-header">
-                            <span class="tool-icon">🔐</span>
-                            <h2>Encrypted Vault</h2>
-                        </div>
-                        ${!APP.data.vaultPassword ? `
-                            <div class="input-group">
-                                <label>Set a master password to access your vault</label>
-                                <input type="password" id="vault-password" placeholder="Enter master password">
-                            </div>
-                            <button class="btn btn-primary" onclick="VaultTool.setPassword()">🔒 Create Vault</button>
-                        ` : `
-                            <div class="input-group">
-                                <input type="text" id="vault-title" placeholder="Item title">
-                            </div>
-                            <div class="input-group">
-                                <textarea id="vault-content" placeholder="Secret content..."></textarea>
-                            </div>
-                            <button class="btn btn-primary" onclick="VaultTool.save()">💾 Save to Vault</button>
-                            <div style="margin-top: 2rem;">
-                                <h3 style="margin-bottom: 1rem; color: var(--text-secondary);">Vault Items</h3>
-                                <div id="vault-list"></div>
-                            </div>
-                        `}
-                    </div>
-                `;
-            },
-            setPassword() {
-                const password = document.getElementById('vault-password').value;
-                if (!password || password.length < 4) {
-                    return showToast('Password must be at least 4 characters', 3000);
-                }
-                APP.data.vaultPassword = password;
-                saveData();
-                showToast('Vault created!');
-                switchTool('vault');
-            },
-            save() {
-                const title = document.getElementById('vault-title').value.trim();
-                const content = document.getElementById('vault-content').value.trim();
-                
-                if (!title || !content) {
-                    return showToast('Please fill in both fields', 2000);
-                }
-                
-                // Simple encryption (Base64 for demo - use real encryption in production)
-                const encrypted = btoa(content);
-                
-                APP.data.vault.unshift({
-                    id: Date.now(),
-                    title: title,
-                    content: encrypted,
-                    timestamp: Date.now()
-                });
-                
-                saveData();
-                document.getElementById('vault-title').value = '';
-                document.getElementById('vault-content').value = '';
-                this.renderList();
-                showToast('Saved to vault!');
-            },
-            view(id) {
-                const item = APP.data.vault.find(i => i.id === id);
-                if (!item) return;
-                
-                const decrypted = atob(item.content);
-                openModal(item.title, `
-                    <div style="white-space: pre-wrap; word-break: break-word;">${decrypted}</div>
-                    <button class="btn btn-primary" style="margin-top: 1rem;" onclick="copyToClipboard('${decrypted.replace(/'/g, "\\'")}'); closeModal();">📋 Copy</button>
-                `);
-            },
-            renderList() {
-                const list = document.getElementById('vault-list');
-                if (APP.data.vault.length === 0) {
-                    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔒</div><p>No vault items yet</p></div>';
-                    return;
-                }
-                
-                list.innerHTML = APP.data.vault.map(item => `
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <div><strong>${item.title}</strong></div>
-                            <div class="list-item-timestamp">${formatTime(item.timestamp)}</div>
-                        </div>
-                        <div class="list-item-actions">
-                            <button class="btn btn-icon btn-secondary" onclick="VaultTool.view(${item.id})">👁️</button>
-                            <button class="btn btn-icon btn-secondary" onclick="VaultTool.delete(${item.id})">🗑️</button>
-                        </div>
-                    </div>
-                `).join('');
-            },
-            delete(id) {
-                APP.data.vault = APP.data.vault.filter(item => item.id !== id);
-                saveData();
-                this.renderList();
-                showToast('Deleted!');
-            }
-        };
-
-        // ===== TOOL: FORM MEMORY =====
-        const FormTool = {
-            render() {
-                return `
-                    <div class="tool-card" id="form-tool">
-                        <div class="tool-header">
-                            <span class="tool-icon">📝</span>
-                            <h2>Form Memory</h2>
-                        </div>
-                        <div class="input-group">
-                            <label>Profile Name</label>
-                            <input type="text" id="form-name" placeholder="e.g., Personal, Work">
-                        </div>
-                        <div class="input-group">
-                            <label>Full Name</label>
-                            <input type="text" id="form-fullname" placeholder="John Doe">
-                        </div>
-                        <div class="input-group">
-                            <label>Email</label>
-                            <input type="email" id="form-email" placeholder="john@example.com">
-                        </div>
-                        <div class="input-group">
-                            <label>Phone</label>
-                            <input type="text" id="form-phone" placeholder="+1234567890">
-                        </div>
-                        <div class="input-group">
-                            <label>Address</label>
-                            <textarea id="form-address" placeholder="Street, City, State, ZIP"></textarea>
-                        </div>
-                        <button class="btn btn-primary" onclick="FormTool.save()">💾 Save Profile</button>
-                        <div style="margin-top: 2rem;">
-                            <h3 style="margin-bottom: 1rem; color: var(--text-secondary);">Saved Profiles</h3>
-                            <div id="form-list"></div>
-                        </div>
-                    </div>
-                `;
-            },
-            save() {
-                const profile = {
-                    id: Date.now(),
-                    name: document.getElementById('form-name').value.trim(),
-                    fullname: document.getElementById('form-fullname').value.trim(),
-                    email: document.getElementById('form-email').value.trim(),
-                    phone: document.getElementById('form-phone').value.trim(),
-                    address: document.getElementById('form-address').value.trim(),
-                    timestamp: Date.now()
-                };
-                
-                if (!profile.name) {
-                    return showToast('Please enter a profile name', 2000);
-                }
-                
-                APP.data.formProfiles.unshift(profile);
-                saveData();
-                this.clearForm();
-                this.renderList();
-                showToast('Profile saved!');
-            },
-            clearForm() {
-                document.getElementById('form-name').value = '';
-                document.getElementById('form-fullname').value = '';
-                document.getElementById('form-email').value = '';
-                document.getElementById('form-phone').value = '';
-                document.getElementById('form-address').value = '';
-            },
-            load(id) {
-                const profile = APP.data.formProfiles.find(p => p.id === id);
-                if (!profile) return;
-                
-                document.getElementById('form-name').value = profile.name;
-                document.getElementById('form-fullname').value = profile.fullname;
-                document.getElementById('form-email').value = profile.email;
-                document.getElementById('form-phone').value = profile.phone;
-                document.getElementById('form-address').value = profile.address;
-                showToast('Profile loaded!');
-            },
-            renderList() {
-                const list = document.getElementById('form-list');
-                if (APP.data.formProfiles.length === 0) {
-                    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No saved profiles yet</p></div>';
-                    return;
-                }
-                
-                list.innerHTML = APP.data.formProfiles.map(item => `
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <div><strong>${item.name}</strong></div>
-                            <div style="font-size: 0.9rem; color: var(--text-secondary);">${item.fullname} • ${item.email}</div>
-                            <div class="list-item-timestamp">${formatTime(item.timestamp)}</div>
-                        </div>
-                        <div class="list-item-actions">
-                            <button class="btn btn-icon btn-secondary" onclick="FormTool.load(${item.id})">📥</button>
-                            <button class="btn btn-icon btn-secondary" onclick="FormTool.delete(${item.id})">🗑️</button>
-                        </div>
-                    </div>
-                `).join('');
-            },
-            delete(id) {
-                APP.data.formProfiles = APP.data.formProfiles.filter(item => item.id !== id);
-                saveData();
-                this.renderList();
-                showToast('Deleted!');
-            }
-        };
-
-        // ===== TOOL: SHARE =====
-        const ShareTool = {
-            render() {
-                return `
-                    <div class="tool-card" id="share-tool">
-                        <div class="tool-header">
-                            <span class="tool-icon">📤</span>
-                            <h2>Quick Share</h2>
-                        </div>
-                        <div class="input-group">
-                            <label>Text or URL to share</label>
-                            <textarea id="share-text" placeholder="Enter text, URL, or any content..."></textarea>
-                        </div>
-                        <button class="btn btn-primary" onclick="ShareTool.generateQR()">🔲 Generate QR Code</button>
-                        <div id="qrcode" style="margin: 2rem 0;"></div>
-                        <div class="text-center text-secondary" id="share-info"></div>
-                    </div>
-                `;
-            },
-            generateQR() {
-                const text = document.getElementById('share-text').value.trim();
-                if (!text) return showToast('Please enter something to share', 2000);
-                
-                const qrContainer = document.getElementById('qrcode');
-                qrContainer.innerHTML = '';
-                
-                new QRCode(qrContainer, {
-                    text: text,
-                    width: 256,
-                    height: 256,
-                    colorDark: '#667eea',
-                    colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-                
-                document.getElementById('share-info').textContent = 'Scan this QR code to access the content';
-                showToast('QR code generated!');
-            }
-        };
-
-        // ===== TOOL: UTILITIES =====
-        const UtilsTool = {
-            currentUtil: 'converter',
-            render() {
-                return `
-                    <div class="tool-card" id="utils-tool">
-                        <div class="tool-header">
-                            <span class="tool-icon">🛠️</span>
-                            <h2>Utilities</h2>
-                        </div>
-                        <div class="flex gap-1 flex-wrap mb-2">
-                            <button class="btn btn-secondary btn-small" onclick="UtilsTool.switchUtil('converter')">📏 Converter</button>
-                            <button class="btn btn-secondary btn-small" onclick="UtilsTool.switchUtil('date')">📅 Date Calc</button>
-                            <button class="btn btn-secondary btn-small" onclick="UtilsTool.switchUtil('password')">🔑 Password</button>
-                        </div>
-                        <div id="utils-content"></div>
-                    </div>
-                `;
-            },
-            switchUtil(util) {
-                this.currentUtil = util;
-                const content = document.getElementById('utils-content');
-                
-                switch(util) {
-                    case 'converter':
-                        content.innerHTML = `
-                            <div class="input-group">
-                                <label>Unit Converter</label>
-                                <input type="number" id="conv-value" placeholder="Enter value">
-                            </div>
-                            <div class="input-group">
-                                <select id="conv-type">
-                                    <option value="length">Length (m to ft)</option>
-                                    <option value="weight">Weight (kg to lb)</option>
-                                    <option value="temp">Temperature (°C to °F)</option>
-                                </select>
-                            </div>
-                            <button class="btn btn-primary" onclick="UtilsTool.convert()">🔄 Convert</button>
-                            <div id="conv-result" style="margin-top: 1rem; font-size: 1.2rem; color: var(--accent);"></div>
-                        `;
-                        break;
-                    case 'date':
-                        content.innerHTML = `
-                            <div class="input-group">
-                                <label>Calculate Days Between Dates</label>
-                                <input type="date" id="date-start">
-                            </div>
-                            <div class="input-group">
-                                <input type="date" id="date-end">
-                            </div>
-                            <button class="btn btn-primary" onclick="UtilsTool.calculateDays()">📊 Calculate</button>
-                            <div id="date-result" style="margin-top: 1rem; font-size: 1.2rem; color: var(--accent);"></div>
-                        `;
-                        break;
-                    case 'password':
-                        content.innerHTML = `
-                            <div class="input-group">
-                                <label>Password Length</label>
-                                <input type="number" id="pass-length" value="16" min="8" max="64">
-                            </div>
-                            <div class="input-group">
-                                <label>
-                                    <input type="checkbox" id="pass-special" checked> Include special characters
-                                </label>
-                            </div>
-                            <button class="btn btn-primary" onclick="UtilsTool.generatePassword()">🔑 Generate Password</button>
-                            <div class="input-group" style="margin-top: 1rem;">
-                                <input type="text" id="pass-result" readonly style="font-family: monospace; font-size: 1.1rem;">
-                            </div>
-                            <button class="btn btn-secondary" onclick="copyToClipboard(document.getElementById('pass-result').value)">📋 Copy Password</button>
-                        `;
-                        break;
-                }
-            },
-            convert() {
-                const value = parseFloat(document.getElementById('conv-value').value);
-                const type = document.getElementById('conv-type').value;
-                const result = document.getElementById('conv-result');
-                
-                if (isNaN(value)) {
-                    result.textContent = 'Please enter a valid number';
-                    return;
-                }
-                
-                let output;
-                switch(type) {
-                    case 'length':
-                        output = `${value} meters = ${(value * 3.28084).toFixed(2)} feet`;
-                        break;
-                    case 'weight':
-                        output = `${value} kg = ${(value * 2.20462).toFixed(2)} pounds`;
-                        break;
-                    case 'temp':
-                        output = `${value}°C = ${(value * 9/5 + 32).toFixed(2)}°F`;
-                        break;
-                }
-                result.textContent = output;
-            },
-            calculateDays() {
-                const start = new Date(document.getElementById('date-start').value);
-                const end = new Date(document.getElementById('date-end').value);
-                const result = document.getElementById('date-result');
-                
-                if (!start || !end) {
-                    result.textContent = 'Please select both dates';
-                    return;
-                }
-                
-                const diff = Math.abs(end - start);
-                const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                result.textContent = `${days} days`;
-            },
-            generatePassword() {
-                const length = parseInt(document.getElementById('pass-length').value);
-                const includeSpecial = document.getElementById('pass-special').checked;
-                
-                let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                if (includeSpecial) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
-                
-                let password = '';
-                for (let i = 0; i < length; i++) {
-                    password += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                
-                document.getElementById('pass-result').value = password;
-                showToast('Password generated!');
-            }
-        };
-
-        // ===== NAVIGATION =====
-        function switchTool(toolName) {
-            APP.currentTool = toolName;
-            
-            // Update nav items
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-                if (item.dataset.tool === toolName) {
-                    item.classList.add('active');
-                }
-            });
-            
-            // Hide all tools
-            document.querySelectorAll('.tool-card').forEach(card => {
-                card.classList.remove('active');
-            });
-            
-            // Render and show current tool
-            const container = document.getElementById('app-container');
-            const tools = {
-                clipboard: ClipboardTool,
-                voice: VoiceTool,
-                ocr: OCRTool,
-                vault: VaultTool,
-                forms: FormTool,
-                share: ShareTool,
-                utils: UtilsTool
-            };
-            
-            const tool = tools[toolName];
-            if (tool) {
-                container.innerHTML = tool.render();
-                
-                // Render lists if applicable
-                setTimeout(() => {
-                    if (tool.renderList) tool.renderList();
-                    if (toolName === 'utils') tool.switchUtil(tool.currentUtil);
-                }, 100);
-            }
-        }
-
-        // ===== INITIALIZATION =====
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            
-            // Setup navigation
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    switchTool(item.dataset.tool);
-                });
-            });
-            
-            // Initial render
-            switchTool('clipboard');
-            
-            // Add animation styles
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOutRight {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-            `;
-            document.head.appendChild(style);
-        });
-
-        // Close modal on outside click
-        document.getElementById('modal').addEventListener('click', (e) => {
-            if (e.target.id === 'modal') closeModal();
-        });
+      // TODO: Replace with real keys
+      const firebaseConfig = {
+        apiKey: "",
+        authDomain: "",
+        projectId: "",
+        storageBucket: "",
+        messagingSenderId: "",
+        appId: ""
+      };
+      firebase.initializeApp(firebaseConfig);
+      // const db = firebase.firestore();
+      // const auth = firebase.auth();
     </script>
+  -->
+  <script>
+    /* ------------------------------------------
+     * ZenFoodie App - Zen Delivery in One File!
+     * ------------------------------------------ */
+
+    // Local mock data for demo and offline cache
+    const DUMMY_RESTAURANTS = [
+      {
+        id: '1',
+        name: 'Calm Bowl Eatery',
+        desc: 'Healthy, slow-cooked Asian bowls.',
+        logo: 'https://source.unsplash.com/64x64/?bowl,food,zen',
+        menu: [
+          {id:'m1',name:'Zen Quinoa Pilaf',desc:'Herbs, lemon zest, seeds',price:169,img:'https://source.unsplash.com/88x88/?quinoa,bowl,food'},
+          {id:'m2',name:'Tofu Harmony Curry',desc:'Tofu, veggies, jasmine rice',price:219,img:'https://source.unsplash.com/88x88/?curry,vegan,tofu'},
+          {id:'m3',name:'Miso Serenity Soup',desc:'Silky broth w/ mushrooms',price:129,img:'https://source.unsplash.com/88x88/?soup,zen'}
+        ]
+      },
+      {
+        id: '2',
+        name: 'Minimal Tea House',
+        desc: 'Organic teas and light bites.',
+        logo: 'https://source.unsplash.com/64x64/?tea,minimal',
+        menu: [
+          {id:'m4',name:'Matcha Cloud','desc':'Ceremonial matcha, almond milk',price:99,img:'https://source.unsplash.com/88x88/?matcha,tea,latte'},
+          {id:'m5',name:'Lotus Rice Wraps',desc:'Rice paper, sprouts, sauce',price:135,img:'https://source.unsplash.com/88x88/?rice,springrolls'},
+        ]
+      }
+    ];
+
+    const DUMMY_ORDERS = [
+      { id:'o1', rest:'Calm Bowl Eatery', items:[{menu:'Zen Quinoa Pilaf',qty:1}], status:'preparing', total:169, eta:'12 min', placed:new Date(Date.now()-11*60000).toISOString(), address:'15 Zen Lane'},
+      { id:'o2', rest:'Minimal Tea House', items:[{menu:'Lotus Rice Wraps',qty:2}], status:'delivered', total:270, eta:'-', placed:new Date(Date.now()-53*60000).toISOString(), address:'28 Lotus St' }
+    ];
+
+    /* ----
+     * Default Settings
+     */
+    const STORAGE_KEY = "ZenFoodieApp";
+    const ZEN_DEFAULTS = {
+      role: "customer",
+      lastOrder: null,
+      ui: {
+        softMode: true,
+        colorMode: "default"
+      }
+    };
+
+    /* ----
+     * Utility Methods
+     */
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    const delay = ms => new Promise(res=>setTimeout(res,ms));
+    const on = (el, ev, fn) => el && el.addEventListener(ev, fn);
+
+    function saveState(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {...ZEN_DEFAULTS};
+      } catch { return {...ZEN_DEFAULTS}; }
+    }
+    /* ----- Basic IndexedDB Caching ---- */
+    let idb = null;
+    function zenOpenIDB() {
+      return new Promise(res => {
+        if(idb) { res(idb); return; }
+        let req = indexedDB.open("ZenFoodieDB", 1);
+        req.onupgradeneeded = (evt) => {
+          let db = evt.target.result;
+          if (!db.objectStoreNames.contains("menus")) db.createObjectStore("menus");
+          if (!db.objectStoreNames.contains("orders")) db.createObjectStore("orders");
+        };
+        req.onsuccess = evt => { idb = evt.target.result; res(idb); };
+      });
+    }
+    function zenIDBSet(store, key, val) {
+      return zenOpenIDB().then(db=>{
+        return new Promise(res=>{
+          let tx = db.transaction(store, "readwrite");
+          tx.objectStore(store).put(val, key);
+          tx.oncomplete = () => res(true);
+        });
+      });
+    }
+    function zenIDBGet(store, key) {
+      return zenOpenIDB().then(db=>{
+        return new Promise(res=>{
+          let tx = db.transaction(store, "readonly");
+          let req = tx.objectStore(store).get(key);
+          req.onsuccess = () => res(req.result||null);
+        });
+      });
+    }
+
+    /* ----
+     * State Management
+     */
+    let state = {...ZEN_DEFAULTS, ...loadState()};
+    let prevHash = window.location.hash;
+
+    // Persist state on any role/UI/order changes
+    function updateState(obj) {
+      state = { ...state, ...obj };
+      saveState(state);
+    }
+
+    // Responsive Zen Animation when content loads
+    function zenReveal() {
+      requestAnimationFrame(()=>{
+        $$('[data-zen-anim]').forEach(el=>{
+          el.classList.remove('show');
+          setTimeout(()=>el.classList.add('show'), 42);
+        });
+      });
+    }
+
+    /* ----
+     * Role Handling
+     */
+    const roles = {
+      customer: { icon: "person", label: "Customer" },
+      delivery: { icon: "motorcycle", label: "Delivery" }
+    };
+    function setRole(r) {
+      if(!roles[r]) return;
+      updateState({role:r});
+      $('#roleLabel').textContent = roles[r].label;
+      $('#roleIcon').textContent = roles[r].icon;
+      // Show/hide app elements as needed
+      renderNavHighlight();
+      renderMain();
+    }
+
+    // Toggle role on header button or nav tray
+    function toggleRole() {
+      let next = (state.role==='customer') ? 'delivery' : 'customer';
+      setRole(next);
+    }
+
+    /* ---
+     * NAVIGATION LOGIC
+     */
+    const pages = ['home','orders','profile','role'];
+    let currentPage = 'home';
+
+    function renderNavHighlight() {
+      $$('.bottom-nav button').forEach(btn=>{
+        btn.classList.toggle('active', btn.dataset.page===currentPage || (btn.dataset.page==="role" && currentPage==="role"));
+      });
+    }
+
+    function goPage(page) {
+      currentPage = page;
+      renderNavHighlight();
+      renderMain();
+    }
+
+    // Modal Dialog
+    function showModal(html, ms=2200) {
+      const modal = $('#modalBackdrop');
+      $('#modalBox').innerHTML = html;
+      modal.classList.add('active');
+      if(ms && ms>0) setTimeout(()=>modal.classList.remove('active'), ms);
+    }
+    function hideModal(){
+      $('#modalBackdrop').classList.remove('active');
+    }
+    on($('#modalBackdrop'),'click', (e)=>{
+      if(e.target === $('#modalBackdrop')) hideModal();
+    });
+
+    /* -------------
+     * MAIN UI RENDER
+     * ------------- */
+
+    function renderMain() {
+      let root = $('#mainContent'), html = "";
+      // Mobile: Remove scroll to top? Or animate.
+      window.scrollTo({top:0,behavior:'auto'});
+      if(currentPage==='home') {
+        if(state.role==='customer') html = renderCustomerHome();
+        else html = renderDeliveryHome();
+      } else if(currentPage==='orders') {
+        html = renderOrders();
+      } else if(currentPage==='profile') {
+        html = renderProfile();
+      } else if(currentPage==='role') {
+        html = renderRoleSwitch();
+      }
+      root.innerHTML = html;
+      zenReveal();
+      // Map integration in orders for delivery tracking
+      if(currentPage==='orders' && state.role==='customer' && state.lastOrder && (state.lastOrder.status==='on-way'||state.lastOrder.status==='preparing')) {
+        injectMap();
+      }
+    }
+
+    /* ------
+     * CUSTOMER: HOME: List restaurants
+     * ------ */
+    function renderCustomerHome() {
+      let restHTML = DUMMY_RESTAURANTS.map(r=>`
+        <div class="zen-card" data-zen-anim>
+          <div style="display: flex; align-items: center; gap: var(--sp-s); margin-bottom: 6px;">
+            <img src="${r.logo}" alt="${r.name} logo" style="width:48px;height:48px;border-radius:12px;background:var(--zen-bg-dark);" />
+            <div style="flex:1">
+              <div class="menu-title">${r.name}</div>
+              <div style="font-size:0.97em;color:#646a679a">${r.desc}</div>
+            </div>
+            <button class="zen-btn" onclick="showRestaurantMenu('${r.id}')"><span class="material-icons">restaurant_menu</span>Menu</button>
+          </div>
+        </div>
+      `).join('');
+      return `
+        <h2 class="zen-section-title" data-zen-anim>Discover Zen Eateries</h2>
+        <div class="restaurant-list" data-zen-anim>
+          ${restHTML}
+        </div>
+      `;
+    }
+
+    // Show Restaurant Menu Modal
+    window.showRestaurantMenu = function(restid) {
+      const rest = DUMMY_RESTAURANTS.find(r=>r.id===restid);
+      if(!rest) return;
+      let menuHTML = rest.menu.map(m=>`
+        <div class="menu-item">
+          <img class="menu-img" src="${m.img}" alt="${m.name}"/>
+          <div class="menu-detail">
+            <div class="menu-title">${m.name}</div>
+            <div class="menu-desc">${m.desc}</div>
+            <div class="menu-price">₹${m.price}</div>
+          </div>
+          <button class="zen-btn" onclick="addToOrder('${restid}','${m.id}')"><span class="material-icons">add</span></button>
+        </div>`).join('');
+      showModal(`
+        <div>
+          <div style="font-weight:700;font-size:1.11em;margin-bottom:8px">
+            ${rest.name} <span style="font-size:1.3em">${String.fromCharCode(0x1F35A)}</span>
+          </div>
+          <div>${menuHTML}</div>
+        </div>
+      `,0);
+    };
+
+    // Add menu item to order draft, user confirms ordering via UI
+    window.addToOrder = function(restid, menuid) {
+      const rest = DUMMY_RESTAURANTS.find(r=>r.id===restid);
+      const menu = rest.menu.find(m=>m.id===menuid);
+      let order = {
+        id:'new_'+Date.now(),
+        rest: rest.name,
+        items: [{menu: menu.name, qty:1}],
+        status: 'preparing',
+        total: menu.price,
+        eta:'~15 min',
+        placed: new Date().toISOString(),
+        address: 'Your saved address'
+      };
+      let confirmHTML = `
+        <div>
+          <div style="font-weight:bold">Order Confirmation</div>
+          <div style="margin:10px auto">
+            1 x ${menu.name}<br>
+            <b>From:</b> ${rest.name}<br>
+            <b>To:</b> Your saved address
+          </div>
+          <div class="menu-price" style="margin-bottom:10px;">Total: ₹${menu.price}</div>
+          <button class="zen-btn" onclick="confirmOrder('${order.id}')">Place Order</button>
+        </div>
+      `;
+      showModal(confirmHTML,0);
+      // Save to window for confirm
+      window.ZenOrderDraft = order;
+    };
+    window.confirmOrder = function(orderid){
+      if(window.ZenOrderDraft && window.ZenOrderDraft.id===orderid) {
+        state.lastOrder = window.ZenOrderDraft;
+        // Save to localStorage & cache to IndexedDB
+        updateState({lastOrder: state.lastOrder});
+        zenIDBSet('orders','lastOrder',state.lastOrder);
+        showModal('<div><span class="material-icons" style="color:var(--zen-primary);font-size:2em;">check_circle</span><br>Order placed!<br><em>Breathe. We track it for you.</em></div>');
+        goPage('orders');
+      }
+    };
+
+    /* ------
+     * CUSTOMER: ORDERS
+     * ------ */
+    function renderOrders() {
+      if(state.role==='customer') {
+        let currOrder = state.lastOrder;
+        if(currOrder) {
+          let orderStatusColor =
+            currOrder.status==='preparing' ? '#a7c8bd'
+            : currOrder.status==='on-way' ? '#82b8a6'
+            : currOrder.status==='delivered' ? "#8cad69" : "#c8c8a7";
+          return `
+            <div class="zen-card" data-zen-anim>
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div class="zen-section-title">Latest Order – <span style="color:${orderStatusColor};text-transform:capitalize">${currOrder.status}</span></div>
+                  <div style="font-size:0.97em;color:#646a679a">at ${currOrder.rest}</div>
+                </div>
+              </div>
+              <div style="margin:10px 0 0 8px;">
+                <ul>
+                  ${currOrder.items.map(i=>`<li>${i.qty} x ${i.menu}</li>`).join('')}
+                </ul>
+                <div>To: ${currOrder.address}</div>
+              </div>
+              <div style="margin:7px 0 3px 8px;">
+                <span class="menu-price">Total: ₹${currOrder.total}</span>
+                <span style="float:right;"> ETA: ${currOrder.eta}</span>
+              </div>
+              ${currOrder.status==='on-way'||currOrder.status==='preparing'
+                ? `<div id="orderMap"></div><div style="text-align:center;color:var(--zen-primary);font-size:0.98em;"><span class="material-icons" style="vertical-align:middle">delivery_dining</span>
+                  Delivery tracking enabled
+                </div>`
+                : ""}
+            </div>
+          `;
+        } else {
+          return `
+            <div class="zen-card" data-zen-anim>
+              <div class="zen-section-title">No active orders.</div>
+              <div style="margin-top:10px;">Order your favorite bowl and track it real-time.</div>
+            </div>
+          `;
+        }
+      } else { // Delivery Person view
+        let myDeliveries = DUMMY_ORDERS.filter(o=>o.status==='preparing'||o.status==='on-way');
+        let ordersHTML = myDeliveries.length ? myDeliveries.map(o=>`
+          <div class="zen-card" data-zen-anim style="position:relative;">
+            <div style="display:flex;justify-content:space-between">
+              <div>
+                <div style="font-weight:bold;">${o.rest}</div>
+                <div style="font-size:0.89em;color:#646a677a">To: ${o.address||'Unknown'}</div>
+              </div>
+              <div style="font-size:0.96em;margin:6px 0;">
+                <span class="menu-price">₹${o.total}</span>
+              </div>
+            </div>
+            <div style="margin:4px 0 8px 8px;">
+              Items: ${o.items.map(x=>`${x.qty}x ${x.menu}`).join(', ')}
+            </div>
+            <div>
+               <span class="zen-btn secondary" onclick="updateDeliveryStatus('${o.id}','on-way')">Pick Up</span>
+               <span class="zen-btn" onclick="updateDeliveryStatus('${o.id}','delivered')">Delivered</span>
+            </div>
+            <div style="position:absolute;top:13px;right:20px;color:#a7c8bd;font-size:1.13em">${o.status==='on-way'?'🚚':'🛍️'}</div>
+          </div>
+        `).join('') : `<div class="zen-card" data-zen-anim>No pending deliveries.<br>Stay calm, new requests coming soon.</div>`;
+        return `
+          <h2 class="zen-section-title" data-zen-anim>Active Deliveries</h2>
+          <div class="delivery-list" data-zen-anim>
+            ${ordersHTML}
+          </div>
+        `;
+      }
+    }
+
+    // Delivery person can update delivery status (mocked, stateful in-memory)
+    window.updateDeliveryStatus = function(orderid, status) {
+      // Normally, you would push this to Firestore
+      let found = DUMMY_ORDERS.find(o=>o.id===orderid);
+      if(found) {
+        found.status = status;
+        showModal(`<span class="material-icons" style="font-size:1.8em;color:var(--zen-primary);">check_circle</span>
+        Order marked as <b>${status.replace('-',' ')}</b>!`,1300);
+        renderMain();
+      }
+    };
+
+    // CUSTOMER: Render animated delivery map
+    function injectMap() {
+      const mapTpl = $('#zenMapTemplate').content.cloneNode(true);
+      $('#orderMap').appendChild(mapTpl);
+    }
+
+    /* ------
+     * PROFILE / PREFERENCES
+     * ------ */
+    function renderProfile() {
+      return `
+        <div class="zen-card" data-zen-anim>
+          <h2 class="zen-section-title">Your Profile</h2>
+          <div class="zen-profile-row">
+            <div class="zen-profile-label">Role:</div>
+            <div class="zen-profile-value">${roles[state.role].label}</div>
+          </div>
+          <div class="zen-profile-row">
+            <div class="zen-profile-label">Soft UI Mode:</div>
+            <label class="zen-switch">
+              <input type="checkbox" id="toggleSoftMode" ${state.ui && state.ui.softMode ? 'checked':''}>
+              <span class="zen-slider"></span>
+            </label>
+          </div>
+          <div class="zen-profile-row">
+            <div class="zen-profile-label">Restore last order:</div>
+            <span>
+              <button class="zen-btn secondary" onclick="restoreLastOrder()">Restore</button>
+            </span>
+          </div>
+          <div style="font-size:0.92em;color:#646a6787">
+            Preferences are saved locally and work offline!
+          </div>
+        </div>
+      `;
+    }
+    // Soft UI Mode Toggle
+    on(document,'change',e=>{
+      if(e.target && e.target.id==='toggleSoftMode') {
+        updateState({ui:{...state.ui,softMode:e.target.checked}});
+        showModal(`<span style="color:var(--zen-primary)">Soft Mode: ${e.target.checked?'On':'Off'}</span>`,1100);
+      }
+    });
+
+    window.restoreLastOrder = function() {
+      zenIDBGet('orders','lastOrder').then(data=>{
+        if(data) {
+          state.lastOrder=data;
+          updateState({lastOrder: data});
+          showModal("Order restored.", 1100);
+        } else {
+          showModal("No previous order found.",1300);
+        }
+      });
+    };
+
+    /* -----
+     * ROLE SWITCH
+     */
+    function renderRoleSwitch() {
+      return `
+        <div class="zen-card" data-zen-anim style="text-align:center">
+          <span style="font-size:1.89em;color:var(--zen-primary)">
+            <span class="material-icons">${state.role==='customer'?'person':'motorcycle'}</span>
+          </span><br>
+          <div style="font-size:1.11em;margin-bottom:7px;">
+            Current mode: <b>${roles[state.role].label}</b>
+          </div>
+          <button class="zen-btn" onclick="toggleRole()">
+            <span class="material-icons">swap_horiz</span> Switch to ${roles[state.role==='customer'?'delivery':'customer'].label}
+          </button>
+        </div>
+      `;
+    }
+
+    /* -----
+     * DELIVERY MODE: Home
+     */
+    function renderDeliveryHome() {
+      let html = `
+        <h2 class="zen-section-title" data-zen-anim>Welcome, Delivery Partner</h2>
+        <div class="zen-card" data-zen-anim>
+          <div style="font-size:1.05em">
+            See all orders ready for pickup and delivery.<br>
+            Tap an order to update its status.
+          </div>
+        </div>
+      `;
+      return html;
+    };
+
+    /* -----
+     * OFFLINE SUPPORT: Service Worker Registration
+     */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          // Optional: confirmation
+        }).catch(() => {});
+      });
+    }
+
+    /* ------
+     * FIREBASE PLACEHOLDERS
+     * Insert real API calls when ready.
+     */
+    function initFirebase() {
+      // Place your Firebase initialization, auth, Firestore, Storage setup here.
+      // See commented <script> in HTML head.
+    }
+    function realtimeOrderUpdates(cb) {
+      // Place Firestore real-time listener here.
+      // On order changes: cb(order)
+    }
+    // Replace all uses of DUMMY_* arrays with real Firestore queries in production
+
+    /* ------
+     * UI INIT/ROUTING/LOAD
+     * ------ */
+    function firstLoad() {
+      // LocalStorage/IDB restoration
+      if(!state.lastOrder) {
+        zenIDBGet('orders','lastOrder').then(order=>{
+          if(order) {
+            updateState({lastOrder:order});
+            renderMain();
+          }
+        });
+      }
+    }
+
+    // Event listeners for nav tray and role button
+    $$('.bottom-nav button').forEach(btn=>{
+      on(btn,'click',(e)=>{
+        let p = btn.dataset.page;
+        if(p==="role"){ toggleRole(); goPage('home'); }
+        else goPage(p);
+      });
+    });
+    on($('#roleToggleBtn'), 'click', toggleRole);
+
+    // Listen for hash or hard refresh navigation (single page)
+    window.addEventListener('hashchange', ()=>{
+      if(location.hash !== prevHash) {
+        const page = location.hash.replace(/^#/,'');
+        if(pages.includes(page)) goPage(page);
+        prevHash = location.hash;
+      }
+    });
+
+    // Zen Anim reveal on new page render
+    renderNavHighlight();
+    setRole(state.role || 'customer');
+    renderMain();
+    firstLoad();
+  </script>
+  <!-- Service Worker inlined for monorepo format. Save as sw.js if required. -->
+  <script id="inline-sw" type="text/plain">
+    // sw.js
+    const CACHE_NAME = 'zenfoodie-static-v1';
+    const FILES_TO_CACHE = [
+      '/', '/index.html', // required for PWA
+    ];
+
+    self.addEventListener('install', (evt) => {
+      evt.waitUntil(
+        caches.open(CACHE_NAME).then(cache => {
+          return cache.addAll(FILES_TO_CACHE);
+        })
+      );
+      self.skipWaiting();
+    });
+
+    self.addEventListener('activate', evt => {
+      evt.waitUntil(
+        caches.keys().then(keys => {
+          return Promise.all(keys.map(k=>{
+            if(k!==CACHE_NAME) return caches.delete(k);
+          }));
+        })
+      );
+      self.clients.claim();
+    });
+
+    self.addEventListener('fetch', evt => {
+      evt.respondWith(
+        caches.match(evt.request).then(response => {
+          return response || fetch(evt.request);
+        })
+      );
+    });
+  </script>
+  <script>
+    // Inline Service Worker Loader for monorepo usage
+    if('serviceWorker' in navigator) {
+      const swCode = document.getElementById('inline-sw').textContent.trim();
+      const blob = new Blob([swCode], {type: 'text/javascript'});
+      const swURL = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(swURL).catch(()=>{});
+    }
+  </script>
 </body>
 </html>
