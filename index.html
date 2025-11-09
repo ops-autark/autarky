@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketUtils - Zen Toolkit</title>
+    <style>
+        /* ===== RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Zen Color Palette */
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --accent: #667eea;
+            --accent-light: #7c8ff0;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 2px 20px var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .tool-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px var(--shadow);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease forwards;
+            display: none;
+        }
+
+        .tool-card.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tool-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tool-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .tool-header h2 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--text-primary);
+        }
+
+        /* ===== FORM ELEMENTS ===== */
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="password"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--bg-primary);
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== LIST ITEMS ===== */
+        .list-item {
+            background: var(--bg-primary);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .list-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .list-item-content {
+            flex: 1;
+            margin-right: 1rem;
+            word-break: break-word;
+        }
+
+        .list-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .list-item-timestamp {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* ===== BOTTOM NAVIGATION ===== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            box-shadow: 0 -2px 20px var(--shadow);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            padding: 0.5rem;
+            z-index: 1000;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            color: var(--text-secondary);
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--accent);
+        }
+
+        .nav-item-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-item-label {
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        /* ===== UTILITY CLASSES ===== */
+        .flex {
+            display: flex;
+        }
+
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+
+        .gap-1 {
+            gap: 0.5rem;
+        }
+
+        .gap-2 {
+            gap: 1rem;
+        }
+
+        .mb-1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 1rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideUp 0.3s ease;
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        /* ===== QR CODE ===== */
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                padding: 1rem 0.5rem;
+            }
+
+            .tool-card {
+                padding: 1.5rem;
+                border-radius: 12px;
+            }
+
+            .bottom-nav {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .recording {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <h1>🧘 PocketUtils</h1>
+        <p>Your Zen Toolkit for Everyday Tasks</p>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container" id="app-container">
+        <!-- Tools will be dynamically loaded here -->
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav" id="bottom-nav">
+        <div class="nav-item active" data-tool="clipboard">
+            <div class="nav-item-icon">📋</div>
+            <div class="nav-item-label">Clipboard</div>
+        </div>
+        <div class="nav-item" data-tool="voice">
+            <div class="nav-item-icon">🎙️</div>
+            <div class="nav-item-label">Voice</div>
+        </div>
+        <div class="nav-item" data-tool="ocr">
+            <div class="nav-item-icon">📸</div>
+            <div class="nav-item-label">OCR</div>
+        </div>
+        <div class="nav-item" data-tool="vault">
+            <div class="nav-item-icon">🔐</div>
+            <div class="nav-item-label">Vault</div>
+        </div>
+        <div class="nav-item" data-tool="forms">
+            <div class="nav-item-icon">📝</div>
+            <div class="nav-item-label">Forms</div>
+        </div>
+        <div class="nav-item" data-tool="share">
+            <div class="nav-item-icon">📤</div>
+            <div class="nav-item-label">Share</div>
+        </div>
+        <div class="nav-item" data-tool="utils">
+            <div class="nav-item-icon">🛠️</div>
+            <div class="nav-item-label">Utils</div>
+        </div>
+    </nav>
+
+    <!-- MODAL -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Modal</h3>
+                <span class="modal-close" onclick="closeModal()">✕</span>
+            </div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- Tesseract.js for OCR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js"></script>
+
+    <script>
+        // ===== GLOBAL STATE & UTILITIES =====
+        const APP = {
+            currentTool: 'clipboard',
+            data: {
+                clipboard: [],
+                voiceNotes: [],
+                vault: [],
+                formProfiles: [],
+                vaultPassword: null
+            },
+            recognition: null
+        };
+
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('pocketutils_data');
+            if (saved) {
+                try {
+                    APP.data = JSON.parse(saved);
+                } catch (e) {
+                    console.error('Error loading data:', e);
+                }
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('pocketutils_data', JSON.stringify(APP.data));
+        }
+
+        // Format timestamp
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Copy to clipboard
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast('Copied to clipboard!');
+            } catch (e) {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('Copied to clipboard!');
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, duration = 2000) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--accent);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px var(--shadow);
+                z-index: 3000;
+                animation: slideInRight 0.3s ease;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // Modal functions
+        function openModal(title, content) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = content;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // ===== TOOL: CLIPBOARD HISTORY =====
+        const ClipboardTool = {
+            render() {
+                return `
+                    <div class="tool-card active" id="clipboard-tool">
+                        <div class="tool-header">
+                            <span class="tool-icon">📋</span>
+                            <h2>Clipboard History</h2>
+                        </div>
+                        <div class="input-group">
+                            <textarea id="clipboard-input" placeholder="Paste or type something to save..."></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="ClipboardTool.save()">💾 Save to History</button>
+                        <div style="margin-top: 2rem;">
+                            <h3 style="margin-bottom: 1rem; color: var(--text-secondary);">History</h3>
+                            <div id="clipboard-list"></div>
+                        </div>
+                    </div>
+                `;
+            },
+            save() {
+                const input = document.getElementById('clipboard-input');
+                const text = input.value.trim();
+                if (!text) return showToast('Please enter some text', 2000);
+                
+                APP.data.clipboard.unshift({
+                    id: Date.now(),
+                    text: text,
+                    timestamp: Date.now()
+                });
+                
+                saveData();
+                input.value = '';
+                this.renderList();
+                showToast('Saved to history!');
+            },
+            renderList() {
+                const list = document.getElementById('clipboard-list');
+                if (APP.data.clipboard.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No clipboard history yet</p></div>';
+                    return;
+                }
+                
+                list.innerHTML = APP.data.clipboard.map(item => `
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div>${item.text.substring(0, 100)}${item.text.length > 100 ? '...' : ''}</div>
+                            <div class="list-item-timestamp">${formatTime(item.timestamp)}</div>
+                        </div>
+                        <div class="list-item-actions">
+                            <button class="btn btn-icon btn-secondary" onclick="copyToClipboard('${item.text.replace(/'/g, "\\'")}')">📋</button>
+                            <button class="btn btn-icon btn-secondary" onclick="ClipboardTool.delete(${item.id})">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+            delete(id) {
+                APP.data.clipboard = APP.data.clipboard.filter(item => item.id !== id);
+                saveData();
+                this.renderList();
+                showToast('Deleted!');
+            }
+        };
+
+        // ===== TOOL: VOICE NOTES =====
+        const VoiceTool = {
+            render() {
+                return `
+                    <div class="tool-card" id="voice-tool">
+                        <div class="tool-header">
+                            <span class="tool-icon">🎙️</span>
+                            <h2>Voice to Text</h2>
+                        </div>
+                        <div class="input-group">
+                            <textarea id="voice-output" placeholder="Transcribed text will appear here..." readonly></textarea>
+                        </div>
+                        <div class="flex gap-1">
+                            <button class="btn btn-primary" id="voice-start" onclick="VoiceTool.start()">🎙️ Start Recording</button>
+                            <button class="btn btn-secondary" onclick="VoiceTool.save()">💾 Save Note</button>
+                        </div>
+                        <div style="margin-top: 2rem;">
+                            <h3 style="margin-bottom: 1rem; color: var(--text-secondary);">Saved Notes</h3>
+                            <div id="voice-list"></div>
+                        </div>
+                    </div>
+                `;
+            },
+            start() {
+                const btn = document.getElementById('voice-start');
+                
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                    showToast('Speech recognition not supported in this browser', 3000);
+                    return;
+                }
+
+                if (APP.recognition && APP.recognition.running) {
+                    APP.recognition.stop();
+                    btn.textContent = '🎙️ Start Recording';
+                    btn.classList.remove('recording');
+                    return;
+                }
+
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                APP.recognition = new SpeechRecognition();
+                APP.recognition.continuous = true;
+                APP.recognition.interimResults = true;
+
+                const output = document.getElementById('voice-output');
+                let finalTranscript = output.value;
+
+                APP.recognition.onresult = (event) => {
+                    let interimTranscript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript + ' ';
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+                    output.value = finalTranscript + interimTranscript;
+                };
+
+                APP.recognition.start();
+                APP.recognition.running = true;
+                btn.textContent = '⏹️ Stop Recording';
+                btn.classList.add('recording');
+                showToast('Recording started...');
+            },
+            save() {
+                const text = document.getElementById('voice-output').value.trim();
+                if (!text) return showToast('No text to save', 2000);
+                
+                APP.data.voiceNotes.unshift({
+                    id: Date.now(),
+                    text: text,
+                    timestamp: Date.now()
+                });
+                
+                saveData();
+                document.getElementById('voice-output').value = '';
+                this.renderList();
+                showToast('Note saved!');
+            },
+            renderList() {
+                const list = document.getElementById('voice-list');
+                if (APP.data.voiceNotes.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎤</div><p>No voice notes yet</p></div>';
+                    return;
+                }
+                
+                list.innerHTML = APP.data.voiceNotes.map(item => `
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div>${item.text.substring(0, 100)}${item.text.length > 100 ? '...' : ''}</div>
+                            <div class="list-item-timestamp">${formatTime(item.timestamp)}</div>
+                        </div>
+                        <div class="list-item-actions">
+                            <button class="btn btn-icon btn-secondary" onclick="copyToClipboard('${item.text.replace(/'/g, "\\'")}')">📋</button>
+                            <button class="btn btn-icon btn-secondary" onclick="VoiceTool.delete(${item.id})">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+            delete(id) {
+                APP.data.voiceNotes = APP.data.voiceNotes.filter(item => item.id !== id);
+                saveData();
+                this.renderList();
+                showToast('Deleted!');
+            }
+        };
+
+        // ===== TOOL: OCR =====
+        const OCRTool = {
+            render() {
+                return `
+                    <div class="tool-card" id="ocr-tool">
+                        <div class="tool-header">
+                            <span class="tool-icon">📸</span>
+                            <h2>Screenshot Text Extractor</h2>
+                        </div>
+                        <div class="input-group">
+                            <label>Upload an image to extract text</label>
+                            <input type="file" id="ocr-file" accept="image/*" onchange="OCRTool.process()" style="display:none">
+                            <button class="btn btn-primary" onclick="document.getElementById('ocr-file').click()">📷 Choose Image</button>
+                        </div>
+                        <div id="ocr-preview" style="margin: 1rem 0;"></div>
+                        <div id="ocr-status" style="color: var(--text-secondary); margin: 1rem 0;"></div>
+                        <div class="input-group">
+                            <textarea id="ocr-output" placeholder="Extracted text will appear here..." readonly></textarea>
+                        </div>
+                        <button class="btn btn-secondary" onclick="copyToClipboard(document.getElementById('ocr-output').value)">📋 Copy Text</button>
+                    </div>
+                `;
+            },
+            async process() {
+                const file = document.getElementById('ocr-file').files[0];
+                if (!file) return;
+
+                const preview = document.getElementById('ocr-preview');
+                const status = document.getElementById('ocr-status');
+                const output = document.getElementById('ocr-output');
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.innerHTML = `<img src="${e.target.result}" style="max-width: 100%; border-radius: 8px;">`;
+                };
+                reader.readAsDataURL(file);
+
+                // Process with Tesseract
+                status.textContent = '🔄 Processing image...';
+                output.value = '';
+
+                try {
+                    const result = await Tesseract.recognize(file, 'eng', {
+                        logger: (m) => {
+                            if (m.status === 'recognizing text') {
+                                status.textContent = `🔄 Recognizing text: ${Math.round(m.progress * 100)}%`;
+                            }
+                        }
+                    });
+                    
+                    output.value = result.data.text;
+                    status.textContent = '✅ Text extracted successfully!';
+                    showToast('Text extracted!');
+                } catch (e) {
+                    status.textContent = '❌ Error processing image';
+                    showToast('Error processing image', 3000);
+                }
+            }
+        };
+
+        // ===== TOOL: VAULT =====
+        const VaultTool = {
+            render() {
+                return `
+                    <div class="tool-card" id="vault-tool">
+                        <div class="tool-header">
+                            <span class="tool-icon">🔐</span>
+                            <h2>Encrypted Vault</h2>
+                        </div>
+                        ${!APP.data.vaultPassword ? `
+                            <div class="input-group">
+                                <label>Set a master password to access your vault</label>
+                                <input type="password" id="vault-password" placeholder="Enter master password">
+                            </div>
+                            <button class="btn btn-primary" onclick="VaultTool.setPassword()">🔒 Create Vault</button>
+                        ` : `
+                            <div class="input-group">
+                                <input type="text" id="vault-title" placeholder="Item title">
+                            </div>
+                            <div class="input-group">
+                                <textarea id="vault-content" placeholder="Secret content..."></textarea>
+                            </div>
+                            <button class="btn btn-primary" onclick="VaultTool.save()">💾 Save to Vault</button>
+                            <div style="margin-top: 2rem;">
+                                <h3 style="margin-bottom: 1rem; color: var(--text-secondary);">Vault Items</h3>
+                                <div id="vault-list"></div>
+                            </div>
+                        `}
+                    </div>
+                `;
+            },
+            setPassword() {
+                const password = document.getElementById('vault-password').value;
+                if (!password || password.length < 4) {
+                    return showToast('Password must be at least 4 characters', 3000);
+                }
+                APP.data.vaultPassword = password;
+                saveData();
+                showToast('Vault created!');
+                switchTool('vault');
+            },
+            save() {
+                const title = document.getElementById('vault-title').value.trim();
+                const content = document.getElementById('vault-content').value.trim();
+                
+                if (!title || !content) {
+                    return showToast('Please fill in both fields', 2000);
+                }
+                
+                // Simple encryption (Base64 for demo - use real encryption in production)
+                const encrypted = btoa(content);
+                
+                APP.data.vault.unshift({
+                    id: Date.now(),
+                    title: title,
+                    content: encrypted,
+                    timestamp: Date.now()
+                });
+                
+                saveData();
+                document.getElementById('vault-title').value = '';
+                document.getElementById('vault-content').value = '';
+                this.renderList();
+                showToast('Saved to vault!');
+            },
+            view(id) {
+                const item = APP.data.vault.find(i => i.id === id);
+                if (!item) return;
+                
+                const decrypted = atob(item.content);
+                openModal(item.title, `
+                    <div style="white-space: pre-wrap; word-break: break-word;">${decrypted}</div>
+                    <button class="btn btn-primary" style="margin-top: 1rem;" onclick="copyToClipboard('${decrypted.replace(/'/g, "\\'")}'); closeModal();">📋 Copy</button>
+                `);
+            },
+            renderList() {
+                const list = document.getElementById('vault-list');
+                if (APP.data.vault.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔒</div><p>No vault items yet</p></div>';
+                    return;
+                }
+                
+                list.innerHTML = APP.data.vault.map(item => `
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div><strong>${item.title}</strong></div>
+                            <div class="list-item-timestamp">${formatTime(item.timestamp)}</div>
+                        </div>
+                        <div class="list-item-actions">
+                            <button class="btn btn-icon btn-secondary" onclick="VaultTool.view(${item.id})">👁️</button>
+                            <button class="btn btn-icon btn-secondary" onclick="VaultTool.delete(${item.id})">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+            delete(id) {
+                APP.data.vault = APP.data.vault.filter(item => item.id !== id);
+                saveData();
+                this.renderList();
+                showToast('Deleted!');
+            }
+        };
+
+        // ===== TOOL: FORM MEMORY =====
+        const FormTool = {
+            render() {
+                return `
+                    <div class="tool-card" id="form-tool">
+                        <div class="tool-header">
+                            <span class="tool-icon">📝</span>
+                            <h2>Form Memory</h2>
+                        </div>
+                        <div class="input-group">
+                            <label>Profile Name</label>
+                            <input type="text" id="form-name" placeholder="e.g., Personal, Work">
+                        </div>
+                        <div class="input-group">
+                            <label>Full Name</label>
+                            <input type="text" id="form-fullname" placeholder="John Doe">
+                        </div>
+                        <div class="input-group">
+                            <label>Email</label>
+                            <input type="email" id="form-email" placeholder="john@example.com">
+                        </div>
+                        <div class="input-group">
+                            <label>Phone</label>
+                            <input type="text" id="form-phone" placeholder="+1234567890">
+                        </div>
+                        <div class="input-group">
+                            <label>Address</label>
+                            <textarea id="form-address" placeholder="Street, City, State, ZIP"></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="FormTool.save()">💾 Save Profile</button>
+                        <div style="margin-top: 2rem;">
+                            <h3 style="margin-bottom: 1rem; color: var(--text-secondary);">Saved Profiles</h3>
+                            <div id="form-list"></div>
+                        </div>
+                    </div>
+                `;
+            },
+            save() {
+                const profile = {
+                    id: Date.now(),
+                    name: document.getElementById('form-name').value.trim(),
+                    fullname: document.getElementById('form-fullname').value.trim(),
+                    email: document.getElementById('form-email').value.trim(),
+                    phone: document.getElementById('form-phone').value.trim(),
+                    address: document.getElementById('form-address').value.trim(),
+                    timestamp: Date.now()
+                };
+                
+                if (!profile.name) {
+                    return showToast('Please enter a profile name', 2000);
+                }
+                
+                APP.data.formProfiles.unshift(profile);
+                saveData();
+                this.clearForm();
+                this.renderList();
+                showToast('Profile saved!');
+            },
+            clearForm() {
+                document.getElementById('form-name').value = '';
+                document.getElementById('form-fullname').value = '';
+                document.getElementById('form-email').value = '';
+                document.getElementById('form-phone').value = '';
+                document.getElementById('form-address').value = '';
+            },
+            load(id) {
+                const profile = APP.data.formProfiles.find(p => p.id === id);
+                if (!profile) return;
+                
+                document.getElementById('form-name').value = profile.name;
+                document.getElementById('form-fullname').value = profile.fullname;
+                document.getElementById('form-email').value = profile.email;
+                document.getElementById('form-phone').value = profile.phone;
+                document.getElementById('form-address').value = profile.address;
+                showToast('Profile loaded!');
+            },
+            renderList() {
+                const list = document.getElementById('form-list');
+                if (APP.data.formProfiles.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No saved profiles yet</p></div>';
+                    return;
+                }
+                
+                list.innerHTML = APP.data.formProfiles.map(item => `
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div><strong>${item.name}</strong></div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">${item.fullname} • ${item.email}</div>
+                            <div class="list-item-timestamp">${formatTime(item.timestamp)}</div>
+                        </div>
+                        <div class="list-item-actions">
+                            <button class="btn btn-icon btn-secondary" onclick="FormTool.load(${item.id})">📥</button>
+                            <button class="btn btn-icon btn-secondary" onclick="FormTool.delete(${item.id})">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+            delete(id) {
+                APP.data.formProfiles = APP.data.formProfiles.filter(item => item.id !== id);
+                saveData();
+                this.renderList();
+                showToast('Deleted!');
+            }
+        };
+
+        // ===== TOOL: SHARE =====
+        const ShareTool = {
+            render() {
+                return `
+                    <div class="tool-card" id="share-tool">
+                        <div class="tool-header">
+                            <span class="tool-icon">📤</span>
+                            <h2>Quick Share</h2>
+                        </div>
+                        <div class="input-group">
+                            <label>Text or URL to share</label>
+                            <textarea id="share-text" placeholder="Enter text, URL, or any content..."></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="ShareTool.generateQR()">🔲 Generate QR Code</button>
+                        <div id="qrcode" style="margin: 2rem 0;"></div>
+                        <div class="text-center text-secondary" id="share-info"></div>
+                    </div>
+                `;
+            },
+            generateQR() {
+                const text = document.getElementById('share-text').value.trim();
+                if (!text) return showToast('Please enter something to share', 2000);
+                
+                const qrContainer = document.getElementById('qrcode');
+                qrContainer.innerHTML = '';
+                
+                new QRCode(qrContainer, {
+                    text: text,
+                    width: 256,
+                    height: 256,
+                    colorDark: '#667eea',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                
+                document.getElementById('share-info').textContent = 'Scan this QR code to access the content';
+                showToast('QR code generated!');
+            }
+        };
+
+        // ===== TOOL: UTILITIES =====
+        const UtilsTool = {
+            currentUtil: 'converter',
+            render() {
+                return `
+                    <div class="tool-card" id="utils-tool">
+                        <div class="tool-header">
+                            <span class="tool-icon">🛠️</span>
+                            <h2>Utilities</h2>
+                        </div>
+                        <div class="flex gap-1 flex-wrap mb-2">
+                            <button class="btn btn-secondary btn-small" onclick="UtilsTool.switchUtil('converter')">📏 Converter</button>
+                            <button class="btn btn-secondary btn-small" onclick="UtilsTool.switchUtil('date')">📅 Date Calc</button>
+                            <button class="btn btn-secondary btn-small" onclick="UtilsTool.switchUtil('password')">🔑 Password</button>
+                        </div>
+                        <div id="utils-content"></div>
+                    </div>
+                `;
+            },
+            switchUtil(util) {
+                this.currentUtil = util;
+                const content = document.getElementById('utils-content');
+                
+                switch(util) {
+                    case 'converter':
+                        content.innerHTML = `
+                            <div class="input-group">
+                                <label>Unit Converter</label>
+                                <input type="number" id="conv-value" placeholder="Enter value">
+                            </div>
+                            <div class="input-group">
+                                <select id="conv-type">
+                                    <option value="length">Length (m to ft)</option>
+                                    <option value="weight">Weight (kg to lb)</option>
+                                    <option value="temp">Temperature (°C to °F)</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="UtilsTool.convert()">🔄 Convert</button>
+                            <div id="conv-result" style="margin-top: 1rem; font-size: 1.2rem; color: var(--accent);"></div>
+                        `;
+                        break;
+                    case 'date':
+                        content.innerHTML = `
+                            <div class="input-group">
+                                <label>Calculate Days Between Dates</label>
+                                <input type="date" id="date-start">
+                            </div>
+                            <div class="input-group">
+                                <input type="date" id="date-end">
+                            </div>
+                            <button class="btn btn-primary" onclick="UtilsTool.calculateDays()">📊 Calculate</button>
+                            <div id="date-result" style="margin-top: 1rem; font-size: 1.2rem; color: var(--accent);"></div>
+                        `;
+                        break;
+                    case 'password':
+                        content.innerHTML = `
+                            <div class="input-group">
+                                <label>Password Length</label>
+                                <input type="number" id="pass-length" value="16" min="8" max="64">
+                            </div>
+                            <div class="input-group">
+                                <label>
+                                    <input type="checkbox" id="pass-special" checked> Include special characters
+                                </label>
+                            </div>
+                            <button class="btn btn-primary" onclick="UtilsTool.generatePassword()">🔑 Generate Password</button>
+                            <div class="input-group" style="margin-top: 1rem;">
+                                <input type="text" id="pass-result" readonly style="font-family: monospace; font-size: 1.1rem;">
+                            </div>
+                            <button class="btn btn-secondary" onclick="copyToClipboard(document.getElementById('pass-result').value)">📋 Copy Password</button>
+                        `;
+                        break;
+                }
+            },
+            convert() {
+                const value = parseFloat(document.getElementById('conv-value').value);
+                const type = document.getElementById('conv-type').value;
+                const result = document.getElementById('conv-result');
+                
+                if (isNaN(value)) {
+                    result.textContent = 'Please enter a valid number';
+                    return;
+                }
+                
+                let output;
+                switch(type) {
+                    case 'length':
+                        output = `${value} meters = ${(value * 3.28084).toFixed(2)} feet`;
+                        break;
+                    case 'weight':
+                        output = `${value} kg = ${(value * 2.20462).toFixed(2)} pounds`;
+                        break;
+                    case 'temp':
+                        output = `${value}°C = ${(value * 9/5 + 32).toFixed(2)}°F`;
+                        break;
+                }
+                result.textContent = output;
+            },
+            calculateDays() {
+                const start = new Date(document.getElementById('date-start').value);
+                const end = new Date(document.getElementById('date-end').value);
+                const result = document.getElementById('date-result');
+                
+                if (!start || !end) {
+                    result.textContent = 'Please select both dates';
+                    return;
+                }
+                
+                const diff = Math.abs(end - start);
+                const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                result.textContent = `${days} days`;
+            },
+            generatePassword() {
+                const length = parseInt(document.getElementById('pass-length').value);
+                const includeSpecial = document.getElementById('pass-special').checked;
+                
+                let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                if (includeSpecial) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+                
+                let password = '';
+                for (let i = 0; i < length; i++) {
+                    password += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                
+                document.getElementById('pass-result').value = password;
+                showToast('Password generated!');
+            }
+        };
+
+        // ===== NAVIGATION =====
+        function switchTool(toolName) {
+            APP.currentTool = toolName;
+            
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.tool === toolName) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Hide all tools
+            document.querySelectorAll('.tool-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Render and show current tool
+            const container = document.getElementById('app-container');
+            const tools = {
+                clipboard: ClipboardTool,
+                voice: VoiceTool,
+                ocr: OCRTool,
+                vault: VaultTool,
+                forms: FormTool,
+                share: ShareTool,
+                utils: UtilsTool
+            };
+            
+            const tool = tools[toolName];
+            if (tool) {
+                container.innerHTML = tool.render();
+                
+                // Render lists if applicable
+                setTimeout(() => {
+                    if (tool.renderList) tool.renderList();
+                    if (toolName === 'utils') tool.switchUtil(tool.currentUtil);
+                }, 100);
+            }
+        }
+
+        // ===== INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            
+            // Setup navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    switchTool(item.dataset.tool);
+                });
+            });
+            
+            // Initial render
+            switchTool('clipboard');
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOutRight {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+
+        // Close modal on outside click
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') closeModal();
+        });
+    </script>
+</body>
+</html>
