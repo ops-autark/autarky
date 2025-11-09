@@ -1,1121 +1,914 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zen AR Sticky Notes</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        :root {
-            --zen-purple: #9b87f5;
-            --zen-pink: #f0abfc;
-            --zen-blue: #7dd3fc;
-            --zen-green: #86efac;
-            --zen-yellow: #fde047;
-            --zen-peach: #fda4af;
-            --bg-dark: #1a1625;
-            --text-light: #f8f8f8;
-            --text-muted: #a8a29e;
-            --shadow: rgba(0, 0, 0, 0.3);
-        }
-
-        body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-light);
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        #camera-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a1625 0%, #2d1b4e 100%);
-            z-index: 1;
-        }
-
-        #camera {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        #camera-placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #1a1625 0%, #2d1b4e 100%);
-            padding: 2rem;
-            text-align: center;
-        }
-
-        #camera-placeholder h2 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--zen-purple), var(--zen-pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        #notes-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        .sticky-note {
-            position: absolute;
-            width: 180px;
-            min-height: 120px;
-            padding: 1rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px var(--shadow);
-            backdrop-filter: blur(10px);
-            pointer-events: all;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            animation: fadeIn 0.5s ease, breathe 4s ease-in-out infinite;
-        }
-
-        .sticky-note:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 12px 32px var(--shadow);
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.8) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        @keyframes breathe {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-5px); }
-        }
-
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-                transform: scale(1);
-            }
-            to {
-                opacity: 0;
-                transform: scale(0.8) translateY(-20px);
-            }
-        }
-
-        .sticky-note.removing {
-            animation: fadeOut 0.4s ease forwards;
-        }
-
-        .note-idea {
-            background: linear-gradient(135deg, rgba(155, 135, 245, 0.9), rgba(240, 171, 252, 0.9));
-        }
-
-        .note-urgent {
-            background: linear-gradient(135deg, rgba(253, 224, 71, 0.9), rgba(253, 164, 175, 0.9));
-        }
-
-        .note-reminder {
-            background: linear-gradient(135deg, rgba(125, 211, 252, 0.9), rgba(134, 239, 172, 0.9));
-        }
-
-        .note-done {
-            background: linear-gradient(135deg, rgba(168, 162, 158, 0.7), rgba(120, 113, 108, 0.7));
-            opacity: 0.7;
-        }
-
-        .note-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .note-tag {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .note-actions {
-            display: flex;
-            gap: 0.3rem;
-        }
-
-        .note-btn {
-            width: 24px;
-            height: 24px;
-            border: none;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            transition: all 0.2s ease;
-        }
-
-        .note-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
-
-        .note-content {
-            font-size: 0.9rem;
-            line-height: 1.5;
-            color: rgba(255, 255, 255, 0.95);
-            word-wrap: break-word;
-        }
-
-        .note-content.done {
-            text-decoration: line-through;
-            opacity: 0.7;
-        }
-
-        .note-time {
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin-top: 0.5rem;
-        }
-
-        #bottom-tray {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(26, 22, 37, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            z-index: 10;
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-        }
-
-        .tray-btn {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 24px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 4px 12px var(--shadow);
-        }
-
-        .tray-btn:active {
-            transform: scale(0.95);
-        }
-
-        #add-note-btn {
-            background: linear-gradient(135deg, var(--zen-purple), var(--zen-pink));
-            color: white;
-            flex: 1;
-            max-width: 200px;
-            justify-content: center;
-        }
-
-        .tray-btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-light);
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 100;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-
-        .modal.active {
-            display: flex;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, #2d1b4e 0%, #1a1625 100%);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-header h3 {
-            font-size: 1.3rem;
-            background: linear-gradient(135deg, var(--zen-purple), var(--zen-pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .close-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: var(--text-light);
-            transition: all 0.2s ease;
-        }
-
-        .close-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: rotate(90deg);
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        textarea, select {
-            width: 100%;
-            padding: 0.8rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: var(--text-light);
-            font-family: inherit;
-            font-size: 0.9rem;
-            resize: vertical;
-            transition: all 0.2s ease;
-        }
-
-        textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--zen-purple);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        textarea {
-            min-height: 120px;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 0.8rem;
-            border: none;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--zen-purple), var(--zen-pink));
-            color: white;
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-light);
-        }
-
-        .btn:active {
-            transform: scale(0.95);
-        }
-
-        .toast {
-            position: fixed;
-            top: 2rem;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            background: rgba(26, 22, 37, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 1rem 1.5rem;
-            border-radius: 24px;
-            box-shadow: 0 8px 24px var(--shadow);
-            z-index: 1000;
-            opacity: 0;
-            transition: all 0.3s ease;
-            color: var(--text-light);
-            font-size: 0.9rem;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        #all-notes-list {
-            max-height: 60vh;
-            overflow-y: auto;
-            margin-bottom: 1rem;
-        }
-
-        .note-item {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 0.8rem;
-            border-left: 4px solid var(--zen-purple);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .note-item:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateX(4px);
-        }
-
-        .note-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .note-item-tag {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .note-item-content {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-
-        .note-location {
-            font-size: 0.7rem;
-            color: var(--zen-blue);
-            margin-top: 0.3rem;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top-color: var(--zen-purple);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        #capture-canvas {
-            display: none;
-        }
-
-        .ar-indicator {
-            position: fixed;
-            top: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(125, 211, 252, 0.2);
-            border: 1px solid var(--zen-blue);
-            color: var(--zen-blue);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            z-index: 5;
-            backdrop-filter: blur(10px);
-            display: none;
-        }
-
-        .ar-indicator.active {
-            display: block;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(155, 135, 245, 0.5);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(155, 135, 245, 0.7);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#e8f4f8">
+  <meta name="description" content="FloatNote - Capture moments, add visual notes">
+  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiRmxvYXROb3RlIiwic2hvcnRfbmFtZSI6IkZsb2F0Tm90ZSIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZThmNGY4IiwidGhlbWVfY29sb3IiOiIjZThmNGY4IiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTkyIDE5Mic%2BJTNDcmVjdCBmaWxsPSclMjNlOGY0ZjgnIHdpZHRoPScxOTInIGhlaWdodD0nMTkyJy8%2BJTNDdGV4dCB4PScxMCcgeT0nMTIwJyBmb250LXNpemU9JzEwMCcgZmlsbD0nJTIzNGE5MGE0JyUzRfCfk7glM0MvdGV4dCUzRSUzQy9zdmclM0UiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+  <title>FloatNote</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --zen-bg: linear-gradient(135deg, #e8f4f8 0%, #f0e8f4 100%);
+      --zen-primary: #4a90a4;
+      --zen-secondary: #a47ba4;
+      --zen-accent: #7ba4a4;
+      --zen-light: #ffffff;
+      --zen-shadow: rgba(74, 144, 164, 0.15);
+      --zen-text: #2c3e50;
+      --zen-text-light: #7f8c8d;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--zen-bg);
+      color: var(--zen-text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Breathing animation for text */
+    @keyframes breathe {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.02); }
+    }
+
+    /* Header */
+    .header {
+      padding: 1.5rem;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 20px var(--zen-shadow);
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      font-weight: 300;
+      color: var(--zen-primary);
+      animation: breathe 4s ease-in-out infinite;
+      letter-spacing: 2px;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      color: var(--zen-text-light);
+      margin-top: 0.3rem;
+      font-weight: 300;
+    }
+
+    /* Floating Button */
+    .float-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--zen-primary), var(--zen-accent));
+      box-shadow: 0 8px 30px var(--zen-shadow);
+      border: none;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      z-index: 1000;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .float-btn:active {
+      transform: scale(0.95);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .float-btn {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    /* Gallery */
+    .gallery {
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .gallery-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px var(--zen-shadow);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .gallery-item:active {
+      transform: scale(0.97);
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gallery-item .note-count {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(74, 144, 164, 0.9);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      backdrop-filter: blur(5px);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      animation: breathe 4s ease-in-out infinite;
+    }
+
+    .empty-state .icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h2 {
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: var(--zen-text);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: var(--zen-text-light);
+      font-weight: 300;
+    }
+
+    /* Modal Overlay */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 2000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: var(--zen-light);
+    }
+
+    /* Canvas Container */
+    .canvas-container {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      background: #f8f9fa;
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #photoCanvas, #drawCanvas {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    /* Sticky Notes */
+    .sticky-note {
+      position: absolute;
+      min-width: 120px;
+      padding: 12px;
+      background: var(--note-color, #fff9c4);
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      font-size: 14px;
+      cursor: move;
+      transition: transform 0.2s ease;
+      z-index: 10;
+      user-select: none;
+    }
+
+    .sticky-note:active {
+      transform: scale(1.05) rotate(2deg);
+      z-index: 20;
+    }
+
+    .sticky-note textarea {
+      width: 100%;
+      border: none;
+      background: transparent;
+      resize: none;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--zen-text);
+      outline: none;
+    }
+
+    .sticky-note .delete-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--zen-secondary);
+      color: white;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .sticky-note:hover .delete-btn {
+      opacity: 1;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(74, 144, 164, 0.1);
+      overflow-x: auto;
+      flex-wrap: nowrap;
+    }
+
+    .toolbar button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 20px;
+      background: var(--zen-primary);
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .toolbar button:active {
+      transform: scale(0.95);
+    }
+
+    .toolbar button.active {
+      background: var(--zen-secondary);
+    }
+
+    .toolbar input[type="color"] {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .toolbar input[type="range"] {
+      width: 80px;
+    }
+
+    /* Color Palette */
+    .color-palette {
+      display: flex;
+      gap: 8px;
+      padding: 8px;
+    }
+
+    .color-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid white;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      transition: transform 0.2s;
+    }
+
+    .color-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* Camera Input */
+    #cameraInput {
+      display: none;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(74, 144, 164, 0.95);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 24px;
+      font-size: 14px;
+      z-index: 3000;
+      opacity: 0;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Loading */
+    .loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      z-index: 4000;
+      animation: breathe 2s ease-in-out infinite;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      
+      .gallery {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        padding: 1rem;
+      }
+      
+      .float-btn {
+        width: 60px;
+        height: 60px;
+        bottom: 1.5rem;
+        right: 1.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div id="camera-container">
-        <video id="camera" autoplay playsinline></video>
-        <div id="camera-placeholder">
-            <div class="spinner"></div>
-            <h2>Initializing AR camera...</h2>
-            <p style="color: var(--text-muted); margin-top: 0.5rem;">Grant camera permission to place notes in your space</p>
+  <div class="header">
+    <h1>🌸 FloatNote</h1>
+    <p>Floating thoughts...</p>
+  </div>
+
+  <div class="gallery" id="gallery"></div>
+
+  <div class="empty-state" id="emptyState">
+    <div class="icon">📸</div>
+    <h2>Capture your first moment</h2>
+    <p>Tap the floating button to begin</p>
+  </div>
+
+  <button class="float-btn" id="floatBtn">📷</button>
+  <input type="file" id="cameraInput" accept="image/*" capture="environment">
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <div class="canvas-container">
+        <div class="canvas-wrapper" id="canvasWrapper">
+          <canvas id="photoCanvas"></canvas>
+          <canvas id="drawCanvas"></canvas>
         </div>
+      </div>
+      <div class="toolbar">
+        <button id="addNoteBtn">📌 Note</button>
+        <button id="drawBtn">✏️ Draw</button>
+        <button id="eraserBtn">🧹 Erase</button>
+        <input type="color" id="colorPicker" value="#000000">
+        <input type="range" id="brushSize" min="1" max="20" value="3">
+        <button id="clearDrawBtn">Clear</button>
+        <button id="saveBtn">💾 Save</button>
+        <button id="closeBtn">✕</button>
+      </div>
     </div>
+  </div>
 
-    <div class="ar-indicator" id="ar-indicator">🎯 Scanning environment...</div>
+  <div class="toast" id="toast"></div>
 
-    <canvas id="capture-canvas"></canvas>
+  <script>
+    // State management
+    const state = {
+      currentPhoto: null,
+      currentPhotoId: null,
+      notes: [],
+      isDrawing: false,
+      drawMode: false,
+      eraserMode: false,
+      lastX: 0,
+      lastY: 0,
+      drawings: []
+    };
 
-    <div id="notes-overlay"></div>
+    // Note colors
+    const noteColors = ['#fff9c4', '#f8bbd0', '#c5e1a5', '#b3e5fc', '#ffccbc', '#e1bee7'];
 
-    <div id="bottom-tray">
-        <button id="add-note-btn" class="tray-btn">
-            <span>+</span> Add Note
-        </button>
-        <button id="view-notes-btn" class="tray-btn tray-btn-secondary">
-            📋
-        </button>
-    </div>
+    // Elements
+    const floatBtn = document.getElementById('floatBtn');
+    const cameraInput = document.getElementById('cameraInput');
+    const modal = document.getElementById('modal');
+    const gallery = document.getElementById('gallery');
+    const emptyState = document.getElementById('emptyState');
+    const photoCanvas = document.getElementById('photoCanvas');
+    const drawCanvas = document.getElementById('drawCanvas');
+    const canvasWrapper = document.getElementById('canvasWrapper');
+    const toast = document.getElementById('toast');
 
-    <div id="note-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">Floating Thoughts...</h3>
-                <button class="close-btn" onclick="closeNoteModal()">×</button>
-            </div>
-            <div class="form-group">
-                <label>Your Note</label>
-                <textarea id="note-text" placeholder="What's on your mind?"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Mood</label>
-                <select id="note-type">
-                    <option value="idea">💡 Idea</option>
-                    <option value="urgent">⚡ Urgent</option>
-                    <option value="reminder">🔔 Reminder</option>
-                </select>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeNoteModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveNote()">Pinned! 📌</button>
-            </div>
-        </div>
-    </div>
+    // Buttons
+    const addNoteBtn = document.getElementById('addNoteBtn');
+    const drawBtn = document.getElementById('drawBtn');
+    const eraserBtn = document.getElementById('eraserBtn');
+    const clearDrawBtn = document.getElementById('clearDrawBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    const colorPicker = document.getElementById('colorPicker');
+    const brushSize = document.getElementById('brushSize');
 
-    <div id="all-notes-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Your Thoughts</h3>
-                <button class="close-btn" onclick="closeAllNotesModal()">×</button>
-            </div>
-            <div id="all-notes-list"></div>
-            <button class="btn btn-secondary" style="width: 100%;" onclick="closeAllNotesModal()">Close</button>
-        </div>
-    </div>
+    const photoCtx = photoCanvas.getContext('2d');
+    const drawCtx = drawCanvas.getContext('2d');
 
-    <div id="toast" class="toast"></div>
+    // Initialize
+    loadGallery();
 
-    <script>
-        // Global State
-        let notes = [];
-        let camera = null;
-        let currentEditingNote = null;
-        let visualAnchors = []; // Store visual fingerprints
-        const NOTE_STORAGE_KEY = 'zen_ar_notes_v2';
-        const ANCHOR_STORAGE_KEY = 'zen_ar_anchors_v2';
-        let isScanning = false;
-        let scanInterval = null;
+    // Event Listeners
+    floatBtn.addEventListener('click', () => {
+      vibrate(10);
+      cameraInput.click();
+    });
 
-        // Initialize App
-        document.addEventListener('DOMContentLoaded', () => {
-            loadNotes();
-            loadAnchors();
-            initCamera();
-            setupEventListeners();
+    cameraInput.addEventListener('change', handleImageUpload);
+    addNoteBtn.addEventListener('click', addStickyNote);
+    drawBtn.addEventListener('click', toggleDrawMode);
+    eraserBtn.addEventListener('click', toggleEraserMode);
+    clearDrawBtn.addEventListener('click', clearDrawing);
+    saveBtn.addEventListener('click', saveCurrentPhoto);
+    closeBtn.addEventListener('click', closeModal);
+
+    // Drawing events
+    drawCanvas.addEventListener('mousedown', startDrawing);
+    drawCanvas.addEventListener('mousemove', draw);
+    drawCanvas.addEventListener('mouseup', stopDrawing);
+    drawCanvas.addEventListener('mouseout', stopDrawing);
+
+    drawCanvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = drawCanvas.getBoundingClientRect();
+      state.lastX = touch.clientX - rect.left;
+      state.lastY = touch.clientY - rect.top;
+      state.isDrawing = true;
+    });
+
+    drawCanvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (!state.isDrawing || !state.drawMode) return;
+      const touch = e.touches[0];
+      const rect = drawCanvas.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+      drawLine(state.lastX, state.lastY, x, y);
+      state.lastX = x;
+      state.lastY = y;
+    });
+
+    drawCanvas.addEventListener('touchend', () => {
+      state.isDrawing = false;
+    });
+
+    // Functions
+    function handleImageUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          state.currentPhoto = img;
+          state.currentPhotoId = Date.now().toString();
+          state.notes = [];
+          state.drawings = [];
+          openModal(img);
+          showToast('Pinned! ✨');
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+      cameraInput.value = '';
+    }
+
+    function openModal(img) {
+      // Set canvas sizes
+      const maxWidth = window.innerWidth;
+      const maxHeight = window.innerHeight - 100;
+      let width = img.width;
+      let height = img.height;
+
+      const ratio = Math.min(maxWidth / width, maxHeight / height);
+      width *= ratio;
+      height *= ratio;
+
+      photoCanvas.width = drawCanvas.width = width;
+      photoCanvas.height = drawCanvas.height = height;
+
+      // Draw image
+      photoCtx.drawImage(img, 0, 0, width, height);
+
+      // Clear draw canvas
+      drawCtx.clearRect(0, 0, width, height);
+
+      modal.classList.add('active');
+    }
+
+    function addStickyNote() {
+      vibrate(10);
+      const color = noteColors[Math.floor(Math.random() * noteColors.length)];
+      const note = {
+        id: Date.now().toString(),
+        text: '',
+        x: 50,
+        y: 50,
+        color: color
+      };
+
+      state.notes.push(note);
+      renderNote(note);
+      showToast('Note added 📝');
+    }
+
+    function renderNote(note) {
+      const noteEl = document.createElement('div');
+      noteEl.className = 'sticky-note';
+      noteEl.style.left = note.x + 'px';
+      noteEl.style.top = note.y + 'px';
+      noteEl.style.setProperty('--note-color', note.color);
+      noteEl.dataset.id = note.id;
+
+      const textarea = document.createElement('textarea');
+      textarea.value = note.text;
+      textarea.rows = 3;
+      textarea.placeholder = 'Type here...';
+      textarea.addEventListener('input', (e) => {
+        note.text = e.target.value;
+      });
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.textContent = '×';
+      deleteBtn.addEventListener('click', () => {
+        vibrate(5);
+        state.notes = state.notes.filter(n => n.id !== note.id);
+        noteEl.remove();
+      });
+
+      noteEl.appendChild(textarea);
+      noteEl.appendChild(deleteBtn);
+      canvasWrapper.appendChild(noteEl);
+
+      makeDraggable(noteEl, note);
+    }
+
+    function makeDraggable(el, note) {
+      let isDragging = false;
+      let startX, startY, initialX, initialY;
+
+      const onStart = (e) => {
+        isDragging = true;
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        const rect = el.getBoundingClientRect();
+        startX = clientX - rect.left;
+        startY = clientY - rect.top;
+        initialX = rect.left - canvasWrapper.getBoundingClientRect().left;
+        initialY = rect.top - canvasWrapper.getBoundingClientRect().top;
+        el.style.zIndex = 20;
+      };
+
+      const onMove = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        const wrapperRect = canvasWrapper.getBoundingClientRect();
+        const x = clientX - wrapperRect.left - startX;
+        const y = clientY - wrapperRect.top - startY;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        note.x = x;
+        note.y = y;
+      };
+
+      const onEnd = () => {
+        isDragging = false;
+        el.style.zIndex = 10;
+      };
+
+      el.addEventListener('mousedown', onStart);
+      el.addEventListener('touchstart', onStart);
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('mouseup', onEnd);
+      document.addEventListener('touchend', onEnd);
+    }
+
+    function toggleDrawMode() {
+      state.drawMode = !state.drawMode;
+      state.eraserMode = false;
+      drawBtn.classList.toggle('active');
+      eraserBtn.classList.remove('active');
+      drawCanvas.style.cursor = state.drawMode ? 'crosshair' : 'default';
+      drawCanvas.style.pointerEvents = state.drawMode ? 'auto' : 'none';
+      vibrate(10);
+    }
+
+    function toggleEraserMode() {
+      state.eraserMode = !state.eraserMode;
+      state.drawMode = state.eraserMode;
+      eraserBtn.classList.toggle('active');
+      if (state.eraserMode) drawBtn.classList.add('active');
+      drawCanvas.style.cursor = state.eraserMode ? 'grab' : (state.drawMode ? 'crosshair' : 'default');
+      drawCanvas.style.pointerEvents = state.drawMode ? 'auto' : 'none';
+      vibrate(10);
+    }
+
+    function startDrawing(e) {
+      if (!state.drawMode) return;
+      state.isDrawing = true;
+      const rect = drawCanvas.getBoundingClientRect();
+      state.lastX = e.clientX - rect.left;
+      state.lastY = e.clientY - rect.top;
+    }
+
+    function draw(e) {
+      if (!state.isDrawing || !state.drawMode) return;
+      const rect = drawCanvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      drawLine(state.lastX, state.lastY, x, y);
+      state.lastX = x;
+      state.lastY = y;
+    }
+
+    function drawLine(x1, y1, x2, y2) {
+      drawCtx.beginPath();
+      drawCtx.moveTo(x1, y1);
+      drawCtx.lineTo(x2, y2);
+      drawCtx.strokeStyle = state.eraserMode ? '#ffffff' : colorPicker.value;
+      drawCtx.lineWidth = brushSize.value;
+      drawCtx.lineCap = 'round';
+      drawCtx.stroke();
+
+      state.drawings.push({
+        x1, y1, x2, y2,
+        color: state.eraserMode ? '#ffffff' : colorPicker.value,
+        width: brushSize.value
+      });
+    }
+
+    function stopDrawing() {
+      state.isDrawing = false;
+    }
+
+    function clearDrawing() {
+      vibrate(10);
+      drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+      state.drawings = [];
+      showToast('Canvas cleared 🧹');
+    }
+
+    function saveCurrentPhoto() {
+      vibrate(15);
+      
+      // Create composite canvas
+      const composite = document.createElement('canvas');
+      composite.width = photoCanvas.width;
+      composite.height = photoCanvas.height;
+      const ctx = composite.getContext('2d');
+      
+      // Draw photo and drawings
+      ctx.drawImage(photoCanvas, 0, 0);
+      ctx.drawImage(drawCanvas, 0, 0);
+
+      const photoData = {
+        id: state.currentPhotoId,
+        image: composite.toDataURL('image/jpeg', 0.9),
+        notes: state.notes,
+        drawings: state.drawings,
+        timestamp: Date.now()
+      };
+
+      // Save to storage
+      const photos = JSON.parse(localStorage.getItem('floatnote_photos') || '[]');
+      const existingIndex = photos.findIndex(p => p.id === photoData.id);
+      
+      if (existingIndex >= 0) {
+        photos[existingIndex] = photoData;
+      } else {
+        photos.unshift(photoData);
+      }
+      
+      localStorage.setItem('floatnote_photos', JSON.stringify(photos));
+      
+      showToast('Saved! 💾');
+      setTimeout(() => {
+        closeModal();
+        loadGallery();
+      }, 500);
+    }
+
+    function closeModal() {
+      vibrate(5);
+      modal.classList.remove('active');
+      state.notes.forEach(note => {
+        const el = document.querySelector(`[data-id="${note.id}"]`);
+        if (el) el.remove();
+      });
+      state.notes = [];
+      state.drawings = [];
+      state.drawMode = false;
+      state.eraserMode = false;
+      drawBtn.classList.remove('active');
+      eraserBtn.classList.remove('active');
+    }
+
+    function loadGallery() {
+      const photos = JSON.parse(localStorage.getItem('floatnote_photos') || '[]');
+      gallery.innerHTML = '';
+      
+      if (photos.length === 0) {
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      
+      photos.forEach(photo => {
+        const item = document.createElement('div');
+        item.className = 'gallery-item';
+        
+        const img = document.createElement('img');
+        img.src = photo.image;
+        
+        const count = document.createElement('div');
+        count.className = 'note-count';
+        count.textContent = `${photo.notes.length} 📌`;
+        
+        item.appendChild(img);
+        item.appendChild(count);
+        gallery.appendChild(item);
+        
+        item.addEventListener('click', () => {
+          vibrate(10);
+          openExistingPhoto(photo);
         });
+      });
+    }
 
-        // Camera Initialization
-        async function initCamera() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment', width: 1280, height: 720 } 
-                });
-                camera = document.getElementById('camera');
-                camera.srcObject = stream;
-                
-                camera.addEventListener('loadedmetadata', () => {
-                    document.getElementById('camera-placeholder').style.display = 'none';
-                    camera.style.display = 'block';
-                    startEnvironmentScanning();
-                    showToast('🎯 AR tracking active');
-                });
-            } catch (err) {
-                console.error('Camera error:', err);
-                document.getElementById('camera-placeholder').innerHTML = `
-                    <h2>📸 Camera Access Needed</h2>
-                    <p style="color: var(--text-muted); margin-top: 0.5rem;">
-                        Please grant camera permission to place notes in your space
-                    </p>
-                `;
-            }
-        }
+    function openExistingPhoto(photoData) {
+      const img = new Image();
+      img.onload = () => {
+        state.currentPhoto = img;
+        state.currentPhotoId = photoData.id;
+        state.notes = [...photoData.notes];
+        state.drawings = [...photoData.drawings];
+        
+        openModal(img);
+        
+        // Redraw drawings
+        photoData.drawings.forEach(d => {
+          drawCtx.beginPath();
+          drawCtx.moveTo(d.x1, d.y1);
+          drawCtx.lineTo(d.x2, d.y2);
+          drawCtx.strokeStyle = d.color;
+          drawCtx.lineWidth = d.width;
+          drawCtx.lineCap = 'round';
+          drawCtx.stroke();
+        });
+        
+        // Render notes
+        photoData.notes.forEach(note => renderNote(note));
+      };
+      img.src = photoData.image;
+    }
 
-        // Visual Anchor System - The magic happens here!
-        function captureVisualFingerprint(x, y, radius = 100) {
-            const canvas = document.getElementById('capture-canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Set canvas size to capture region
-            canvas.width = radius * 2;
-            canvas.height = radius * 2;
-            
-            // Calculate capture area centered on tap point
-            const videoRect = camera.getBoundingClientRect();
-            const scaleX = camera.videoWidth / videoRect.width;
-            const scaleY = camera.videoHeight / videoRect.height;
-            
-            const centerX = (x / 100) * camera.videoWidth;
-            const centerY = (y / 100) * camera.videoHeight;
-            
-            // Draw the region from video
-            ctx.drawImage(
-                camera,
-                centerX - radius, centerY - radius, radius * 2, radius * 2,
-                0, 0, canvas.width, canvas.height
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    function vibrate(ms) {
+      if ('vibrate' in navigator) {
+        navigator.vibrate(ms);
+      }
+    }
+
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        const swCode = `
+          const CACHE_NAME = 'floatnote-v1';
+          
+          self.addEventListener('install', (e) => {
+            e.waitUntil(
+              caches.open(CACHE_NAME).then(cache => {
+                return cache.addAll(['/']);
+              })
             );
-            
-            // Extract visual features (simplified histogram)
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const histogram = computeColorHistogram(imageData);
-            const edgeMap = computeSimpleEdges(imageData);
-            
-            return {
-                histogram,
-                edgeMap,
-                centerX: x,
-                centerY: y,
-                timestamp: Date.now()
-            };
-        }
-
-        function computeColorHistogram(imageData) {
-            const bins = 16; // Reduced bins for performance
-            const histogram = { r: new Array(bins).fill(0), g: new Array(bins).fill(0), b: new Array(bins).fill(0) };
-            const binSize = 256 / bins;
-            
-            for (let i = 0; i < imageData.data.length; i += 4) {
-                const r = Math.floor(imageData.data[i] / binSize);
-                const g = Math.floor(imageData.data[i + 1] / binSize);
-                const b = Math.floor(imageData.data[i + 2] / binSize);
-                
-                histogram.r[r]++;
-                histogram.g[g]++;
-                histogram.b[b]++;
-            }
-            
-            return histogram;
-        }
-
-        function computeSimpleEdges(imageData) {
-            const width = Math.sqrt(imageData.data.length / 4);
-            let edgeScore = 0;
-            
-            for (let i = 0; i < imageData.data.length - 4; i += 40) { // Sample every 10 pixels
-                const diff = Math.abs(imageData.data[i] - imageData.data[i + 4]);
-                edgeScore += diff;
-            }
-            
-            return edgeScore;
-        }
-
-        function compareVisualFingerprints(fp1, fp2) {
-            // Compare histograms using simplified correlation
-            let similarity = 0;
-            const channels = ['r', 'g', 'b'];
-            
-            channels.forEach(channel => {
-                for (let i = 0; i < fp1.histogram[channel].length; i++) {
-                    const diff = Math.abs(fp1.histogram[channel][i] - fp2.histogram[channel][i]);
-                    similarity += diff;
-                }
-            });
-            
-            // Compare edge maps
-            const edgeDiff = Math.abs(fp1.edgeMap - fp2.edgeMap);
-            similarity += edgeDiff / 1000;
-            
-            // Normalize to 0-1 scale (lower is better match)
-            return 1 - Math.min(similarity / 10000, 1);
-        }
-
-        function startEnvironmentScanning() {
-            if (scanInterval) return;
-            
-            const indicator = document.getElementById('ar-indicator');
-            indicator.classList.add('active');
-            
-            scanInterval = setInterval(() => {
-                if (!camera || camera.paused) return;
-                
-                // Scan center of view
-                const centerFingerprint = captureVisualFingerprint(50, 50, 80);
-                
-                // Find matching anchors
-                visualAnchors.forEach(anchor => {
-                    const similarity = compareVisualFingerprints(centerFingerprint, anchor.fingerprint);
-                    
-                    // If we find a good match, show notes for that location
-                    if (similarity > 0.7) { // 70% similarity threshold
-                        const matchingNotes = notes.filter(n => n.anchorId === anchor.id);
-                        if (matchingNotes.length > 0) {
-                            renderNotes();
-                            if (!isScanning) {
-                                showToast(`📍 Found ${matchingNotes.length} note${matchingNotes.length > 1 ? 's' : ''}`);
-                                vibrateDevice(100);
-                            }
-                            isScanning = true;
-                            setTimeout(() => isScanning = false, 2000);
-                        }
-                    }
-                });
-            }, 1000); // Scan every second
-        }
-
-        // Event Listeners
-        function setupEventListeners() {
-            document.getElementById('add-note-btn').addEventListener('click', () => {
-                openNoteModal(50, 50); // Center of screen
-            });
-            
-            document.getElementById('view-notes-btn').addEventListener('click', openAllNotesModal);
-            
-            // Tap to place note on camera view
-            document.getElementById('camera-container').addEventListener('click', (e) => {
-                if (e.target.id === 'camera' || e.target.id === 'camera-container') {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const x = ((e.clientX - rect.left) / rect.width) * 100;
-                    const y = ((e.clientY - rect.top) / rect.height) * 100;
-                    openNoteModal(x, y);
-                }
-            });
-        }
-
-        // Note Management
-        function openNoteModal(x = null, y = null) {
-            currentEditingNote = null;
-            document.getElementById('modal-title').textContent = 'Floating Thoughts...';
-            document.getElementById('note-text').value = '';
-            document.getElementById('note-type').value = 'idea';
-            
-            if (x !== null && y !== null) {
-                currentEditingNote = { x, y };
-            } else {
-                currentEditingNote = {
-                    x: Math.random() * 70 + 15,
-                    y: Math.random() * 60 + 10
-                };
-            }
-            
-            document.getElementById('note-modal').classList.add('active');
-            document.getElementById('note-text').focus();
-        }
-
-        function closeNoteModal() {
-            document.getElementById('note-modal').classList.remove('active');
-            currentEditingNote = null;
-        }
-
-        function saveNote() {
-            const text = document.getElementById('note-text').value.trim();
-            const type = document.getElementById('note-type').value;
-            
-            if (!text) {
-                showToast('✍️ Write something first!');
-                return;
-            }
-            
-            // Capture visual fingerprint of current view
-            const fingerprint = captureVisualFingerprint(currentEditingNote.x, currentEditingNote.y);
-            
-            // Create or find anchor
-            let anchorId = findOrCreateAnchor(fingerprint);
-            
-            const note = {
-                id: Date.now(),
-                text,
-                type,
-                x: currentEditingNote.x,
-                y: currentEditingNote.y,
-                anchorId, // Link note to visual anchor
-                done: false,
-                createdAt: new Date().toISOString()
-            };
-            
-            notes.push(note);
-            saveNotes();
-            renderNotes();
-            closeNoteModal();
-            showToast('📌 Pinned to this location!');
-            vibrateDevice(50);
-        }
-
-        function findOrCreateAnchor(fingerprint) {
-            // Check if we already have a similar anchor
-            for (let anchor of visualAnchors) {
-                const similarity = compareVisualFingerprints(fingerprint, anchor.fingerprint);
-                if (similarity > 0.8) { // Very similar location
-                    return anchor.id;
-                }
-            }
-            
-            // Create new anchor
-            const newAnchor = {
-                id: 'anchor_' + Date.now(),
-                fingerprint,
-                createdAt: Date.now()
-            };
-            
-            visualAnchors.push(newAnchor);
-            saveAnchors();
-            return newAnchor.id;
-        }
-
-        function editNote(id) {
-            const note = notes.find(n => n.id === id);
-            if (!note) return;
-            
-            currentEditingNote = note;
-            document.getElementById('modal-title').textContent = 'Edit Note';
-            document.getElementById('note-text').value = note.text;
-            document.getElementById('note-type').value = note.type;
-            document.getElementById('note-modal').classList.add('active');
-            
-            const saveBtn = document.querySelector('#note-modal .btn-primary');
-            saveBtn.textContent = 'Update 📝';
-            saveBtn.onclick = () => updateNote(id);
-        }
-
-        function updateNote(id) {
-            const text = document.getElementById('note-text').value.trim();
-            const type = document.getElementById('note-type').value;
-            
-            if (!text) return;
-            
-            const noteIndex = notes.findIndex(n => n.id === id);
-            if (noteIndex !== -1) {
-                notes[noteIndex].text = text;
-                notes[noteIndex].type = type;
-                saveNotes();
-                renderNotes();
-                closeNoteModal();
-                showToast('✨ Updated!');
-                
-                const saveBtn = document.querySelector('#note-modal .btn-primary');
-                saveBtn.textContent = 'Pinned! 📌';
-                saveBtn.onclick = saveNote;
-            }
-        }
-
-        function toggleDone(id) {
-            const note = notes.find(n => n.id === id);
-            if (note) {
-                note.done = !note.done;
-                note.type = note.done ? 'done' : (note.originalType || 'idea');
-                if (!note.done && !note.originalType) {
-                    note.originalType = note.type;
-                }
-                saveNotes();
-                renderNotes();
-                showToast(note.done ? '✓ Done!' : '↩️ Undone');
-                vibrateDevice(50);
-            }
-        }
-
-        function deleteNote(id) {
-            const noteEl = document.querySelector(`[data-id="${id}"]`);
-            if (noteEl) {
-                noteEl.classList.add('removing');
-                setTimeout(() => {
-                    notes = notes.filter(n => n.id !== id);
-                    saveNotes();
-                    renderNotes();
-                    showToast('🗑️ Removed');
-                    vibrateDevice(50);
-                }, 400);
-            }
-        }
-
-        // Render Notes - Only show notes for visible anchors
-        function renderNotes() {
-            const container = document.getElementById('notes-overlay');
-            container.innerHTML = '';
-            
-            // Get current view fingerprint
-            const currentFingerprint = captureVisualFingerprint(50, 50, 80);
-            
-            // Find which anchors are visible
-            const visibleAnchorIds = new Set();
-            visualAnchors.forEach(anchor => {
-                const similarity = compareVisualFingerprints(currentFingerprint, anchor.fingerprint);
-                if (similarity > 0.65) { // 65% match threshold for display
-                    visibleAnchorIds.add(anchor.id);
-                }
-            });
-            
-            // Only render notes for visible anchors
-            notes.forEach(note => {
-                if (!visibleAnchorIds.has(note.anchorId)) return;
-                
-                const noteEl = document.createElement('div');
-                noteEl.className = `sticky-note note-${note.type}`;
-                noteEl.style.left = `${note.x}%`;
-                noteEl.style.top = `${note.y}%`;
-                noteEl.setAttribute('data-id', note.id);
-                
-                const typeLabels = {
-                    idea: '💡 Idea',
-                    urgent: '⚡ Urgent',
-                    reminder: '🔔 Reminder',
-                    done: '✓ Done'
-                };
-                
-                noteEl.innerHTML = `
-                    <div class="note-header">
-                        <span class="note-tag">${typeLabels[note.type]}</span>
-                        <div class="note-actions">
-                            <button class="note-btn" onclick="toggleDone(${note.id})" title="Mark done">
-                                ${note.done ? '↩️' : '✓'}
-                            </button>
-                            <button class="note-btn" onclick="editNote(${note.id})" title="Edit">✏️</button>
-                            <button class="note-btn" onclick="deleteNote(${note.id})" title="Delete">×</button>
-                        </div>
-                    </div>
-                    <div class="note-content ${note.done ? 'done' : ''}">${escapeHtml(note.text)}</div>
-                    <div class="note-time">${formatTime(note.createdAt)}</div>
-                `;
-                
-                container.appendChild(noteEl);
-            });
-        }
-
-        // All Notes View
-        function openAllNotesModal() {
-            const list = document.getElementById('all-notes-list');
-            
-            if (notes.length === 0) {
-                list.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No notes yet. Tap the camera to add one!</p>';
-            } else {
-                // Group notes by location
-                const notesByAnchor = {};
-                notes.forEach(note => {
-                    if (!notesByAnchor[note.anchorId]) {
-                        notesByAnchor[note.anchorId] = [];
-                    }
-                    notesByAnchor[note.anchorId].push(note);
-                });
-                
-                let html = '';
-                Object.keys(notesByAnchor).forEach((anchorId, index) => {
-                    const locationNotes = notesByAnchor[anchorId];
-                    html += `<div style="margin-bottom: 1.5rem;">
-                        <div style="font-size: 0.8rem; color: var(--zen-blue); margin-bottom: 0.5rem; font-weight: 600;">
-                            📍 Location ${index + 1} (${locationNotes.length} note${locationNotes.length > 1 ? 's' : ''})
-                        </div>`;
-                    
-                    locationNotes.forEach(note => {
-                        const typeLabels = {
-                            idea: '💡 Idea',
-                            urgent: '⚡ Urgent',
-                            reminder: '🔔 Reminder',
-                            done: '✓ Done'
-                        };
-                        html += `
-                            <div class="note-item" onclick="focusNote(${note.id})">
-                                <div class="note-item-header">
-                                    <span class="note-item-tag">${typeLabels[note.type]}</span>
-                                    <span style="font-size: 0.7rem; color: var(--text-muted);">${formatTime(note.createdAt)}</span>
-                                </div>
-                                <div class="note-item-content">${escapeHtml(note.text)}</div>
-                            </div>
-                        `;
-                    });
-                    html += '</div>';
-                });
-                
-                list.innerHTML = html;
-            }
-            
-            document.getElementById('all-notes-modal').classList.add('active');
-        }
-
-        function closeAllNotesModal() {
-            document.getElementById('all-notes-modal').classList.remove('active');
-        }
-
-        function focusNote(id) {
-            closeAllNotesModal();
-            const note = notes.find(n => n.id === id);
-            if (note) {
-                showToast('🎯 Point camera at that location to see the note');
-                vibrateDevice(100);
-            }
-        }
-
-        // Storage
-        function saveNotes() {
-            try {
-                localStorage.setItem(NOTE_STORAGE_KEY, JSON.stringify(notes));
-            } catch (e) {
-                console.error('Storage error:', e);
-            }
-        }
-
-        function loadNotes() {
-            try {
-                const stored = localStorage.getItem(NOTE_STORAGE_KEY);
-                notes = stored ? JSON.parse(stored) : [];
-            } catch (e) {
-                console.error('Load error:', e);
-                notes = [];
-            }
-        }
-
-        function saveAnchors() {
-            try {
-                // Store only essential fingerprint data
-                const anchorsToStore = visualAnchors.map(a => ({
-                    id: a.id,
-                    fingerprint: a.fingerprint,
-                    createdAt: a.createdAt
-                }));
-                localStorage.setItem(ANCHOR_STORAGE_KEY, JSON.stringify(anchorsToStore));
-            } catch (e) {
-                console.error('Anchor storage error:', e);
-            }
-        }
-
-        function loadAnchors() {
-            try {
-                const stored = localStorage.getItem(ANCHOR_STORAGE_KEY);
-                visualAnchors = stored ? JSON.parse(stored) : [];
-            } catch (e) {
-                console.error('Anchor load error:', e);
-                visualAnchors = [];
-            }
-        }
-
-        // Utilities
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2500);
-        }
-
-        function vibrateDevice(duration = 50) {
-            if ('vibrate' in navigator) {
-                navigator.vibrate(duration);
-            }
-        }
-
-        function formatTime(isoString) {
-            const date = new Date(isoString);
-            const now = new Date();
-            const diff = now - date;
-            const minutes = Math.floor(diff / 60000);
-            const hours = Math.floor(minutes / 60);
-            const days = Math.floor(hours / 24);
-            
-            if (minutes < 1) return 'Just now';
-            if (minutes < 60) return `${minutes}m ago`;
-            if (hours < 24) return `${hours}h ago`;
-            if (days < 7) return `${days}d ago`;
-            return date.toLocaleDateString();
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            if (scanInterval) clearInterval(scanInterval);
-            if (camera && camera.srcObject) {
-                camera.srcObject.getTracks().forEach(track => track.stop());
-            }
+            self.skipWaiting();
+          });
+          
+          self.addEventListener('activate', (e) => {
+            e.waitUntil(
+              caches.keys().then(keys => {
+                return Promise.all(
+                  keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+                );
+              })
+            );
+            return self.clients.claim();
+          });
+          
+          self.addEventListener('fetch', (e) => {
+            e.respondWith(
+              caches.match(e.request).then(response => {
+                return response || fetch(e.request);
+              })
+            );
+          });
+        `;
+        
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        
+        navigator.serviceWorker.register(swUrl).then(() => {
+          console.log('FloatNote PWA ready! 🌸');
+        }).catch(err => {
+          console.log('SW registration failed:', err);
         });
-    </script>
-</body>
-</html>
+      });
+    }
+
+    // Install prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      showToast('Tap to install FloatNote! 📲');
+    });
